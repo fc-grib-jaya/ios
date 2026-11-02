@@ -10,4 +10,5 @@
 enum AppRoute: Hashable {
     /// Profile screen.
     case profile
+    case sapiDetail(id: String)
 }

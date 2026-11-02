@@ -15,7 +15,12 @@ final class ProfileViewModel {
     /// Profile currently displayed.
     let profile: UserProfile
 
-    init(profile: UserProfile = UserProfile(name: "Jane Doe", email: "jane.doe@example.com")) {
+    init(
+        profile: UserProfile = UserProfile(
+            name: "Jane Doe",
+            email: "jane.doe@example.com"
+        ),
+    ) {
         self.profile = profile
     }
 }

@@ -10,4 +10,5 @@
 /// contract must never mention a type from `Modules` or `App`.
 protocol ExampleContract {
     /// Empty on purpose: this file only demonstrates where contracts live.
+    func crit(id: String) -> String
 }

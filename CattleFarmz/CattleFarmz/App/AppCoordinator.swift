@@ -23,16 +23,22 @@ final class AppCoordinator {
     /// Current top-level app phase.
     var phase: AppPhase = .splash
 
-    /// Navigation path of the Home tab, expressed as `AppRoute` values.
-    var path: [AppRoute] = []
 
     /// Leaves the splash screen and reveals the main tab interface.
     func finishSplash() {
         phase = .main
     }
 
+    
+    /// Navigation path of the Home tab, expressed as `AppRoute` values.
+    var path: [AppRoute] = []
+    
     /// Pushes the profile screen onto the Home navigation stack.
     func showProfile() {
         path.append(.profile)
+    }
+    
+    func goToSapiDetail(id: String) {
+        path.append(.sapiDetail(id: id))
     }
 }

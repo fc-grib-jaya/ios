@@ -18,12 +18,17 @@ struct MainTabView: View {
             NavigationStack(path: $coordinator.path) {
                 HomeView(
                     viewModel: container.makeHomeViewModel(),
+                    cattlesViewModel: container.makeCattlesViewModel(),
                     onProfileTap: { coordinator.showProfile() }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
+                    case .sapiDetail(id: "idSapi1"):
+                        EmptyView()
+                        
+                    default: EmptyView()
                     }
                 }
             }
@@ -45,5 +50,5 @@ struct MainTabView: View {
 }
 
 #Preview {
-    MainTabView(container: DIContainer(), coordinator: AppCoordinator())
+    MainTabView(container: DIContainer.preview, coordinator: AppCoordinator())
 }

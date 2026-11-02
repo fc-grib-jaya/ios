@@ -32,5 +32,5 @@ struct RootView: View {
 }
 
 #Preview {
-    RootView(container: DIContainer(), coordinator: AppCoordinator())
+    RootView(container: DIContainer.preview, coordinator: AppCoordinator())
 }

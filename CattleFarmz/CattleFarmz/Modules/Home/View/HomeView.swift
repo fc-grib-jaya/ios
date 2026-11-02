@@ -11,10 +11,12 @@ import SwiftUI
 /// navigate by calling `onProfileTap`.
 struct HomeView: View {
     @State private var viewModel: HomeViewModel
+    @State private var cattlesViewModel: CattlesViewModel
     private let onProfileTap: () -> Void
 
-    init(viewModel: HomeViewModel, onProfileTap: @escaping () -> Void) {
+    init(viewModel: HomeViewModel, cattlesViewModel: CattlesViewModel, onProfileTap: @escaping () -> Void) {
         _viewModel = State(initialValue: viewModel)
+        _cattlesViewModel = State(initialValue: cattlesViewModel)
         self.onProfileTap = onProfileTap
     }
 
@@ -23,9 +25,7 @@ struct HomeView: View {
             AppColor.background
                 .ignoresSafeArea()
 
-            Text(viewModel.placeholder)
-                .font(AppFont.body)
-                .foregroundStyle(AppColor.textSecondary)
+            CattlesView(viewModel: cattlesViewModel)
         }
         .navigationTitle(viewModel.title)
         .toolbar {
@@ -41,6 +41,10 @@ struct HomeView: View {
 
 #Preview {
     NavigationStack {
-        HomeView(viewModel: HomeViewModel(), onProfileTap: {})
+        HomeView(
+            viewModel: HomeViewModel(),
+            cattlesViewModel: CattlesViewModel(repository: MockCattleRepository()),
+            onProfileTap: {}
+        )
     }
 }

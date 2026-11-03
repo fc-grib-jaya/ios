@@ -15,14 +15,48 @@ struct CattlesView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: AppSpacing.medium) {
+            LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
                 ForEach(viewModel.items) { cattle in
-                    Text(cattle.name)
-                        .font(AppFont.body)
-                        .foregroundStyle(AppColor.textPrimary)
-                    Text("\(viewModel.cattleWeight(for: cattle), specifier: "%.2f") kg")
+                    let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
+                    
+                    VStack(alignment: .leading) {
+                        Text(cattle.name)
+                        
+                        if let bodyWeight {
+                            Text("Berat Sapi: \(bodyWeight, specifier: "%.2f") kg")
+
+                            if let carcassWeight = viewModel.carcassWeight(for: cattle, bodyWeight: bodyWeight) {
+                                Text("Berat Karkas: \(carcassWeight, specifier: "%.2f") kg")
+                            }
+
+                            if let meatWeight = viewModel.meatWeight(for: cattle, bodyWeight: bodyWeight) {
+                                Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
+                                    .padding(.bottom, AppSpacing.small)
+                            }
+
+                            ForEach(NonCarcassPart.allCases, id: \.self) { part in
+                                if let partWeight = viewModel.nonCarcassWeight(
+                                    for: cattle,
+                                    bodyWeight: bodyWeight,
+                                    part: part
+                                ) {
+                                    HStack {
+                                        Text(part.displayName)
+                                        Spacer()
+                                        Text("\(partWeight, specifier: "%.2f") kg")
+                                    }
+                                }
+                            }
+                            
+                        } else {
+                            Text("Not Measured")
+                        }
+                    }
+                    .padding(.bottom, AppSpacing.medium)
                 }
             }
+            .font(AppFont.body)
+            .foregroundStyle(AppColor.textPrimary)
             .padding(AppSpacing.medium)
         }
         .task { await viewModel.load() }

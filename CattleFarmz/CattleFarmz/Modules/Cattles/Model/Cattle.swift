@@ -38,9 +38,10 @@ final class Cattle {
     var breed: CattleBreed
     var gender: CattleGender
     
-    /// For Weight Calculation - ditambah 3/11
-    var chestGirth: Double
-    var bodyLength: Double
+    /// For Weight Calculation
+    var chestGirth: Double?
+    var bodyLength: Double?
+    var bodyWeight: Double?
 
     init(
         id: UUID = UUID(),
@@ -48,8 +49,9 @@ final class Cattle {
         dateAcquired: Date,
         breed: CattleBreed,
         gender: CattleGender,
-        chestGirth: Double,
-        bodyLength: Double
+        chestGirth: Double? = nil,
+        bodyLength: Double? = nil,
+        bodyWeight: Double? = nil
     ) {
         self.id = id
         self.name = name
@@ -58,5 +60,6 @@ final class Cattle {
         self.gender = gender
         self.chestGirth = chestGirth
         self.bodyLength = bodyLength
+        self.bodyWeight = bodyWeight
     }
 }

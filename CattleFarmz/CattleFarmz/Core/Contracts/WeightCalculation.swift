@@ -18,8 +18,14 @@ protocol WeightCalculation {
     
     func cattleWeight(
         chestGirth: Double,
-        bodyLength: Double,
+        bodyLength: Double?,
         breed: CattleBreed,
         gender: CattleGender
-    ) -> Double
+    ) -> Double?
+    
+    func carcassWeight(breed: CattleBreed, gender: CattleGender, bodyWeight: Double) -> Double?
+    
+    func nonCarcassWeight(breed: CattleBreed, bodyWeight: Double, part: NonCarcassPart) -> Double?
+    
+    func meatWeight(breed: CattleBreed, gender: CattleGender, bodyWeight: Double) -> Double?
 }

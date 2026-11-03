@@ -22,8 +22,24 @@ final class SwiftDataCattleRepository: CattleRepository {
         return try context.fetch(descriptor)
     }
 
-    func add(name: String, dateAcquired: Date) throws {
-        context.insert(Cattle(name: name, dateAcquired: dateAcquired))
+    func add(
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        chestGirth: Double,
+        bodyLength: Double
+    ) throws {
+        context.insert(
+            Cattle(
+                name: name,
+                dateAcquired: dateAcquired,
+                breed: breed,
+                gender: gender,
+                chestGirth: chestGirth,
+                bodyLength: bodyLength
+            )
+        )
         try context.save()
     }
 

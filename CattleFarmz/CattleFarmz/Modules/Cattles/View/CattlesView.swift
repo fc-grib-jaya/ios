@@ -20,6 +20,7 @@ struct CattlesView: View {
                     Text(cattle.name)
                         .font(AppFont.body)
                         .foregroundStyle(AppColor.textPrimary)
+                    Text("\(viewModel.cattleWeight(for: cattle), specifier: "%.2f") kg")
                 }
             }
             .padding(AppSpacing.medium)
@@ -29,5 +30,5 @@ struct CattlesView: View {
 }
 
 #Preview {
-    CattlesView(viewModel: CattlesViewModel(repository: MockCattleRepository()))
+    CattlesView(viewModel: CattlesViewModel(repository: MockCattleRepository(), calculation: WeightCalculator()))
 }

@@ -43,7 +43,7 @@ struct HomeView: View {
     NavigationStack {
         HomeView(
             viewModel: HomeViewModel(),
-            cattlesViewModel: CattlesViewModel(repository: MockCattleRepository()),
+            cattlesViewModel: CattlesViewModel(repository: MockCattleRepository(), calculation: WeightCalculator()),
             onProfileTap: {}
         )
     }

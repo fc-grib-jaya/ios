@@ -10,17 +10,22 @@ import SwiftData
 /// Shared services that outlive a single screen (for example a LiDAR scan
 /// service) belong here as `lazy var` properties, referenced through protocols
 /// declared in `Core/Contracts`, and injected into the factories below.
+
+@MainActor
 final class DIContainer {
     private let cattleRepository: any CattleRepository
+    private let weightCalculation: any WeightCalculation
 
-    init(cattleRepository: any CattleRepository) {
+    init(cattleRepository: any CattleRepository, weightCalculation: any WeightCalculation) {
         self.cattleRepository = cattleRepository
+        self.weightCalculation = weightCalculation
     }
 
     /// Live environment backed by SwiftData.
     static func live(modelContext: ModelContext) -> DIContainer {
         DIContainer(
-            cattleRepository: SwiftDataCattleRepository(context: modelContext)
+            cattleRepository: SwiftDataCattleRepository(context: modelContext),
+            weightCalculation: WeightCalculator()
         )
     }
 
@@ -28,7 +33,8 @@ final class DIContainer {
     @MainActor
     static var preview: DIContainer {
         DIContainer(
-            cattleRepository: MockCattleRepository()
+            cattleRepository: MockCattleRepository(),
+            weightCalculation: WeightCalculator()
         )
     }
 
@@ -50,6 +56,6 @@ final class DIContainer {
 
     /// Creates the cattles screen view model.
     func makeCattlesViewModel() -> CattlesViewModel {
-        CattlesViewModel(repository: cattleRepository)
+        CattlesViewModel(repository: cattleRepository, calculation: weightCalculation)
     }
 }

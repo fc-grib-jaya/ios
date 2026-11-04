@@ -40,17 +40,22 @@ struct MainTabView: View {
                 }
             }
             .tabItem {
-                Label("Home", systemImage: "house")
+                Label("Beranda", systemImage: "house")
             }
 
             ScanningView()
                 .tabItem {
-                    Label("Scan", systemImage: "viewfinder")
+                    Label("Bobot", systemImage: "powermeter")
                 }
 
             HistoryView()
                 .tabItem {
-                    Label("History", systemImage: "clock")
+                    Label("Pakan", systemImage: "carrot")
+                }
+            
+            ScanningView()
+                .tabItem {
+                    Label("Profil", systemImage: "person")
                 }
         }
         .sheet(item: $coordinator.sheet) { sheet in

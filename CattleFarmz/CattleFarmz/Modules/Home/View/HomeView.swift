@@ -32,10 +32,18 @@ struct HomeView: View {
             AppColor.background
                 .ignoresSafeArea()
 
-            CattlesView(viewModel: cattlesViewModel)
+            VStack {
+                Button("profile") {
+                    onProfileTap()
+                }
+                .buttonStyle(.glassProminent)
+                
+                CattlesView(viewModel: cattlesViewModel)
+            }
+
         }
         .navigationTitle(viewModel.title)
-        .navigationSubtitle("Urus sapimu sing nggenah")
+        //        .navigationSubtitle("Urus sapimu sing nggenah")
         .toolbar {
             ToolbarItem(
                 placement: .topBarLeading,

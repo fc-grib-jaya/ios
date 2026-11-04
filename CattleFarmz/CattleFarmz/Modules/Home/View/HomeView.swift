@@ -33,8 +33,8 @@ struct HomeView: View {
                 .ignoresSafeArea()
 
             VStack {
-                Button("profile") {
-                    onProfileTap()
+                Button("Test haptics") {
+                    viewModel.startScan()
                 }
                 .buttonStyle(.glassProminent)
                 
@@ -70,7 +70,10 @@ struct HomeView: View {
                 }
             )
             ToolbarItem(placement: .topBarTrailing) {
-                Button(action: onProfileTap) {
+                Button {
+                    viewModel.startScan()
+                    onProfileTap()
+                } label: {
                     Image(systemName: "camera.fill")
                 }
                 .accessibilityLabel("Profile")
@@ -89,10 +92,30 @@ struct HomeView: View {
     }
 }
 
+struct SankeyNode: Identifiable {
+    let id: String
+    let x: CGFloat
+    let y: CGFloat
+    let height: CGFloat
+    let color: Color
+    let label: String?
+}
+
+struct SankeyFlow: Identifiable {
+    let id: String
+    let startY: CGFloat
+    let endY: CGFloat
+    let startHeight: CGFloat
+    let endHeight: CGFloat
+    let colors: [Color]
+}
+
+
+
 #Preview {
     NavigationStack {
         HomeView(
-            viewModel: HomeViewModel(),
+            viewModel: HomeViewModel(haptics: NoopHaptics()),
             cattlesViewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
                 calculation: WeightCalculator()
@@ -102,3 +125,4 @@ struct HomeView: View {
         )
     }
 }
+

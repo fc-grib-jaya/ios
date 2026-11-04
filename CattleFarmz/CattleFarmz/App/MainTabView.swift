@@ -52,15 +52,15 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Pakan", systemImage: "carrot")
                 }
-            
-            ScanningView()
+
+            ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }
         }
         .sheet(item: $coordinator.sheet) { sheet in
             switch sheet {
-            case .examplePickerSheet(current: let current, onSelect: let onSelect):
+            case .examplePickerSheet(let current, let onSelect):
                 ExamplePickerSheetView(
                     viewModel: container.makeExamplePickerSheetViewModel(
                         current: current,

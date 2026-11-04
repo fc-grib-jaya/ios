@@ -86,7 +86,8 @@ struct HomeView: View {
         HomeView(
             viewModel: HomeViewModel(),
             cattlesViewModel: CattlesViewModel(
-                repository: MockCattleRepository()
+                repository: MockCattleRepository(),
+                calculation: WeightCalculator()
             ),
             onProfileTap: {},
             onExamplePickerTap: {}

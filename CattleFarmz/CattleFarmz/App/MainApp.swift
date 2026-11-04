@@ -32,6 +32,7 @@ struct MainApp: App {
         WindowGroup {
             RootView(container: container, coordinator: coordinator)
                 .modelContainer(modelContainer)
+                .task { container.haptics.prepare() }
         }
     }
 }

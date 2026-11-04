@@ -22,23 +22,34 @@ enum AppPhase {
 final class AppCoordinator {
     /// Current top-level app phase.
     var phase: AppPhase = .splash
-
+    var sheet: AppSheet?
 
     /// Leaves the splash screen and reveals the main tab interface.
     func finishSplash() {
         phase = .main
     }
 
-    
     /// Navigation path of the Home tab, expressed as `AppRoute` values.
     var path: [AppRoute] = []
-    
+
     /// Pushes the profile screen onto the Home navigation stack.
     func showProfile() {
+        guard path.last != .profile else { return }
+        
         path.append(.profile)
     }
-    
+
     func goToSapiDetail(id: String) {
         path.append(.sapiDetail(id: id))
+    }
+
+    /// App Sheet handling
+    
+    func showExamplePickerSheet(current: String, onSelect: @escaping ([String]) -> Void) {
+        sheet = .examplePickerSheet(current: current, onSelect: onSelect )
+    }
+    
+    func dismissSheet() {
+        sheet = nil
     }
 }

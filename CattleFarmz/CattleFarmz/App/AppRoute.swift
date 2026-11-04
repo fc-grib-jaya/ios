@@ -12,3 +12,13 @@ enum AppRoute: Hashable {
     case profile
     case sapiDetail(id: String)
 }
+
+enum AppSheet: Identifiable {
+    case examplePickerSheet(current: String, onSelect: ([String]) -> Void )
+    
+    var id: String {
+        switch self {
+        case .examplePickerSheet: "examplePicker"
+        }
+    }
+}

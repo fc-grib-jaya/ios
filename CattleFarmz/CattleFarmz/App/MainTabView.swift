@@ -19,15 +19,22 @@ struct MainTabView: View {
                 HomeView(
                     viewModel: container.makeHomeViewModel(),
                     cattlesViewModel: container.makeCattlesViewModel(),
-                    onProfileTap: { coordinator.showProfile() }
+                    onProfileTap: { coordinator.showProfile() },
+                    onExamplePickerTap: {
+                        coordinator.showExamplePickerSheet(
+                            current: "Sapi 1",
+                            onSelect: { selected in
+                                print("Example picker selected: \(selected)")
+                                coordinator.dismissSheet()
+                            }
+                        )
+                    }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
-                    case .sapiDetail(id: "idSapi1"):
-                        EmptyView()
-                        
+
                     default: EmptyView()
                     }
                 }
@@ -45,6 +52,17 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "clock")
                 }
+        }
+        .sheet(item: $coordinator.sheet) { sheet in
+            switch sheet {
+            case .examplePickerSheet(current: let current, onSelect: let onSelect):
+                ExamplePickerSheetView(
+                    viewModel: container.makeExamplePickerSheetViewModel(
+                        current: current,
+                        onSelect: onSelect
+                    )
+                )
+            }
         }
     }
 }

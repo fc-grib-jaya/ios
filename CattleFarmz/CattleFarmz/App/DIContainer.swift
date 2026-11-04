@@ -52,4 +52,16 @@ final class DIContainer {
     func makeCattlesViewModel() -> CattlesViewModel {
         CattlesViewModel(repository: cattleRepository)
     }
+
+    /// Creates the example picker sheet view model.
+    func makeExamplePickerSheetViewModel(
+        current: String,
+        onSelect: @escaping ([String]) -> Void
+    ) -> ExamplePickerSheetViewModel {
+        ExamplePickerSheetViewModel(
+            current: current,
+            options: ["Sapi 1", "Sapi 2", "Sapi 3"],
+            onSelect: onSelect
+        )
+    }
 }

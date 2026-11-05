@@ -36,6 +36,16 @@ enum CaptureOrientation: Codable, Sendable {
         }
     }
 
+    /// Inverse of rawPoint, used to display actual sampled pixel centers.
+    func displayPoint(fromRaw point: Point2) -> Point2 {
+        switch self {
+        case .portrait: Point2(1 - point.y, point.x)
+        case .portraitUpsideDown: Point2(point.y, 1 - point.x)
+        case .landscapeLeft: Point2(1 - point.x, 1 - point.y)
+        case .landscapeRight: point
+        }
+    }
+
     /// Maps a normalized point in the displayed image to the raw depth buffer.
     func rawPoint(fromDisplay point: Point2) -> Point2 {
         switch self {

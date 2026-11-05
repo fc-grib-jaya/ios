@@ -38,7 +38,8 @@ struct MeasurementView: View {
                         landmarks: visibleLandmarks,
                         activeID: model.flow.currentID,
                         enabled: model.flow.currentID != nil,
-                        onMove: model.moveActivePoint
+                        onMove: model.moveActivePoint,
+                        profile: model.result?.profile
                     )
                     .frame(
                         height: min(490, max(300, geometry.size.height * 0.52))
@@ -63,7 +64,7 @@ struct MeasurementView: View {
                 }.padding(20)
             }
         }
-        .navigationTitle("Ukur bobot sapi")
+        .navigationTitle("Periksa profil sapi")
         .navigationBarTitleDisplayMode(.inline)
         .navigationSubtitle("Estimasi dengan kamera LiDAR")
         .toolbar {
@@ -228,7 +229,7 @@ struct MeasurementView: View {
                         .foregroundStyle(.orange)
                 } else {
                     Label(
-                        "Titik \(step.number) dapat digunakan",
+                        step.id.hasPrefix("chest") ? "Batas profil ditandai; depth diperiksa saat hitung" : "Titik \(step.number) dapat digunakan",
                         systemImage: "mappin.circle"
                     )
                     .foregroundStyle(.teal)
@@ -279,9 +280,7 @@ struct MeasurementView: View {
                         "Depth visual valid pada \(Int(preview.visualization.validFraction * 100))% frame. Depth mentah untuk hitungan valid pada \(Int(rawFraction * 100))% frame."
                     )
                     Text(
-                        model.usesSmoothedDepth
-                            ? "Depth warna dihaluskan ARKit untuk pemeriksaan visual. Titik ukur dan hitungan memakai depth mentah dari frame yang sama."
-                            : "Depth warna memakai data mentah karena versi halus tidak tersedia. Titik ukur dan hitungan memakai data mentah."
+                        "Depth warna dan profil memakai data mentah dari frame yang sama."
                     )
                 }
                 if let point = model.activePoint,
@@ -294,7 +293,7 @@ struct MeasurementView: View {
                     )
                 }
                 Text(
-                    "Lingkar dada: sampel 3D → MLS lokal → interpolasi RBF → cermin sisi tersembunyi. Simetri merupakan asumsi; belum tervalidasi pada sapi nyata."
+                    "Profil dada membaca piksel raw depth sepanjang garis. Celah dan lonjakan depth memutus segmen. Lingkar dada dan bobot belum dihitung."
                 )
             }.font(.caption).padding(.top, 8)
         }
@@ -309,6 +308,30 @@ struct MeasurementView: View {
                 value:
                     "\(result.lengthCM.formatted(.number.precision(.fractionLength(1)))) cm"
             )
+            if let profile = result.profile {
+                LabeledContent("Panjang bagian terbaca", value: profile.lengthCM.map {
+                    $0.formatted(.number.precision(.fractionLength(1))) + " cm"
+                } ?? "Belum tersedia")
+                Text("\(profile.samples.filter { $0.point != nil }.count)/\(profile.samples.count) piksel terbaca · \(profile.segmentLengthsCM.count) segmen")
+                Text("Hijau: tersambung · merah: piksel ditolak · jingga: awal segmen/putus. Garis kuning hanya panduan penandaan.")
+                    .font(.caption)
+                Text("Raw depth · confidence ≥1 · 0,25–5 m · putus jika lonjakan ≥8 cm. Panjang ini belum merupakan lingkar dada.")
+                    .font(.caption)
+                ForEach(Array(profile.segmentLengthsCM.enumerated()), id: \.offset) { index, length in
+                    Text("Segmen \(index + 1): \(length.formatted(.number.precision(.fractionLength(1)))) cm")
+                }
+                DisclosureGroup("Piksel dan celah profil") {
+                    ForEach(Array(profile.samples.enumerated()), id: \.offset) { _, sample in
+                        VStack(alignment: .leading) {
+                            Text("(\(sample.x), \(sample.y)) · z \(sample.depth) m · confidence \(sample.confidence)")
+                            Text("\(sample.connectedToPrevious ? "Terhubung" : "Awal/putus") · \(sample.status)")
+                            if let p = sample.point {
+                                Text("XYZ: \(p.x), \(p.y), \(p.z) m")
+                            }
+                        }.font(.caption).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+            }
             if let girth = result.girth {
                 LabeledContent(
                     "Lingkar dada",

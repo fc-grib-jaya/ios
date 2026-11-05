@@ -26,11 +26,6 @@ final class MeasurementViewModel {
         flow = GuidedReviewFlow(pointIDs: MeasurementGuideStep.steps.map(\.id))
     }
 
-    var usesSmoothedDepth: Bool {
-        capture.metadata.smoothedDepth?.confidence.contains(where: { $0 >= 1 })
-            == true
-    }
-
     var currentStep: MeasurementGuideStep? {
         flow.currentIndex.map { steps[$0] }
     }
@@ -43,26 +38,11 @@ final class MeasurementViewModel {
     }
     var currentDepthProblem: String? {
         guard let activePoint, let step = currentStep else { return nil }
+        if step.id == "chestTop" || step.id == "chestBottom" { return nil }
         do {
             _ = try capture.metadata.depth.point(at: activePoint.point)
             return nil
         } catch {
-            // The marked chest silhouette itself can mix with background.
-            // Permit it only when nearby pixels on the inside have valid depth.
-            if step.id == "chestTop" || step.id == "chestBottom" {
-                let direction = step.id == "chestTop" ? 1.0 : -1.0
-                for shift in [0.02, 0.04, 0.06] {
-                    let inside = Point2(
-                        activePoint.point.x,
-                        activePoint.point.y + direction * shift
-                    )
-                    if inside.isValid,
-                        (try? capture.metadata.depth.point(at: inside)) != nil
-                    {
-                        return nil
-                    }
-                }
-            }
             return error.localizedDescription
         }
     }
@@ -82,9 +62,7 @@ final class MeasurementViewModel {
                 ) ? 1 : 0)
         }
         depthLoading = true
-        let previewFrame =
-            usesSmoothedDepth
-            ? capture.metadata.smoothedDepth! : capture.metadata.depth
+        let previewFrame = capture.metadata.depth
         depthRenderer.render(previewFrame) { [weak self] outcome in
             guard let self else { return }
             self.depthLoading = false
@@ -190,14 +168,12 @@ extension MeasurementViewModel {
                 model.advance()
             }
         case .results:
+            model.beginGuide()
             for step in model.steps {
                 model.moveActivePoint(to: PreviewCattle.landmarks[step.id]!)
                 model.advance()
             }
-            // The engine may reject the flat synthetic depth; show a fixed,
-            // deterministic result instead of whatever the fit produced.
-            model.result = PreviewCattle.result
-            model.message = nil
+
         }
         return model
     }

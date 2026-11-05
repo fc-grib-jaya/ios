@@ -201,23 +201,69 @@ enum MeasurementEngine {
         depth: DepthFrame
     ) throws -> MeasurementResult {
         let length = try distance(shoulder, pin, in: depth)
-        do {
-            let girth = try girth(top: top, bottom: bottom, in: depth)
-            return .init(
-                lengthCM: length,
-                girth: girth,
-                weightKG: winter(lengthCM: length, girthCM: girth.centimeters),
-                warning: nil,
-                formulaVersion: "Winter-cm-10815.15-v1"
-            )
-        } catch {
-            return .init(
-                lengthCM: length,
-                girth: nil,
-                weightKG: nil,
-                warning: error.localizedDescription,
-                formulaVersion: "Winter-cm-10815.15-v1"
-            )
+        let profile = try chestProfile(top: top, bottom: bottom, depth: depth)
+        return .init(lengthCM: length, girth: nil, weightKG: nil,
+                     warning: profile.lengthCM == nil ? "Profil dada: belum ada pasangan piksel tersambung." : nil,
+                     formulaVersion: "raw-depth-profile-v1", profile: profile)
+    }
+
+    static func chestProfile(top: Point2, bottom: Point2, depth: DepthFrame) throws -> ChestDepthProfile {
+        guard top.isValid, bottom.isValid, depth.width > 0, depth.height > 0,
+              depth.meters.count == depth.width * depth.height,
+              depth.confidence.count == depth.meters.count,
+              depth.calibration.fx > 0, depth.calibration.fy > 0 else {
+            throw MeasurementError.invalidDepth
         }
+        let a = depth.orientation.rawPoint(fromDisplay: top)
+        let b = depth.orientation.rawPoint(fromDisplay: bottom)
+        func pixel(_ p: Point2) -> (Int, Int) {
+            (min(depth.width - 1, Int(p.x * Double(depth.width))),
+             min(depth.height - 1, Int(p.y * Double(depth.height))))
+        }
+        var (x, y) = pixel(a)
+        let (endX, endY) = pixel(b)
+        let dx = abs(endX - x), dy = -abs(endY - y)
+        let sx = x < endX ? 1 : -1, sy = y < endY ? 1 : -1
+        var error = dx + dy
+        var samples: [ChestDepthProfile.Sample] = []
+        var lengths: [Double] = []
+        var previous: Vector3?
+        var activeSegment = false
+        let c = depth.calibration
+        while true {
+            let index = y * depth.width + x
+            let z = Double(depth.meters[index])
+            let confidence = depth.confidence[index]
+            var status = "Terbaca"
+            var point: Vector3?
+            if !z.isFinite || z <= 0 { status = "Depth kosong/tidak valid" }
+            else if confidence < 1 { status = "Confidence rendah" }
+            else if !(0.25...5).contains(z) { status = "Di luar 0,25–5 m" }
+            else {
+                point = Vector3(
+                    ((Double(x) + 0.5) * Double(c.width) / Double(depth.width) - c.cx) * z / c.fx,
+                    ((Double(y) + 0.5) * Double(c.height) / Double(depth.height) - c.cy) * z / c.fy, z)
+            }
+            var connected = false
+            if let point, let previous {
+                // Explicit diagnostic discontinuity threshold, not a fitted bridge.
+                if abs(point.z - previous.z) < 0.08 {
+                    if !activeSegment { lengths.append(0); activeSegment = true }
+                    lengths[lengths.count - 1] += (point - previous).norm * 100
+                    connected = true
+                } else { status = "Putus: lonjakan depth ≥8 cm"; activeSegment = false }
+            } else { activeSegment = false }
+            let displayPoint = depth.orientation.displayPoint(fromRaw: Point2(
+                (Double(x) + 0.5) / Double(depth.width),
+                (Double(y) + 0.5) / Double(depth.height)))
+            samples.append(.init(displayPoint: displayPoint, x: x, y: y, depth: z, confidence: confidence,
+                                 point: point, status: status, connectedToPrevious: connected))
+            previous = point
+            if x == endX && y == endY { break }
+            let twice = 2 * error
+            if twice >= dy { error += dy; x += sx }
+            if twice <= dx { error += dx; y += sy }
+        }
+        return ChestDepthProfile(samples: samples, segmentLengthsCM: lengths)
     }
 }

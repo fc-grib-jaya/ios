@@ -49,4 +49,5 @@ struct MeasurementResult: Codable, Sendable {
     let weightKG: Double?
     let warning: String?
     let formulaVersion: String
+    var profile: ChestDepthProfile? = nil
 }

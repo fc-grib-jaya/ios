@@ -10,6 +10,7 @@ import SwiftUI
     let activeID: String?
     let enabled: Bool
     let onMove: (Point2) -> Void
+    var profile: ChestDepthProfile? = nil
     @State private var dragOffset: Point2?
 
     var body: some View {
@@ -37,9 +38,9 @@ import SwiftUI
                         y: origin.y
                     )
                 if let depth, display != .photo {
-                    // Smooth only the displayed pixels; measurement samples stay raw.
+                    // Preserve pixel boundaries when inspecting raw depth.
                     Image(decorative: depth, scale: 1).resizable()
-                        .interpolation(.high)
+                        .interpolation(.none)
                         .frame(width: size.width, height: size.height)
                         .opacity(display == .depth ? 1 : 0.55)
                         .offset(x: origin.x, y: origin.y)
@@ -83,6 +84,23 @@ import SwiftUI
                         .yellow,
                         style: StrokeStyle(lineWidth: 2, dash: [5, 3])
                     )
+                }
+                if let profile {
+                    Canvas { context, _ in
+                        for (index, sample) in profile.samples.enumerated() {
+                            let position = screenPoint(sample.displayPoint, origin: origin, size: size)
+                            if sample.connectedToPrevious, index > 0 {
+                                var path = Path()
+                                path.move(to: screenPoint(profile.samples[index - 1].displayPoint, origin: origin, size: size))
+                                path.addLine(to: position)
+                                context.stroke(path, with: .color(.green), lineWidth: 4)
+                            }
+                            if !sample.connectedToPrevious {
+                                let dot = Path(ellipseIn: CGRect(x: position.x - 3, y: position.y - 3, width: 6, height: 6))
+                                context.fill(dot, with: .color(sample.point == nil ? .red : .orange))
+                            }
+                        }
+                    }.allowsHitTesting(false)
                 }
                 ForEach(landmarks) { point in
                     let active = point.id == activeID

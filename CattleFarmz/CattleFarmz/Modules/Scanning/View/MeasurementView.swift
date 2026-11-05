@@ -39,7 +39,9 @@ struct MeasurementView: View {
                         activeID: model.flow.currentID,
                         enabled: model.flow.currentID != nil,
                         onMove: model.moveActivePoint,
-                        profile: model.result?.profile
+                        profile: model.result?.profile,
+                        depthFrame: model.capture.metadata.depth,
+                        onPlacementEnded: model.analyzePlacement
                     )
                     .frame(
                         height: min(490, max(300, geometry.size.height * 0.52))
@@ -50,6 +52,17 @@ struct MeasurementView: View {
                     if model.display != .photo, let preview = model.depthPreview
                     {
                         DepthLegend(visualization: preview.visualization)
+                    }
+                    if model.activePoint != nil {
+                        HStack {
+                            Button("←") { model.nudge(dx: -1, dy: 0) }.accessibilityLabel("Geser kiri satu piksel depth")
+                            Button("↑") { model.nudge(dx: 0, dy: -1) }.accessibilityLabel("Geser atas satu piksel depth")
+                            Button("↓") { model.nudge(dx: 0, dy: 1) }.accessibilityLabel("Geser bawah satu piksel depth")
+                            Button("→") { model.nudge(dx: 1, dy: 0) }.accessibilityLabel("Geser kanan satu piksel depth")
+                        }.buttonStyle(.bordered).controlSize(.large)
+                    }
+                    if !model.analysisText.isEmpty {
+                        DisclosureGroup("Detail stride dan sensitivitas") { Text(model.analysisText).font(.caption) }
                     }
                     content
                     if model.flow.stage == .inspection {
@@ -229,7 +242,7 @@ struct MeasurementView: View {
                         .foregroundStyle(.orange)
                 } else {
                     Label(
-                        step.id.hasPrefix("chest") ? "Batas profil ditandai; depth diperiksa saat hitung" : "Titik \(step.number) dapat digunakan",
+                        step.id.hasPrefix("chest") ? "Depth tersedia · batas profil ditandai" : "Depth tersedia pada titik \(step.number)",
                         systemImage: "mappin.circle"
                     )
                     .foregroundStyle(.teal)
@@ -309,7 +322,7 @@ struct MeasurementView: View {
                     "\(result.lengthCM.formatted(.number.precision(.fractionLength(1)))) cm"
             )
             if let profile = result.profile {
-                LabeledContent("Panjang bagian terbaca", value: profile.lengthCM.map {
+                LabeledContent("Lingkar bagian terbaca", value: profile.lengthCM.map {
                     $0.formatted(.number.precision(.fractionLength(1))) + " cm"
                 } ?? "Belum tersedia")
                 Text("\(profile.samples.filter { $0.point != nil }.count)/\(profile.samples.count) piksel terbaca · \(profile.segmentLengthsCM.count) segmen")

@@ -7,7 +7,7 @@ import Foundation
 
 /// Stateless measurement math: 3D landmark distance, chest girth fit, and the
 /// Winter weight formula.
-enum MeasurementEngine {
+nonisolated enum MeasurementEngine {
     /// Position along the marked chest height, and observed 3D bulge in meters.
     struct SectionSample {
         let t: Double

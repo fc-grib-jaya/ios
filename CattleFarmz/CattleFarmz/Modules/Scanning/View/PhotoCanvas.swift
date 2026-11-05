@@ -11,13 +11,13 @@ import SwiftUI
     let enabled: Bool
     let onMove: (Point2) -> Void
     var profile: ChestDepthProfile? = nil
+    var depthFrame: DepthFrame? = nil
+    var onPlacementEnded: () -> Void = {}
     @State private var dragOffset: Point2?
 
     var body: some View {
         GeometryReader { geometry in
-            let photo = cropped(image)
-            let depth = depthImage.map { cropped($0) }
-            let imageSize = CGSize(width: photo.width, height: photo.height)
+            let imageSize = CGSize(width: Double(image.width) * crop.width, height: Double(image.height) * crop.height)
             let scale = min(
                 geometry.size.width / imageSize.width,
                 geometry.size.height / imageSize.height
@@ -32,19 +32,18 @@ import SwiftUI
             )
             ZStack(alignment: .topLeading) {
                 Color.black
-                Image(decorative: photo, scale: 1).resizable()
-                    .frame(width: size.width, height: size.height).offset(
-                        x: origin.x,
-                        y: origin.y
-                    )
-                if let depth, display != .photo {
-                    // Preserve pixel boundaries when inspecting raw depth.
-                    Image(decorative: depth, scale: 1).resizable()
-                        .interpolation(.none)
-                        .frame(width: size.width, height: size.height)
-                        .opacity(display == .depth ? 1 : 0.55)
-                        .offset(x: origin.x, y: origin.y)
-                }
+                ZStack(alignment: .topLeading) {
+                    Image(decorative: image, scale: 1).resizable()
+                        .frame(width: size.width / crop.width, height: size.height / crop.height)
+                        .offset(x: -crop.x * size.width / crop.width, y: -crop.y * size.height / crop.height)
+                    if let depthImage, display != .photo {
+                        Image(decorative: depthImage, scale: 1).resizable().interpolation(.none)
+                            .frame(width: size.width / crop.width, height: size.height / crop.height)
+                            .offset(x: -crop.x * size.width / crop.width, y: -crop.y * size.height / crop.height)
+                            .opacity(display == .depth ? 1 : 0.55)
+                    }
+                }.frame(width: size.width, height: size.height, alignment: .topLeading).clipped()
+                    .offset(x: origin.x, y: origin.y)
                 if let a = landmarks.first(where: { $0.id == "shoulder" }),
                     let b = landmarks.first(where: { $0.id == "pin" })
                 {
@@ -111,16 +110,20 @@ import SwiftUI
                                 height: 42
                             )
                         }
-                        Circle().fill(active ? Color.mint : Color.teal).frame(
-                            width: 29,
-                            height: 29
-                        )
-                        Text(String(point.label.prefix(1))).font(
+                        Circle().stroke(active ? Color.mint : Color.teal, lineWidth: 2).frame(width: 44, height: 44)
+                        Text("+").font(
                             .caption.bold()
                         ).foregroundStyle(.black)
                     }.position(
                         screenPoint(point.point, origin: origin, size: size)
                     )
+                }
+            }
+            .overlay(alignment: (landmarks.first(where: { $0.id == activeID })?.point.x ?? 0) < crop.x + crop.width / 2 ? .topTrailing : .topLeading) {
+                if let active = landmarks.first(where: { $0.id == activeID }), let depthFrame {
+                    PointLoupe(image: image, point: active.point, depth: depthFrame)
+                        .frame(width: min(160, geometry.size.width / 3), height: 160)
+                        .padding(8).allowsHitTesting(false)
                 }
             }
             .contentShape(Rectangle())
@@ -150,7 +153,7 @@ import SwiftUI
                                     / crop.width,
                                 (current.point.y - start.y) * size.height
                                     / crop.height
-                            ) < 25
+                            ) < 30
                         {
                             dragOffset = Point2(
                                 current.point.x - start.x,
@@ -173,7 +176,7 @@ import SwiftUI
                             )
                         )
                     )
-                }.onEnded { _ in dragOffset = nil }
+                }.onEnded { _ in dragOffset = nil; onPlacementEnded() }
             )
             .onChange(of: activeID) { _, _ in dragOffset = nil }
             .accessibilityElement(children: .ignore)
@@ -201,22 +204,5 @@ import SwiftUI
             crop.x + (point.x - origin.x) / size.width * crop.width,
             crop.y + (point.y - origin.y) / size.height * crop.height
         )
-    }
-    private func cropped(_ source: CGImage) -> CGImage {
-        let rect = CGRect(
-            x: crop.x * Double(source.width),
-            y: crop.y * Double(source.height),
-            width: crop.width * Double(source.width),
-            height: crop.height * Double(source.height)
-        )
-        .integral.intersection(
-            CGRect(
-                x: 0,
-                y: 0,
-                width: Double(source.width),
-                height: Double(source.height)
-            )
-        )
-        return source.cropping(to: rect) ?? source
     }
 }

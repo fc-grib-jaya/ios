@@ -5,7 +5,7 @@
 
 import Foundation
 
-enum MeasurementError: LocalizedError {
+nonisolated enum MeasurementError: LocalizedError {
     case invalidDepth
     case depthEdge
     case invalidSection
@@ -34,7 +34,7 @@ enum MeasurementError: LocalizedError {
     }
 }
 
-struct GirthEstimate: Codable, Sendable {
+nonisolated struct GirthEstimate: Codable, Sendable {
     let centimeters: Double
     let semiHeightMeters: Double
     let semiWidthMeters: Double
@@ -43,7 +43,7 @@ struct GirthEstimate: Codable, Sendable {
     let method: String
 }
 
-struct MeasurementResult: Codable, Sendable {
+nonisolated struct MeasurementResult: Codable, Sendable {
     let lengthCM: Double
     let girth: GirthEstimate?
     let weightKG: Double?

@@ -12,7 +12,7 @@ import ImageIO
 /// ARKit delivers a landscape buffer regardless of how the device is held.
 /// Storing the correction with the capture keeps landmark coordinates, depth
 /// lookups, and the depth visualization in the same displayed frame.
-enum CaptureOrientation: Codable, Sendable {
+nonisolated enum CaptureOrientation: Codable, Sendable {
     case portrait
     case portraitUpsideDown
     case landscapeLeft
@@ -62,7 +62,7 @@ enum CaptureOrientation: Codable, Sendable {
 }
 
 /// Normalized point in the displayed capture image, top-left origin.
-struct Point2: Codable, Equatable, Sendable {
+nonisolated struct Point2: Codable, Equatable, Sendable {
     var x: Double
     var y: Double
 
@@ -76,7 +76,7 @@ struct Point2: Codable, Equatable, Sendable {
     }
 }
 
-struct Vector3: Codable, Sendable {
+nonisolated struct Vector3: Codable, Sendable {
     var x: Double
     var y: Double
     var z: Double
@@ -95,7 +95,7 @@ struct Vector3: Codable, Sendable {
     var norm: Double { sqrt(dot(self)) }
 }
 
-struct CameraCalibration: Codable, Sendable {
+nonisolated struct CameraCalibration: Codable, Sendable {
     var fx: Double
     var fy: Double
     var cx: Double
@@ -114,7 +114,7 @@ struct CameraCalibration: Codable, Sendable {
 }
 
 /// A display crop in upright image coordinates. Depth and calibration stay full frame.
-struct ImageCrop {
+nonisolated struct ImageCrop: Sendable {
     let x: Double
     let y: Double
     let width: Double
@@ -141,7 +141,7 @@ struct ImageCrop {
 /// Image points passed to this type are normalized in the displayed capture
 /// image, top-left origin. `orientation` maps them back to the raw AR buffer,
 /// whose native layout is landscape. RGB is baked with the same EXIF rotation.
-struct DepthFrame: Codable, Sendable {
+nonisolated struct DepthFrame: Codable, Sendable {
     var width: Int
     var height: Int
     var meters: [Float]
@@ -180,27 +180,14 @@ struct DepthFrame: Codable, Sendable {
         let uv = orientation.rawPoint(fromDisplay: displayPoint)
         let x = min(width - 1, max(0, Int(uv.x * Double(width))))
         let y = min(height - 1, max(0, Int(uv.y * Double(height))))
-        var samples = [Double]()
-        for dy in -1...1 {
-            for dx in -1...1 {
-                let xx = x + dx
-                let yy = y + dy
-                guard (0..<width).contains(xx), (0..<height).contains(yy) else { continue }
-                let index = yy * width + xx
-                let z = Double(meters[index])
-                if Self.isUsableDepth(z, confidence: confidence[index]) {
-                    samples.append(z)
-                }
-            }
+        let index = y * width + x
+        let z = Double(meters[index])
+        guard Self.isUsableDepth(z, confidence: confidence[index]) else {
+            throw MeasurementError.invalidDepth
         }
-        guard samples.count >= 3 else { throw MeasurementError.invalidDepth }
-        samples.sort()
-        guard samples.last! - samples.first! < 0.08 else { throw MeasurementError.depthEdge }
-        let z = samples[samples.count / 2]
+        // Use exactly the selected sensor pixel and its center, never a median.
         return .init(
-            (uv.x * Double(calibration.width) - calibration.cx) * z / calibration.fx,
-            (uv.y * Double(calibration.height) - calibration.cy) * z / calibration.fy,
-            z
-        )
+            ((Double(x) + 0.5) * Double(calibration.width) / Double(width) - calibration.cx) * z / calibration.fx,
+            ((Double(y) + 0.5) * Double(calibration.height) / Double(height) - calibration.cy) * z / calibration.fy, z)
     }
 }

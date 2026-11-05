@@ -1,7 +1,7 @@
 import Foundation
 
 /// Actual raw depth pixels in traversal order; nil XYZ explicitly breaks the path.
-struct ChestDepthProfile: Codable, Sendable {
+nonisolated struct ChestDepthProfile: Codable, Sendable {
     struct Sample: Codable, Sendable {
         let displayPoint: Point2
         let x: Int

@@ -14,6 +14,10 @@ final class MeasurementViewModel {
     private(set) var depthError: String?
     private(set) var result: MeasurementResult?
     private(set) var message: String?
+    private(set) var analysisText = ""
+    @ObservationIgnored private var analysisTask: Task<Void, Never>?
+    @ObservationIgnored private var landmarkVersion = LandmarkRevision()
+
     var display: CaptureDisplay = .overlay
 
     @ObservationIgnored private let depthRenderer: any DepthRendering
@@ -37,17 +41,27 @@ final class MeasurementViewModel {
             && (depthPreview?.visualization.validCount ?? 0) >= 3
     }
     var currentDepthProblem: String? {
-        guard let activePoint, let step = currentStep else { return nil }
-        if step.id == "chestTop" || step.id == "chestBottom" { return nil }
-        do {
-            _ = try capture.metadata.depth.point(at: activePoint.point)
-            return nil
-        } catch {
-            return error.localizedDescription
+        guard let activePoint else { return nil }
+        let depth = capture.metadata.depth
+        guard let sample = try? MeasurementEngine.chestProfile(top: activePoint.point, bottom: activePoint.point, depth: depth).samples.first else { return "Depth kosong/tidak valid" }
+        if sample.point == nil { return sample.status }
+        // Diagnostic only: 3×3 valid raw depths, range ≥8 cm. No replacement or rejection.
+        var values: [Double] = []
+        for y in max(0, sample.y - 1)...min(depth.height - 1, sample.y + 1) {
+            for x in max(0, sample.x - 1)...min(depth.width - 1, sample.x + 1) {
+                let index = y * depth.width + x
+                let z = Double(depth.meters[index])
+                if DepthFrame.isUsableDepth(z, confidence: depth.confidence[index]) { values.append(z) }
+            }
         }
+        if let low = values.min(), let high = values.max(), high - low >= 0.08 {
+            return "Perubahan depth lokal tajam: rentang 3×3 ≥8 cm (indikator saja)."
+        }
+        return nil
     }
     var canAdvance: Bool {
-        activePoint != nil && currentDepthProblem == nil
+        guard let activePoint, let step = currentStep else { return false }
+        return step.id.hasPrefix("chest") || (try? capture.metadata.depth.point(at: activePoint.point)) != nil
     }
 
     func prepare() {
@@ -86,6 +100,9 @@ final class MeasurementViewModel {
     /// Points stay normalized against the full upright image, even when cropped on screen.
     func moveActivePoint(to point: Point2) {
         guard point.isValid, let step = currentStep else { return }
+        landmarkVersion.advance()
+        analysisTask?.cancel()
+        analysisText = ""
         if let index = landmarks.firstIndex(where: { $0.id == step.id }) {
             landmarks[index].point = point
         } else {
@@ -98,8 +115,34 @@ final class MeasurementViewModel {
         message = nil
     }
 
+    func nudge(dx: Int, dy: Int) {
+        guard let point = activePoint?.point,
+              let next = ProfileAnalysis.step(point, dx: dx, dy: dy, depth: capture.metadata.depth, crop: capture.metadata.previewCrop) else { return }
+        moveActivePoint(to: next)
+        analyzePlacement()
+    }
+
+    func analyzePlacement() {
+        analysisTask?.cancel()
+        guard let top = landmarks.first(where: { $0.id == "chestTop" })?.point,
+              let bottom = landmarks.first(where: { $0.id == "chestBottom" })?.point else { return }
+        let version = landmarkVersion.value
+        let depth = capture.metadata.depth
+        let crop = capture.metadata.previewCrop
+        analysisTask = Task { [weak self] in
+            let report = await Task.detached {
+                (try? ProfileAnalysis.report(top: top, bottom: bottom, depth: depth, crop: crop)) ?? "Profil tidak dapat dianalisis."
+            }.value
+            guard !Task.isCancelled, let self, self.landmarkVersion.accepts(version) else { return }
+            self.analysisText = report
+        }
+    }
+
     func clearCurrentPoint() {
         guard let id = flow.currentID else { return }
+        landmarkVersion.advance()
+        analysisTask?.cancel()
+        analysisText = ""
         landmarks.removeAll { $0.id == id }
         flow.invalidateCurrentAndFollowing()
         result = nil
@@ -132,19 +175,19 @@ final class MeasurementViewModel {
         guard let shoulder = points["shoulder"], let pin = points["pin"],
             let top = points["chestTop"], let bottom = points["chestBottom"]
         else { return }
-        do {
-            result = try MeasurementEngine.cattle(
-                shoulder: shoulder,
-                pin: pin,
-                top: top,
-                bottom: bottom,
-                depth: capture.metadata.depth
-            )
-            message = result?.warning
-        } catch {
-            result = nil
-            message = error.localizedDescription
+        let depth = capture.metadata.depth
+        let version = landmarkVersion.value
+        Task { [weak self] in
+            let outcome = await Task.detached {
+                Result { try MeasurementEngine.cattle(shoulder: shoulder, pin: pin, top: top, bottom: bottom, depth: depth) }
+            }.value
+            guard let self, self.landmarkVersion.accepts(version), self.flow.stage == .results else { return }
+            switch outcome {
+            case .success(let measurement): self.result = measurement; self.message = measurement.warning
+            case .failure(let error): self.result = nil; self.message = error.localizedDescription
+            }
         }
+
     }
 }
 

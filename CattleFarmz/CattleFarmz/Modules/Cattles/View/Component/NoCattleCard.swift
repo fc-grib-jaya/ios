@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// f/23 ya
 struct NoCattleCard: View {
     @Binding var tambahSapi: Bool
     

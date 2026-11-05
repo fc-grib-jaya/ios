@@ -15,4 +15,15 @@ final class HomeViewModel {
 
     /// Placeholder copy shown until the home content is implemented.
     let placeholder = "Home screen placeholder"
+
+    private let haptics: any HapticProviding
+
+    init(haptics: any HapticProviding) {
+        self.haptics = haptics
+    }
+
+    /// Starts a scan flow with haptic feedback.
+    func startScan() {
+        haptics.play(.scanStart)
+    }
 }

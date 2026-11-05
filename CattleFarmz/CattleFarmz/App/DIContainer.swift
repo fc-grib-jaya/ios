@@ -13,10 +13,16 @@ import SwiftData
 
 @MainActor
 final class DIContainer {
+    let haptics: any HapticProviding
     private let cattleRepository: any CattleRepository
     private let weightCalculation: any WeightCalculation
 
-    init(cattleRepository: any CattleRepository, weightCalculation: any WeightCalculation) {
+    init(
+        haptics: any HapticProviding,
+        cattleRepository: any CattleRepository,
+        weightCalculation: any WeightCalculation
+    ) {
+        self.haptics = haptics
         self.cattleRepository = cattleRepository
         self.weightCalculation = weightCalculation
     }
@@ -24,6 +30,7 @@ final class DIContainer {
     /// Live environment backed by SwiftData.
     static func live(modelContext: ModelContext) -> DIContainer {
         DIContainer(
+            haptics: CoreHapticsService(),
             cattleRepository: SwiftDataCattleRepository(context: modelContext),
             weightCalculation: WeightCalculator()
         )
@@ -33,6 +40,7 @@ final class DIContainer {
     @MainActor
     static var preview: DIContainer {
         DIContainer(
+            haptics: NoopHaptics(),
             cattleRepository: MockCattleRepository(),
             weightCalculation: WeightCalculator()
         )
@@ -45,7 +53,7 @@ final class DIContainer {
 
     /// Creates the home screen view model.
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel()
+        HomeViewModel(haptics: haptics)
     }
 
     /// Creates the profile screen view model.

@@ -34,6 +34,8 @@ final class AppCoordinator {
 
     /// Pushes the profile screen onto the Home navigation stack.
     func showProfile() {
+        guard path.last != .profile else { return }
+        
         path.append(.profile)
     }
 

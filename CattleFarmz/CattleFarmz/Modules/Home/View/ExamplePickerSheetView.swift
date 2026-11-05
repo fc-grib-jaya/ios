@@ -24,11 +24,11 @@ struct ExamplePickerSheetView: View {
                     HStack {
                         Text(option)
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.textPrimary)
+                            .foregroundStyle(AppColor.Text.primary)
                         Spacer()
                         if option == viewModel.current {
                             Image(systemName: "checkmark")
-                                .foregroundStyle(AppColor.primary)
+                                .foregroundStyle(AppColor.Button.Primary.background)
                         }
                     }
                 }

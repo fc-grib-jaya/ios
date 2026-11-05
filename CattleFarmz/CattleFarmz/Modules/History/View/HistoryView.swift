@@ -9,12 +9,12 @@ import SwiftUI
 struct HistoryView: View {
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
 
             Text("History placeholder")
                 .font(AppFont.body)
-                .foregroundStyle(AppColor.textSecondary)
+                .foregroundStyle(AppColor.Text.secondary)
         }
     }
 }

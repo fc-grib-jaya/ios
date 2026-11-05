@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 /// Cattles screen: a scrollable list of cattle.
 struct CattlesView: View {
@@ -17,42 +18,22 @@ struct CattlesView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
                 ForEach(viewModel.items) { cattle in
-                    let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
-                    
-                    VStack(alignment: .leading) {
-                        Text(cattle.name)
-                        
-                        if let bodyWeight {
-                            Text("Berat Sapi: \(bodyWeight, specifier: "%.2f") kg")
+                    let bodyWeight =
+                        cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
+                    let image =
+                        UIImage(data: cattle.cattleImage ?? Data()) ?? UIImage(
+                            systemName: "photo"
+                        )!
 
-                            if let carcassWeight = viewModel.carcassWeight(for: cattle, bodyWeight: bodyWeight) {
-                                Text("Berat Karkas: \(carcassWeight, specifier: "%.2f") kg")
-                            }
-
-                            if let meatWeight = viewModel.meatWeight(for: cattle, bodyWeight: bodyWeight) {
-                                Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
-                                    .padding(.bottom, AppSpacing.small)
-                            }
-
-                            ForEach(NonCarcassPart.allCases, id: \.self) { part in
-                                if let partWeight = viewModel.nonCarcassWeight(
-                                    for: cattle,
-                                    bodyWeight: bodyWeight,
-                                    part: part
-                                ) {
-                                    HStack {
-                                        Text(part.displayName)
-                                        Spacer()
-                                        Text("\(partWeight, specifier: "%.2f") kg")
-                                    }
-                                }
-                            }
-                            
-                        } else {
-                            Text("Not Measured")
-                        }
-                    }
-                    .padding(.bottom, AppSpacing.medium)
+                    CattleCard(
+                        cattleImage: image,
+                        name: cattle.name,
+                        breed: cattle.breed,
+                        gender: cattle.gender,
+                        age: cattle.currentAge,
+                        weight: bodyWeight,
+                        updated: .now
+                    )
                 }
             }
             .font(AppFont.body)
@@ -64,5 +45,10 @@ struct CattlesView: View {
 }
 
 #Preview {
-    CattlesView(viewModel: CattlesViewModel(repository: MockCattleRepository(), calculation: WeightCalculator()))
+    CattlesView(
+        viewModel: CattlesViewModel(
+            repository: MockCattleRepository(),
+            calculation: WeightCalculator()
+        )
+    )
 }

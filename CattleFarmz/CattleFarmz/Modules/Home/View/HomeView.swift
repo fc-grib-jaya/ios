@@ -26,21 +26,33 @@ struct HomeView: View {
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
     }
+    
+    @State var tambahSapi: Bool = false
 
     var body: some View {
         ZStack {
             AppColor.background
                 .ignoresSafeArea()
-
-            CattlesView(viewModel: cattlesViewModel)
+            
+            if(cattlesViewModel.items.isEmpty) {
+                ScrollView(.vertical, showsIndicators: false) {
+                    NoCattleCard(tambahSapi: $tambahSapi)
+                        .padding()
+                }
+            } else {
+                VStack {
+                    AddCattleButton(tambahSapi: $tambahSapi)
+                    CattlesView(viewModel: cattlesViewModel)
+                }
+            }
         }
+        .task { await cattlesViewModel.load() }
         .navigationTitle(viewModel.title)
         .navigationSubtitle("Urus sapimu sing nggenah")
         .toolbar {
             ToolbarItem(
                 placement: .topBarLeading,
                 content: {
-
                     Menu {
                         Button("Opsi 1", systemImage: "star") {
                             // Aksi opsi 1
@@ -67,15 +79,34 @@ struct HomeView: View {
                 }
                 .accessibilityLabel("Profile")
             }
-
-            ToolbarItem(placement: .confirmationAction) {
+            
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    onExamplePickerTap()
+                    tambahSapi = true
                 } label: {
-                    Label("done", systemImage: "plus")
+                    Label("Menu", systemImage: "line.3.horizontal.decrease")
                 }
-                .tint(.green)
                 .accessibilityLabel("Pick Example")
+            }
+        }
+        .sheet(isPresented: $tambahSapi) {
+            NavigationStack {
+                SapiFormView { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                    try cattlesViewModel.add(
+                        name: name,
+                        dateAcquired: date,
+                        breed: breed,
+                        gender: gender,
+                        recordedAge: recordedAge,
+                        chestGirth: nil,
+                        bodyLength: nil,
+                        bodyWeight: bodyWeight,
+                        cattleImage: cattleImage?.jpegData(compressionQuality: 0.85),
+                        notes: notes
+                    )
+                    
+                    await cattlesViewModel.load()
+                }
             }
         }
     }

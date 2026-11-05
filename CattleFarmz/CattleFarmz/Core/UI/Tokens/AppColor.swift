@@ -11,7 +11,7 @@ import SwiftUI
 /// settings work without extra code.
 enum AppColor {
     /// Brand color, used for primary actions.
-    static let primary = Color.red
+    static let primary = Color.green
 
     /// Page background.
     static let background = Color(uiColor: .systemBackground)
@@ -24,6 +24,9 @@ enum AppColor {
 
     /// Secondary text.
     static let textSecondary = Color(uiColor: .secondaryLabel)
+    
+    static let textRequired = Color.red
+    static let textBrown = Color(#colorLiteral(red: 0.4745098039, green: 0.3294117647, blue: 0.1647058824, alpha: 1))
 
     /// Content drawn on top of `primary`.
     static let onPrimary = Color.white

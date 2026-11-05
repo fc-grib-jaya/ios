@@ -22,6 +22,22 @@ final class CattlesViewModel {
         self.calculation = calculation
     }
     
+    func add(
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
+        bodyWeight: Double?,
+        cattleImage: Data?,
+        notes: String?
+    ) throws {
+        try repository.add(name: name, dateAcquired: dateAcquired, breed: breed, gender: gender, recordedAge: recordedAge, chestGirth: chestGirth, bodyLength: bodyLength, bodyWeight: bodyWeight, cattleImage: cattleImage, notes: notes)
+        items = try repository.cattles()
+    }
+    
     func updateMeasurements(
         for cattle: Cattle,
         chestGirth: Double,
@@ -42,6 +58,13 @@ final class CattlesViewModel {
             for: cattle.id,
             bodyWeight: weight
         )
+    }
+    
+    func updateNotes(
+        for cattle: Cattle,
+        notes: String
+    ) throws {
+        try repository.updateNotes(for: cattle.id, notes: notes)
     }
 
     func cattleWeight(for cattle: Cattle) -> Double? {

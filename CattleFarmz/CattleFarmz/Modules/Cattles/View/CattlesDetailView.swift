@@ -8,11 +8,11 @@ import UIKit
 
 struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
-    private let cattleID: String
+    private let cattleID: UUID?
     @State private var cattle: Cattle?
 
     init(cattleID: String, viewModel: CattlesViewModel) {
-        self.cattleID = cattleID
+        self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
     }
 
@@ -31,9 +31,11 @@ struct CattlesDetailView: View {
                             .resizable()
                             .scaledToFit()
                     } else {
-                        Image(systemName: "photo")
-                            .font(AppFont.title)
-                            .foregroundStyle(AppColor.textSecondary)
+                        Image("CattlePlaceholder")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 250, height: 250)
+                            .clipped()
                     }
 
                     if let bodyWeight {
@@ -75,13 +77,19 @@ struct CattlesDetailView: View {
                 .foregroundStyle(AppColor.textPrimary)
                 .padding(AppSpacing.medium)
             } else {
-                ProgressView()
+                ContentUnavailableView(
+                    "Sapi Tidak Ditemukan",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text("Data sapi tidak tersedia.")
+                )
             }
         }
         .navigationTitle(cattle?.name ?? "Detail Sapi")
         .task {
+            guard let cattleID else { return }
+
             await viewModel.load()
-            cattle = viewModel.items.first { $0.id.uuidString == cattleID }
+            cattle = viewModel.items.first { $0.id == cattleID }
         }
     }
 }

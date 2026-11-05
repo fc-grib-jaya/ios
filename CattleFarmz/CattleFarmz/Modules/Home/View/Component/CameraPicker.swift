@@ -348,9 +348,11 @@ final class CameraViewController: UIViewController {
     }
 
     private func configureCropGestures() {
-        overlayView.isUserInteractionEnabled = true
-        overlayView.gestureRecognizers?.forEach {
-            overlayView.removeGestureRecognizer($0)
+        // The overlay is visual only. Gestures belong to the image view so
+        // the crop image remains directly draggable and pinchable.
+        overlayView.isUserInteractionEnabled = false
+        capturedImageView.gestureRecognizers?.forEach {
+            capturedImageView.removeGestureRecognizer($0)
         }
 
         let pinch = UIPinchGestureRecognizer(
@@ -361,9 +363,11 @@ final class CameraViewController: UIViewController {
             target: self,
             action: #selector(handlePan(_:))
         )
+        pinch.cancelsTouchesInView = false
+        pan.cancelsTouchesInView = false
 
-        overlayView.addGestureRecognizer(pinch)
-        overlayView.addGestureRecognizer(pan)
+        capturedImageView.addGestureRecognizer(pinch)
+        capturedImageView.addGestureRecognizer(pan)
     }
 
     private func clampedOffset(_ offset: CGPoint) -> CGPoint {
@@ -403,7 +407,7 @@ final class CameraViewController: UIViewController {
     }
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        let translation = gesture.translation(in: view)
+        let translation = gesture.translation(in: capturedImageView)
 
         switch gesture.state {
         case .began:

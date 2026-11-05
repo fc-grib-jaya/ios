@@ -40,12 +40,12 @@ struct CattlesView: View {
                 sortAscending: sortAscending
             )) { cattle in
                 let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
-                let image = UIImage(data: cattle.cattleImage ?? Data()) ?? UIImage(named: "CattlePlaceholder")!
+                let image = cattle.cattleImage.flatMap { UIImage(data: $0) }
                 Button {
                     onCardTap(cattle.id.uuidString)
                 } label: {
                     CattleCard(
-                        cattleImage: image,
+                        cattleImage: image ?? UIImage(named: "CattlePlaceholder") ?? UIImage(),
                         name: cattle.name,
                         breed: cattle.breed,
                         gender: cattle.gender,

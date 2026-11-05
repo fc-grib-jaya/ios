@@ -109,34 +109,32 @@ struct HomeView: View {
                 .accessibilityLabel("Filter sapi")
             }
         }
-        .sheet(isPresented: $tambahSapi) {
-            NavigationStack {
-                SapiFormView {
-                    name,
-                    date,
-                    breed,
-                    gender,
-                    recordedAge,
-                    bodyWeight,
-                    cattleImage,
-                    notes in
-                    try cattlesViewModel.add(
-                        name: name,
-                        dateAcquired: date,
-                        breed: breed,
-                        gender: gender,
-                        recordedAge: recordedAge,
-                        chestGirth: nil,
-                        bodyLength: nil,
-                        bodyWeight: bodyWeight,
-                        cattleImage: cattleImage?.jpegData(
-                            compressionQuality: 0.85
-                        ),
-                        notes: notes
-                    )
+        .navigationDestination(isPresented: $tambahSapi) {
+            SapiFormView {
+                name,
+                date,
+                breed,
+                gender,
+                recordedAge,
+                bodyWeight,
+                cattleImage,
+                notes in
+                try cattlesViewModel.add(
+                    name: name,
+                    dateAcquired: date,
+                    breed: breed,
+                    gender: gender,
+                    recordedAge: recordedAge,
+                    chestGirth: nil,
+                    bodyLength: nil,
+                    bodyWeight: bodyWeight,
+                    cattleImage: cattleImage?.jpegData(
+                        compressionQuality: 0.85
+                    ),
+                    notes: notes
+                )
 
-                    await cattlesViewModel.load()
-                }
+                await cattlesViewModel.load()
             }
         }
         .sheet(isPresented: $filterSapi) {

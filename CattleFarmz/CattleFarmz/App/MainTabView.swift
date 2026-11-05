@@ -46,21 +46,22 @@ struct MainTabView: View {
                 Label("Beranda", systemImage: "house")
             }
 
-            ScanningView()
-                .tabItem {
-                    Label("Bobot", systemImage: "powermeter")
-                }
+//            ScanningView()
+//                .tabItem {
+//                    Label("Bobot", systemImage: "powermeter")
+//                }
 
             HistoryView()
                 .tabItem {
                     Label("Pakan", systemImage: "carrot")
                 }
 
-            ProfileView(viewModel: container.makeProfileViewModel())
-                .tabItem {
-                    Label("Profil", systemImage: "person")
-                }
+//            ProfileView(viewModel: container.makeProfileViewModel())
+//                .tabItem {
+//                    Label("Profil", systemImage: "person")
+//                }
         }
+        .tint(AppColor.primary)
         .sheet(item: $coordinator.sheet) { sheet in
             switch sheet {
             case .examplePickerSheet(let current, let onSelect):

@@ -43,7 +43,7 @@ struct SapiFormView: View {
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
-                VStack (spacing: AppSpacing.medium){
+                VStack (alignment: .leading, spacing: AppSpacing.medium){
                     VStack (alignment: .leading){
                         HStack (spacing: 1){
                             Text("Nama Sapi")
@@ -101,24 +101,35 @@ struct SapiFormView: View {
                         }
                         .font(AppFont.body)
                         
-                        Picker("Masukkan Jenis Kelamin Sapi", selection: $genderSapi) {
-                            Text("Masukkan Jenis Kelamin Sapi")
-                                .tag(nil as CattleGender?)
-                            
-                            ForEach(CattleGender.allCases) { gender in
-                                Text(gender.rawValue)
-                                    .tag(gender)
+                        HStack(spacing: AppSpacing.medium) {
+                            ForEach(CattleGender.allCases, id: \.self) { gender in
+                                let isSelected = genderSapi == gender
+
+                                Button {
+                                    genderSapi = gender
+                                } label: {
+                                    HStack(spacing: AppSpacing.small) {
+                                        Image(systemName: isSelected
+                                              ? "largecircle.fill.circle"
+                                              : "circle")
+                                        Text(gender.rawValue)
+                                        Spacer()
+                                    }
+                                    .font(AppFont.body)
+                                    .foregroundStyle(
+                                        isSelected ? AppColor.primary : AppColor.textPrimary
+                                    )
+                                    .frame(maxWidth: .infinity)
+                                    .padding(AppSpacing.xm)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 30)
+                                            .fill(isSelected ? AppColor.primary.opacity(0.2) : AppColor.surface)
+                                            .stroke(isSelected ? AppColor.primary : AppColor.primary.opacity(0.2))
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
-                        .pickerStyle(.menu)
-                        .font(AppFont.body)
-                        .tint(genderSapi == nil ? AppColor.textSecondary.opacity(0.5) : AppColor.textPrimary)
-                        .padding(AppSpacing.medium)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(
-                            RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.surface)
-                        )
                     }
                     
                     VStack (alignment: .leading){
@@ -155,7 +166,11 @@ struct SapiFormView: View {
                         )
                     }
                     
+                    Text("Bobot dan Foto Sapi")
+                        .foregroundStyle(AppColor.textPrimary)
+                        .font(AppFont.body)
                     VStack (alignment: .leading){
+                        
                         HStack(spacing: AppSpacing.small) {
                             weightModeButton("Isi Bobot", mode: .manual)
                             weightModeButton("Estimasi Bobot", mode: .camera)
@@ -163,6 +178,18 @@ struct SapiFormView: View {
                         .padding(.bottom, AppSpacing.small)
                         
                         if (weightEntryMode == .manual) {
+                            Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")
+                                .font(AppFont.caption)
+                                .padding(.bottom, AppSpacing.small)
+                            
+                            HStack (spacing: 1) {
+                                Text("Bobot")
+                                    .foregroundStyle(AppColor.textPrimary)
+                                Text("*")
+                                    .foregroundStyle(AppColor.textRequired)
+                            }
+                            .font(AppFont.body)
+                            
                             HStack {
                                 TextField(
                                     value: $bobotSapi,
@@ -173,12 +200,8 @@ struct SapiFormView: View {
                                 }
                                 .keyboardType(.decimalPad)
                                 
-                                HStack (spacing: 1) {
-                                    Text("kg")
-                                        .foregroundStyle(AppColor.textPrimary)
-                                    Text("*")
-                                        .foregroundStyle(AppColor.textRequired)
-                                }
+                                Text("kg")
+                                    .foregroundStyle(AppColor.textPrimary)
                             }
                             .padding(AppSpacing.xm)
                             .background(
@@ -205,7 +228,7 @@ struct SapiFormView: View {
                                             Text("Ambil foto sapi")
                                                 .italic()
                                         }
-                                            .padding(.vertical, AppSpacing.large)
+                                            .padding(.vertical, AppSpacing.xl)
                                     }
                                 }
                                 .font(AppFont.body)
@@ -214,31 +237,44 @@ struct SapiFormView: View {
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
                                         .fill(AppColor.surface)
+                                        .stroke(AppColor.textSecondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                                 )
                             }
                             .buttonStyle(.plain)
                         } else {
+                            Text("Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi.")
+                                .font(AppFont.caption)
+                                .padding(.bottom, AppSpacing.small)
+                            
+                            HStack {
+                                Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
+                                    .font(AppFont.caption)
+                                Spacer()
+                            }
+                            .padding(AppSpacing.xm)
+                            .background(
+                                RoundedRectangle(cornerRadius: 23)
+                                    .fill(AppColor.surface)
+                            )
+                            
                             Button {
                                 // Lidar
                             } label: {
-                                VStack(spacing: AppSpacing.medium) {
+                                VStack {
                                     Image(systemName: "camera.on.rectangle.fill")
                                         .font(AppFont.largeTitle)
-                                    HStack(spacing: 1) {
-                                        Text("Estimasi bobot dengan kamera")
-                                            .italic()
-                                            .lineLimit(1)
-                                        Text("*")
-                                            .foregroundStyle(AppColor.textRequired)
-                                    }
+                                    Text("Estimasi bobot dan foto sapi")
+                                        .italic()
+                                        .lineLimit(1)
                                 }
                                 .font(AppFont.body)
                                 .foregroundStyle(AppColor.textSecondary.opacity(0.5))
-                                .padding(.vertical, AppSpacing.xxl)
+                                .padding(.vertical, AppSpacing.xl)
                                 .frame(maxWidth: .infinity)
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
                                         .fill(AppColor.surface)
+                                        .stroke(AppColor.textSecondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                                 )
                             }
                             .buttonStyle(.plain)
@@ -271,21 +307,44 @@ struct SapiFormView: View {
                                     .fill(AppColor.surface)
                             )
                     }
-                    .padding(.bottom, AppSpacing.small)
+                    .padding(.bottom, AppSpacing.large)
+                    
+                    Button {
+                        guard let breed = jenisSapi,
+                              let gender = genderSapi else {
+                            return
+                        }
+
+                        guard let umurSapi else { return }
+
+                        Task {
+                            do {
+                                try await onSave(namaSapi, .now, breed, gender, umurSapi, bobotSapi, gambarSapi, catatan)
+                                cancel()
+                            } catch {
+                                saveError = error.localizedDescription
+                            }
+                        }
+                    } label: {
+                        Text("Simpan Data")
+                            .font(AppFont.body)
+                            .foregroundStyle(AppColor.onPrimary)
+                            .padding(.vertical, AppSpacing.xm)
+                            .frame(maxWidth: .infinity)
+                            .glassEffect(.regular.tint(AppColor.primary))
+                    }
+                    .disabled(
+                        namaSapi.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || jenisSapi == nil
+                        || genderSapi == nil
+                        || umurSapi == nil
+                        || (weightEntryMode == .manual && bobotSapi == nil)
+                    )
                 }
                 .padding()
             }
-
-//            if isShowingCamera {
-//                CameraPicker(
-//                    image: $gambarSapi,
-//                    isPresented: $isShowingCamera
-//                )
-//                .ignoresSafeArea()
-//                .zIndex(1)
-//            }
         }
-        .sheet(isPresented: $isShowingCamera) {
+        .fullScreenCover(isPresented: $isShowingCamera) {
             CameraPicker(
                 image: $gambarSapi,
                 isPresented: $isShowingCamera
@@ -294,43 +353,6 @@ struct SapiFormView: View {
         }
         .navigationTitle("Tambah Sapi")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar(content: {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    cancel()
-                } label: {
-                    Image(systemName: "xmark")
-                }
-            }
-            
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Finish", systemImage: "checkmark") {
-                    guard let breed = jenisSapi,
-                          let gender = genderSapi else {
-                        return
-                    }
-
-                    guard let umurSapi else { return }
-
-                    Task {
-                        do {
-                            try await onSave(namaSapi, .now, breed, gender, umurSapi, bobotSapi, gambarSapi, catatan)
-                            cancel()
-                        } catch {
-                            saveError = error.localizedDescription
-                        }
-                    }
-                }
-                .tint(AppColor.primary)
-                .disabled(
-                    namaSapi.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    || jenisSapi == nil
-                    || genderSapi == nil
-                    || umurSapi == nil
-                    || (weightEntryMode == .manual && bobotSapi == nil)
-                )
-            }
-        })
     }
     
     private func weightModeButton(

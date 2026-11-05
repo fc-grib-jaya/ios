@@ -28,62 +28,98 @@ struct HomeView: View {
     }
 
     @State var tambahSapi: Bool = false
+    @State var filterSapi: Bool = false
+
+    @State private var selectedBreed: Set<String> = []
+    @State private var selectedGender: Set<String> = []
+    @State private var selectedAgeRange: Set<String> = []
+    @State private var sortAscending = false
 
     var body: some View {
         ZStack {
             AppColor.background
                 .ignoresSafeArea()
+            VStack(alignment: .leading) {
+                Text("Halo, Bapak Tono!")
+                    .font(AppFont.largeTitle)
+                    .padding(.horizontal, AppSpacing.medium)
+                    .padding(.top, AppSpacing.medium)
+                    .padding(.bottom, AppSpacing.small)
+                let filteredCattles = cattlesViewModel.filteredItems(
+                    selectedBreed: selectedBreed,
+                    selectedGender: selectedGender,
+                    selectedAgeRange: selectedAgeRange,
+                    sortAscending: sortAscending
+                )
 
-            if cattlesViewModel.items.isEmpty {
+                Text(
+                    cattlesViewModel.items.isEmpty || filteredCattles.count == 0
+                        ? "Kamu belum menambahkan sapi. Tambahkan untuk hitung bobot dan rancangan pakan."
+                        : "Kamu memiliki \(filteredCattles.count) sapi terdaftar."
+                )
+                .font(AppFont.body)
+                .padding(.horizontal, AppSpacing.medium)
+                
                 ScrollView(.vertical, showsIndicators: false) {
-                    NoCattleCard(tambahSapi: $tambahSapi)
-                        .padding()
-                }
-            } else {
-                VStack {
-                    AddCattleButton(tambahSapi: $tambahSapi)
-                    CattlesView(viewModel: cattlesViewModel, onCardTap: onCardTap)
+                    if cattlesViewModel.items.isEmpty || filteredCattles.count == 0 {
+                        NoCattleCard(tambahSapi: $tambahSapi)
+                            .padding()
+                        Spacer()
+                    } else {
+                        AddCattleButton(tambahSapi: $tambahSapi)
+                            .padding(.vertical, AppSpacing.xm)
+                        CattlesView(
+                            viewModel: cattlesViewModel,
+                            selectedBreed: selectedBreed,
+                            selectedGender: selectedGender,
+                            selectedAgeRange: selectedAgeRange,
+                            sortAscending: sortAscending,
+                            onCardTap: onCardTap
+                        )
+                    }
                 }
             }
         }
         .task { await cattlesViewModel.load() }
         .navigationTitle(viewModel.title)
+        .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
-            ToolbarItem(
-                placement: .topBarLeading,
-                content: {
-                    Menu {
-                        Button("Opsi 1", systemImage: "star") {}
-                        Button("Opsi 2", systemImage: "gear") {}
-                        Divider()
-                        Button("Hapus", systemImage: "trash", role: .destructive) {}
-                    } label: {
-                        Label("Menu", systemImage: "line.3.horizontal.decrease")
-                    }
-                }
-            )
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.startScan()
-                    onProfileTap()
+                    sortAscending.toggle()
                 } label: {
-                    Image(systemName: "camera.fill")
+                    Image(systemName: "arrow.up.arrow.down")
+                        .scaleEffect(y: sortAscending ? 1 : -1)
                 }
-                .accessibilityLabel("Profile")
+                .accessibilityLabel(
+                    sortAscending
+                        ? "Urutkan tanggal terbaru ke terlama"
+                        : "Urutkan tanggal terlama ke terbaru"
+                )
             }
+
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    tambahSapi = true
+                    filterSapi = true
                 } label: {
                     Label("Menu", systemImage: "line.3.horizontal.decrease")
                 }
-                .accessibilityLabel("Pick Example")
+                .accessibilityLabel("Filter sapi")
             }
         }
         .sheet(isPresented: $tambahSapi) {
             NavigationStack {
-                SapiFormView { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                SapiFormView {
+                    name,
+                    date,
+                    breed,
+                    gender,
+                    recordedAge,
+                    bodyWeight,
+                    cattleImage,
+                    notes in
                     try cattlesViewModel.add(
                         name: name,
                         dateAcquired: date,
@@ -93,12 +129,23 @@ struct HomeView: View {
                         chestGirth: nil,
                         bodyLength: nil,
                         bodyWeight: bodyWeight,
-                        cattleImage: cattleImage?.jpegData(compressionQuality: 0.85),
+                        cattleImage: cattleImage?.jpegData(
+                            compressionQuality: 0.85
+                        ),
                         notes: notes
                     )
 
                     await cattlesViewModel.load()
                 }
+            }
+        }
+        .sheet(isPresented: $filterSapi) {
+            NavigationStack {
+                CattlesFilterView(
+                    selectedBreed: $selectedBreed,
+                    selectedGender: $selectedGender,
+                    selectedAgeRange: $selectedAgeRange
+                )
             }
         }
     }

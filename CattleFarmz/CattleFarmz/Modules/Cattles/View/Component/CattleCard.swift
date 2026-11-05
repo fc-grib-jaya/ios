@@ -74,6 +74,6 @@ struct CattleCard: View {
 
 #Preview {
     CattleCard(
-        cattleImage: UIImage(systemName: "photo")!, name: "Salman Boat", breed: .friesianHolstein, gender: .female, age: 12, weight: 69.69, updated: .now
+        cattleImage: UIImage(named: "CattlePlaceholder")!, name: "Salman Boat", breed: .friesianHolstein, gender: .female, age: 12, weight: 69.69, updated: .now
     )
 }

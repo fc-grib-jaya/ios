@@ -14,6 +14,7 @@ enum AppSpacing {
     /// 8 pt: separation inside a component.
     static let small: CGFloat = 8
     /// 16 pt: default separation between elements.
+    static let xm: CGFloat = 12
     static let medium: CGFloat = 16
     /// 24 pt: separation between groups.
     static let large: CGFloat = 24

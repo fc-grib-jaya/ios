@@ -142,8 +142,8 @@ struct SapiFormView: View {
                         .onChange(of: umurSapi) { _, value in
                             guard let value else { return }
 
-                            if value > 36 {
-                                umurSapi = 36
+                            if value > 99 {
+                                umurSapi = 99
                             } else if value < 0 {
                                 umurSapi = 0
                             }
@@ -180,7 +180,7 @@ struct SapiFormView: View {
                                         .foregroundStyle(AppColor.textRequired)
                                 }
                             }
-                            .padding(AppSpacing.medium)
+                            .padding(AppSpacing.xm)
                             .background(
                                 RoundedRectangle(cornerRadius: 23)
                                     .fill(AppColor.surface)

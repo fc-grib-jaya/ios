@@ -26,6 +26,16 @@ enum CattleGender: String, Codable, CaseIterable, Identifiable{
     var id: String { rawValue }
 }
 
+enum CattleAgeRange: String, Codable, CaseIterable, Identifiable{
+    case baby = "0-6 Bulan"
+    case veryYoung = "6-12 Bulan"
+    case young = "12-18 Bulan"
+    case mature = "18-24 Bulan"
+    case old = ">24 Bulan"
+    
+    var id: String { rawValue }
+}
+
 /// A cattle entry stored in the local database.
 @Model
 final class Cattle {

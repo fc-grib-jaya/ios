@@ -11,7 +11,7 @@ import SwiftUI
 /// settings work without extra code.
 enum AppColor {
     /// Brand color, used for primary actions.
-    static let primary = Color.green
+    static let primary = Color(#colorLiteral(red: 0.06274509804, green: 0.3450980392, blue: 0, alpha: 1))
 
     /// Page background.
     static let background = Color(uiColor: .systemBackground)

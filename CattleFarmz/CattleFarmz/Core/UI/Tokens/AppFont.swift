@@ -21,6 +21,7 @@ enum AppFont {
 
     /// Default body copy.
     static let body = Font.system(.body)
+    static let mediumBody = Font.system(.body, weight: .medium)
 
     /// Supporting and secondary copy.
     static let caption = Font.system(.caption)

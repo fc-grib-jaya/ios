@@ -1,10 +1,5 @@
 import Foundation
 
-enum CaptureDisplay: String, CaseIterable, Identifiable {
-    case photo = "Foto", depth = "Depth", overlay = "Gabungan"
-    var id: String { rawValue }
-}
-
 struct MeasurementGuideStep: Identifiable {
     let id: String
     let label: String

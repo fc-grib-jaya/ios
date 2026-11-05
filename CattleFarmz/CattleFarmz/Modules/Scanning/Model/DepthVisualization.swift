@@ -1,30 +1,32 @@
 import Foundation
 
-public enum DepthVisualizationError: Error {
+enum DepthVisualizationError: Error {
     case invalidDimensions
 }
 
-/// Top-left-origin RGBA8 image, already rotated to match the portrait RGB photo.
+/// Top-left-origin RGBA8 image, rotated to match the displayed RGB photo.
 /// Gray checkerboard denotes samples rejected by the measurement-depth policy.
-public struct DepthVisualization: Sendable {
-    public let width: Int
-    public let height: Int
-    public let rgba: [UInt8]
-    public let nearMeters: Double?
-    public let farMeters: Double?
-    public let validCount: Int
-    public let totalCount: Int
-    public var validFraction: Double { Double(validCount) / Double(max(1, totalCount)) }
+struct DepthVisualization: Sendable {
+    let width: Int
+    let height: Int
+    let rgba: [UInt8]
+    let nearMeters: Double?
+    let farMeters: Double?
+    let validCount: Int
+    let totalCount: Int
+    var validFraction: Double { Double(validCount) / Double(max(1, totalCount)) }
 
-    public init(frame: DepthFrame) throws {
+    init(frame: DepthFrame) throws {
         guard frame.width > 0, frame.height > 0,
               frame.width <= 8192, frame.height <= 8192,
               frame.meters.count == frame.width * frame.height,
               frame.confidence.count == frame.meters.count else {
             throw DepthVisualizationError.invalidDimensions
         }
-        width = frame.height
-        height = frame.width
+        let rawWidth = frame.width
+        let rawHeight = frame.height
+        width = frame.orientation.swapsDimensions ? rawHeight : rawWidth
+        height = frame.orientation.swapsDimensions ? rawWidth : rawHeight
         totalCount = frame.meters.count
         let values = frame.meters.indices.compactMap { index -> Double? in
             let value = Double(frame.meters[index])
@@ -45,20 +47,25 @@ public struct DepthVisualization: Sendable {
         let far = farMeters ?? 0
         let span = far - near
         var pixels = [UInt8](repeating: 255, count: totalCount * 4)
-        for rawY in 0..<frame.height {
-            for rawX in 0..<frame.width {
-                let source = rawY * frame.width + rawX
-                // Clockwise rotation: (x, y) -> (rawHeight - 1 - y, x).
-                // This agrees with DepthFrame.portraitToRaw, including pixel centers.
-                let portraitX = frame.height - 1 - rawY
-                let portraitY = rawX
-                let destination = (portraitY * width + portraitX) * 4
+        for displayY in 0..<height {
+            for displayX in 0..<width {
+                // Pixel centers keep the inverse mapping aligned with
+                // `DepthFrame.rawPoint(fromDisplay:)`.
+                let displayPoint = Point2(
+                    (Double(displayX) + 0.5) / Double(width),
+                    (Double(displayY) + 0.5) / Double(height)
+                )
+                let rawPoint = frame.orientation.rawPoint(fromDisplay: displayPoint)
+                let rawX = min(rawWidth - 1, max(0, Int(rawPoint.x * Double(rawWidth))))
+                let rawY = min(rawHeight - 1, max(0, Int(rawPoint.y * Double(rawHeight))))
+                let source = rawY * rawWidth + rawX
+                let destination = (displayY * width + displayX) * 4
                 let value = Double(frame.meters[source])
                 let color: (UInt8, UInt8, UInt8)
                 if DepthFrame.isUsableDepth(value, confidence: frame.confidence[source]) {
                     color = Self.color(at: span > 0 ? (value - near) / span : 0.5)
                 } else {
-                    let gray: UInt8 = ((portraitX / 4 + portraitY / 4) % 2 == 0) ? 55 : 88
+                    let gray: UInt8 = ((displayX / 4 + displayY / 4) % 2 == 0) ? 55 : 88
                     color = (gray, gray, gray)
                 }
                 pixels[destination] = color.0
@@ -70,7 +77,7 @@ public struct DepthVisualization: Sendable {
     }
 
     /// Near = yellow; middle = teal; far = blue. Exact same stops drive the legend.
-    public static func color(at fraction: Double) -> (UInt8, UInt8, UInt8) {
+    static func color(at fraction: Double) -> (UInt8, UInt8, UInt8) {
         let t = fraction.isFinite ? min(1, max(0, fraction)) : 0.5
         let near = (Double(248), Double(207), Double(67))
         let middle = (Double(39), Double(177), Double(153))

@@ -14,17 +14,20 @@ struct HomeView: View {
     @State private var cattlesViewModel: CattlesViewModel
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
+    private let onScanTap: () -> Void
 
     init(
         viewModel: HomeViewModel,
         cattlesViewModel: CattlesViewModel,
         onProfileTap: @escaping () -> Void,
-        onExamplePickerTap: @escaping () -> Void
+        onExamplePickerTap: @escaping () -> Void,
+        onScanTap: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
+        self.onScanTap = onScanTap
     }
 
     var body: some View {
@@ -72,11 +75,11 @@ struct HomeView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     viewModel.startScan()
-                    onProfileTap()
+                    onScanTap()
                 } label: {
                     Image(systemName: "camera.fill")
                 }
-                .accessibilityLabel("Profile")
+                .accessibilityLabel("Buka kamera LiDAR")
             }
 
             ToolbarItem(placement: .confirmationAction) {
@@ -92,25 +95,6 @@ struct HomeView: View {
     }
 }
 
-struct SankeyNode: Identifiable {
-    let id: String
-    let x: CGFloat
-    let y: CGFloat
-    let height: CGFloat
-    let color: Color
-    let label: String?
-}
-
-struct SankeyFlow: Identifiable {
-    let id: String
-    let startY: CGFloat
-    let endY: CGFloat
-    let startHeight: CGFloat
-    let endHeight: CGFloat
-    let colors: [Color]
-}
-
-
 
 #Preview {
     NavigationStack {
@@ -121,7 +105,8 @@ struct SankeyFlow: Identifiable {
                 calculation: WeightCalculator()
             ),
             onProfileTap: {},
-            onExamplePickerTap: {}
+            onExamplePickerTap: {},
+            onScanTap: {}
         )
     }
 }

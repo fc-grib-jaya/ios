@@ -1,12 +1,12 @@
-import Observation
 import Foundation
+import Observation
 
 @MainActor
 @Observable
 final class MeasurementViewModel {
     let capture: Capture
     let steps = MeasurementGuideStep.steps
-    let rawValidCount: Int
+    private(set) var rawValidCount = 0
     private(set) var flow: GuidedReviewFlow
     private(set) var landmarks: [Landmark] = []
     private(set) var depthPreview: DepthPreview?
@@ -16,20 +16,19 @@ final class MeasurementViewModel {
     private(set) var message: String?
     var display: CaptureDisplay = .overlay
 
-    @ObservationIgnored private let depthRenderer = DepthRenderer()
+    @ObservationIgnored private let depthRenderer: any DepthRendering
     @ObservationIgnored private var prepared = false
 
-    init(capture: Capture) {
+    /// Init only stores dependencies; the depth scan and render start in `prepare()`.
+    init(capture: Capture, renderer: any DepthRendering) {
         self.capture = capture
-        let raw=capture.metadata.depth
-        rawValidCount=raw.meters.indices.reduce(0) { count,index in
-            count + (DepthFrame.isUsableDepth(Double(raw.meters[index]),confidence:raw.confidence[index]) ? 1 : 0)
-        }
+        self.depthRenderer = renderer
         flow = GuidedReviewFlow(pointIDs: MeasurementGuideStep.steps.map(\.id))
     }
 
     var usesSmoothedDepth: Bool {
-        capture.metadata.smoothedDepth?.confidence.contains(where: { $0 >= 1 }) == true
+        capture.metadata.smoothedDepth?.confidence.contains(where: { $0 >= 1 })
+            == true
     }
 
     var currentStep: MeasurementGuideStep? {
@@ -39,7 +38,8 @@ final class MeasurementViewModel {
         landmarks.first { $0.id == flow.currentID }
     }
     var canBegin: Bool {
-        !depthLoading && depthError == nil && rawValidCount >= 3 && (depthPreview?.visualization.validCount ?? 0) >= 3
+        !depthLoading && depthError == nil && rawValidCount >= 3
+            && (depthPreview?.visualization.validCount ?? 0) >= 3
     }
     var currentDepthProblem: String? {
         guard let activePoint, let step = currentStep else { return nil }
@@ -52,8 +52,13 @@ final class MeasurementViewModel {
             if step.id == "chestTop" || step.id == "chestBottom" {
                 let direction = step.id == "chestTop" ? 1.0 : -1.0
                 for shift in [0.02, 0.04, 0.06] {
-                    let inside = Point2(activePoint.point.x, activePoint.point.y + direction * shift)
-                    if inside.isValid, (try? capture.metadata.depth.point(at: inside)) != nil {
+                    let inside = Point2(
+                        activePoint.point.x,
+                        activePoint.point.y + direction * shift
+                    )
+                    if inside.isValid,
+                        (try? capture.metadata.depth.point(at: inside)) != nil
+                    {
                         return nil
                     }
                 }
@@ -68,8 +73,18 @@ final class MeasurementViewModel {
     func prepare() {
         guard !prepared else { return }
         prepared = true
+        let raw = capture.metadata.depth
+        rawValidCount = raw.meters.indices.reduce(0) { count, index in
+            count
+                + (DepthFrame.isUsableDepth(
+                    Double(raw.meters[index]),
+                    confidence: raw.confidence[index]
+                ) ? 1 : 0)
+        }
         depthLoading = true
-        let previewFrame=usesSmoothedDepth ? capture.metadata.smoothedDepth! : capture.metadata.depth
+        let previewFrame =
+            usesSmoothedDepth
+            ? capture.metadata.smoothedDepth! : capture.metadata.depth
         depthRenderer.render(previewFrame) { [weak self] outcome in
             guard let self else { return }
             self.depthLoading = false
@@ -96,7 +111,9 @@ final class MeasurementViewModel {
         if let index = landmarks.firstIndex(where: { $0.id == step.id }) {
             landmarks[index].point = point
         } else {
-            landmarks.append(Landmark(id: step.id, label: step.label, point: point))
+            landmarks.append(
+                Landmark(id: step.id, label: step.label, point: point)
+            )
         }
         flow.invalidateCurrentAndFollowing()
         result = nil
@@ -131,12 +148,18 @@ final class MeasurementViewModel {
 
     private func compute() {
         guard flow.allReviewed else { return }
-        let points = Dictionary(uniqueKeysWithValues: landmarks.map { ($0.id, $0.point) })
+        let points = Dictionary(
+            uniqueKeysWithValues: landmarks.map { ($0.id, $0.point) }
+        )
         guard let shoulder = points["shoulder"], let pin = points["pin"],
-              let top = points["chestTop"], let bottom = points["chestBottom"] else { return }
+            let top = points["chestTop"], let bottom = points["chestBottom"]
+        else { return }
         do {
             result = try MeasurementEngine.cattle(
-                shoulder: shoulder, pin: pin, top: top, bottom: bottom,
+                shoulder: shoulder,
+                pin: pin,
+                top: top,
+                bottom: bottom,
                 depth: capture.metadata.depth
             )
             message = result?.warning
@@ -146,3 +169,37 @@ final class MeasurementViewModel {
         }
     }
 }
+
+#if DEBUG
+extension MeasurementViewModel {
+    /// Builds a view model driven by the synthetic capture, advanced through
+    /// the real flow so previews show each stage without a camera.
+    static func preview(_ stage: MeasurementPreviewStage) -> MeasurementViewModel {
+        let model = MeasurementViewModel(
+            capture: PreviewCattle.capture,
+            renderer: MockDepthRenderer()
+        )
+        model.prepare()
+        switch stage {
+        case .inspection:
+            break
+        case .point(let index):
+            model.beginGuide()
+            for step in model.steps.prefix(index) {
+                model.moveActivePoint(to: PreviewCattle.landmarks[step.id]!)
+                model.advance()
+            }
+        case .results:
+            for step in model.steps {
+                model.moveActivePoint(to: PreviewCattle.landmarks[step.id]!)
+                model.advance()
+            }
+            // The engine may reject the flat synthetic depth; show a fixed,
+            // deterministic result instead of whatever the fit produced.
+            model.result = PreviewCattle.result
+            model.message = nil
+        }
+        return model
+    }
+}
+#endif

@@ -28,6 +28,9 @@ struct MainTabView: View {
                                 coordinator.dismissSheet()
                             }
                         )
+                    },
+                    onScanTap: {
+                        coordinator.showScanSession(onFinish: { _ in })
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
@@ -43,10 +46,16 @@ struct MainTabView: View {
                 Label("Beranda", systemImage: "house")
             }
 
-            ScanningView()
-                .tabItem {
-                    Label("Bobot", systemImage: "powermeter")
-                }
+            ScanningView(
+                viewModel: container.makeScanningViewModel(
+                    navigation: ScanningNavigation(
+                        onScanTap: coordinator.showScanSession(onFinish:)
+                    )
+                )
+            )
+            .tabItem {
+                Label("Bobot", systemImage: "powermeter")
+            }
 
             HistoryView()
                 .tabItem {
@@ -68,6 +77,9 @@ struct MainTabView: View {
                     )
                 )
             }
+        }
+        .fullScreenCover(item: $coordinator.cover) { cover in
+            AppCoverView(cover: cover, container: container)
         }
     }
 }

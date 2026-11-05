@@ -9,9 +9,14 @@ import UIKit
 /// Cattles screen: a scrollable list of cattle.
 struct CattlesView: View {
     @State private var viewModel: CattlesViewModel
+    private let onCardTap: (String) -> Void
 
-    init(viewModel: CattlesViewModel) {
+    init(
+        viewModel: CattlesViewModel,
+        onCardTap: @escaping (String) -> Void
+    ) {
         _viewModel = State(initialValue: viewModel)
+        self.onCardTap = onCardTap
     }
 
     var body: some View {
@@ -25,15 +30,20 @@ struct CattlesView: View {
                             systemName: "photo"
                         )!
 
-                    CattleCard(
-                        cattleImage: image,
-                        name: cattle.name,
-                        breed: cattle.breed,
-                        gender: cattle.gender,
-                        age: cattle.currentAge,
-                        weight: bodyWeight,
-                        updated: .now
-                    )
+                    Button {
+                        onCardTap(cattle.id.uuidString)
+                    } label: {
+                        CattleCard(
+                            cattleImage: image,
+                            name: cattle.name,
+                            breed: cattle.breed,
+                            gender: cattle.gender,
+                            age: cattle.currentAge,
+                            weight: bodyWeight,
+                            updated: .now
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
             }
             .font(AppFont.body)
@@ -49,6 +59,7 @@ struct CattlesView: View {
         viewModel: CattlesViewModel(
             repository: MockCattleRepository(),
             calculation: WeightCalculator()
-        )
+        ),
+        onCardTap: { _ in }
     )
 }

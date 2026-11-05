@@ -8,11 +8,33 @@
 import SwiftUI
 
 struct CattlesFilterView: View {
+    @Environment(\.dismiss) var cancel
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        ZStack {
+            AppColor.background
+                .ignoresSafeArea()
+            
+            VStack (alignment: .leading) {
+                Text("Jenis Sapi")
+            }
+        }
+        .navigationTitle("Filter")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(content: {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    cancel()
+                } label: {
+                    Image(systemName: "xmark")
+                }
+            }
+        })
     }
 }
 
 #Preview {
-    CattlesFilterView()
+    NavigationStack {
+        CattlesFilterView()
+    }
 }

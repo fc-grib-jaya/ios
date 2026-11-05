@@ -6,9 +6,6 @@
 import SwiftUI
 
 /// Main tab interface: Home, Scan, and History.
-///
-/// Only this view knows which module backs each tab, and it is the place where
-/// module navigation closures are wired to the coordinator.
 struct MainTabView: View {
     let container: DIContainer
     @Bindable var coordinator: AppCoordinator
@@ -28,14 +25,20 @@ struct MainTabView: View {
                                 coordinator.dismissSheet()
                             }
                         )
+                    },
+                    onCardTap: { cattleID in
+                        coordinator.goToSapiDetail(id: cattleID)
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
-
-                    default: EmptyView()
+                    case .sapiDetail(let id):
+                        CattlesDetailView(
+                            cattleID: id,
+                            viewModel: container.makeCattlesViewModel()
+                        )
                     }
                 }
             }

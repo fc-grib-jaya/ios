@@ -5,36 +5,36 @@
 
 import SwiftUI
 
-/// Home screen placeholder with an entry point to the profile page.
-///
-/// The view never references the profile screen; it asks the `App` layer to
-/// navigate by calling `onProfileTap`.
+/// Home screen with an entry point to the profile page and cattle detail pages.
 struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @State private var cattlesViewModel: CattlesViewModel
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
+    private let onCardTap: (String) -> Void
 
     init(
         viewModel: HomeViewModel,
         cattlesViewModel: CattlesViewModel,
         onProfileTap: @escaping () -> Void,
-        onExamplePickerTap: @escaping () -> Void
+        onExamplePickerTap: @escaping () -> Void,
+        onCardTap: @escaping (String) -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
+        self.onCardTap = onCardTap
     }
-    
+
     @State var tambahSapi: Bool = false
 
     var body: some View {
         ZStack {
             AppColor.background
                 .ignoresSafeArea()
-            
-            if(cattlesViewModel.items.isEmpty) {
+
+            if cattlesViewModel.items.isEmpty {
                 ScrollView(.vertical, showsIndicators: false) {
                     NoCattleCard(tambahSapi: $tambahSapi)
                         .padding()
@@ -42,33 +42,21 @@ struct HomeView: View {
             } else {
                 VStack {
                     AddCattleButton(tambahSapi: $tambahSapi)
-                    CattlesView(viewModel: cattlesViewModel)
+                    CattlesView(viewModel: cattlesViewModel, onCardTap: onCardTap)
                 }
             }
-
         }
         .task { await cattlesViewModel.load() }
         .navigationTitle(viewModel.title)
-        //        .navigationSubtitle("Urus sapimu sing nggenah")
         .toolbar {
             ToolbarItem(
                 placement: .topBarLeading,
                 content: {
                     Menu {
-                        Button("Opsi 1", systemImage: "star") {
-                            // Aksi opsi 1
-                        }
-                        Button("Opsi 2", systemImage: "gear") {
-                            // Aksi opsi 2
-                        }
+                        Button("Opsi 1", systemImage: "star") {}
+                        Button("Opsi 2", systemImage: "gear") {}
                         Divider()
-                        Button(
-                            "Hapus",
-                            systemImage: "trash",
-                            role: .destructive
-                        ) {
-                            // Delete
-                        }
+                        Button("Hapus", systemImage: "trash", role: .destructive) {}
                     } label: {
                         Label("Menu", systemImage: "line.3.horizontal.decrease")
                     }
@@ -83,7 +71,7 @@ struct HomeView: View {
                 }
                 .accessibilityLabel("Profile")
             }
-            
+
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     tambahSapi = true
@@ -108,33 +96,13 @@ struct HomeView: View {
                         cattleImage: cattleImage?.jpegData(compressionQuality: 0.85),
                         notes: notes
                     )
-                    
+
                     await cattlesViewModel.load()
                 }
             }
         }
     }
 }
-
-struct SankeyNode: Identifiable {
-    let id: String
-    let x: CGFloat
-    let y: CGFloat
-    let height: CGFloat
-    let color: Color
-    let label: String?
-}
-
-struct SankeyFlow: Identifiable {
-    let id: String
-    let startY: CGFloat
-    let endY: CGFloat
-    let startHeight: CGFloat
-    let endHeight: CGFloat
-    let colors: [Color]
-}
-
-
 
 #Preview {
     NavigationStack {
@@ -145,8 +113,8 @@ struct SankeyFlow: Identifiable {
                 calculation: WeightCalculator()
             ),
             onProfileTap: {},
-            onExamplePickerTap: {}
+            onExamplePickerTap: {},
+            onCardTap: { _ in }
         )
     }
 }
-

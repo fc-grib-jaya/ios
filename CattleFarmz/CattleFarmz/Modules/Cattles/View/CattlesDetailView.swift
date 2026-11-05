@@ -2,78 +2,96 @@
 //  CattlesDetailView.swift
 //  CattleFarmz
 //
-//  Created by Dylan Amadeus on 05/11/26.
-//
 
 import SwiftUI
+import UIKit
 
 struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
+    private let cattleID: String
+    @State private var cattle: Cattle?
 
-    init(viewModel: CattlesViewModel) {
+    init(cattleID: String, viewModel: CattlesViewModel) {
+        self.cattleID = cattleID
         _viewModel = State(initialValue: viewModel)
     }
-    
+
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
-                ForEach(viewModel.items) { cattle in
-                    let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
-                    VStack(alignment: .leading) {
-                        Text(cattle.name)
-                        Text("\(cattle.currentAge) bulan")
-                        if let imageData = cattle.cattleImage,
-                           let image = UIImage(data: imageData) {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                        } else {
-                            Image(systemName: "photo")
-                                .font(AppFont.title)
-                                .foregroundStyle(AppColor.textSecondary)
+            if let cattle {
+                let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
+
+                LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
+                    Text(cattle.name)
+                    Text("\(cattle.currentAge) bulan")
+
+                    if let imageData = cattle.cattleImage,
+                       let image = UIImage(data: imageData) {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                    } else {
+                        Image(systemName: "photo")
+                            .font(AppFont.title)
+                            .foregroundStyle(AppColor.textSecondary)
+                    }
+
+                    if let bodyWeight {
+                        Text("Berat Sapi: \(bodyWeight, specifier: "%.2f") kg")
+
+                        if let carcassWeight = viewModel.carcassWeight(
+                            for: cattle,
+                            bodyWeight: bodyWeight
+                        ) {
+                            Text("Berat Karkas: \(carcassWeight, specifier: "%.2f") kg")
                         }
-                        
-                        if let bodyWeight {
-                            Text("Berat Sapi: \(bodyWeight, specifier: "%.2f") kg")
 
-                            if let carcassWeight = viewModel.carcassWeight(for: cattle, bodyWeight: bodyWeight) {
-                                Text("Berat Karkas: \(carcassWeight, specifier: "%.2f") kg")
-                            }
+                        if let meatWeight = viewModel.meatWeight(
+                            for: cattle,
+                            bodyWeight: bodyWeight
+                        ) {
+                            Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
+                                .padding(.bottom, AppSpacing.small)
+                        }
 
-                            if let meatWeight = viewModel.meatWeight(for: cattle, bodyWeight: bodyWeight) {
-                                Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
-                                    .padding(.bottom, AppSpacing.small)
-                            }
-
-                            ForEach(NonCarcassPart.allCases, id: \.self) { part in
-                                if let partWeight = viewModel.nonCarcassWeight(
-                                    for: cattle,
-                                    bodyWeight: bodyWeight,
-                                    part: part
-                                ) {
-                                    HStack {
-                                        Text(part.displayName)
-                                        Spacer()
-                                        Text("\(partWeight, specifier: "%.2f") kg")
-                                    }
+                        ForEach(NonCarcassPart.allCases, id: \.self) { part in
+                            if let partWeight = viewModel.nonCarcassWeight(
+                                for: cattle,
+                                bodyWeight: bodyWeight,
+                                part: part
+                            ) {
+                                HStack {
+                                    Text(part.displayName)
+                                    Spacer()
+                                    Text("\(partWeight, specifier: "%.2f") kg")
                                 }
                             }
-                            
-                        } else {
-                            Text("Not Measured")
                         }
+                    } else {
+                        Text("Not Measured")
                     }
-                    .padding(.bottom, AppSpacing.medium)
                 }
+                .font(AppFont.body)
+                .foregroundStyle(AppColor.textPrimary)
+                .padding(AppSpacing.medium)
+            } else {
+                ProgressView()
             }
-            .font(AppFont.body)
-            .foregroundStyle(AppColor.textPrimary)
-            .padding(AppSpacing.medium)
         }
-        .task { await viewModel.load() }
+        .navigationTitle(cattle?.name ?? "Detail Sapi")
+        .task {
+            await viewModel.load()
+            cattle = viewModel.items.first { $0.id.uuidString == cattleID }
+        }
     }
 }
 
 #Preview {
-    CattlesDetailView(viewModel: CattlesViewModel(repository: MockCattleRepository(), calculation: WeightCalculator()))
+    CattlesDetailView(
+        cattleID: Cattle.samples[0].id.uuidString,
+        viewModel: CattlesViewModel(
+            repository: MockCattleRepository(),
+            calculation: WeightCalculator()
+        )
+    )
 }

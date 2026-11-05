@@ -20,7 +20,13 @@ struct MainApp: App {
 
     init() {
         do {
-            let mc = try PersistenceController.makeContainer(for: [Cattle.self])
+            let mc = try PersistenceController.makeContainer(
+                for: [
+                    Cattle.self,
+                    StoredFeedIngredient.self,
+                    FeedCatalogSeedState.self
+                ]
+            )
             modelContainer = mc
             container = DIContainer.live(modelContext: mc.mainContext)
         } catch {

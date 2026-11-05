@@ -22,9 +22,27 @@ struct SplashView: View {
             AppColor.background
                 .ignoresSafeArea()
 
-            Text(viewModel.appName)
-                .font(AppFont.largeTitle)
-                .foregroundStyle(AppColor.textPrimary)
+            VStack(spacing: AppSpacing.medium) {
+                Text(viewModel.appName)
+                    .font(AppFont.largeTitle)
+                    .foregroundStyle(AppColor.textPrimary)
+
+                if let message = viewModel.errorMessage {
+                    Text(message)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(AppColor.textSecondary)
+
+                    GlassPrimaryButton("Try again") {
+                        Task {
+                            await viewModel.start()
+                        }
+                    }
+                }
+//                else {
+//                    ProgressView("Preparing feed catalog…")
+//                }
+            }
+            .padding(AppSpacing.medium)
         }
         .task {
             await viewModel.start()

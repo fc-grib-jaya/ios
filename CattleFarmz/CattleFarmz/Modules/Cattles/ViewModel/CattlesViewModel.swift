@@ -22,6 +22,22 @@ final class CattlesViewModel {
         self.calculation = calculation
     }
     
+    func add(
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
+        bodyWeight: Double?,
+        cattleImage: Data?,
+        notes: String?
+    ) throws {
+        try repository.add(name: name, dateAcquired: dateAcquired, breed: breed, gender: gender, recordedAge: recordedAge, chestGirth: chestGirth, bodyLength: bodyLength, bodyWeight: bodyWeight, cattleImage: cattleImage, notes: notes)
+        items = try repository.cattles()
+    }
+    
     func updateMeasurements(
         for cattle: Cattle,
         chestGirth: Double,
@@ -42,6 +58,13 @@ final class CattlesViewModel {
             for: cattle.id,
             bodyWeight: weight
         )
+    }
+    
+    func updateNotes(
+        for cattle: Cattle,
+        notes: String
+    ) throws {
+        try repository.updateNotes(for: cattle.id, notes: notes)
     }
 
     func cattleWeight(for cattle: Cattle) -> Double? {
@@ -91,6 +114,44 @@ final class CattlesViewModel {
         )
     }
     
+    func filteredItems(
+        selectedBreed: Set<String>,
+        selectedGender: Set<String>,
+        selectedAgeRange: Set<String>,
+        sortAscending: Bool = false
+    ) -> [Cattle] {
+        let filteredItems = items.filter { cattle in
+            let matchesBreed = selectedBreed.isEmpty || selectedBreed.contains(cattle.breed.rawValue)
+            let matchesGender = selectedGender.isEmpty || selectedGender.contains(cattle.gender.rawValue)
+            let matchesAge = selectedAgeRange.isEmpty || selectedAgeRange.contains { range in
+                ageRange(for: cattle.currentAge) == range
+            }
+
+            return matchesBreed && matchesGender && matchesAge
+        }
+
+        return filteredItems.sorted {
+            sortAscending
+                ? $0.dateAcquired < $1.dateAcquired
+                : $0.dateAcquired > $1.dateAcquired
+        }
+    }
+
+    private func ageRange(for ageInMonths: Int) -> String {
+        switch ageInMonths {
+        case 0..<6:
+            return CattleAgeRange.baby.rawValue
+        case 6..<12:
+            return CattleAgeRange.veryYoung.rawValue
+        case 12..<18:
+            return CattleAgeRange.young.rawValue
+        case 18..<24:
+            return CattleAgeRange.mature.rawValue
+        default:
+            return CattleAgeRange.old.rawValue
+        }
+    }
+
     /// Loads all cattle from the repository, newest acquisitions first.
     func load() async {
         items = (try? repository.cattles()) ?? []

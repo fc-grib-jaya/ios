@@ -26,7 +26,13 @@ final class SwiftDataCattleRepository: CattleRepository {
         name: String,
         dateAcquired: Date,
         breed: CattleBreed,
-        gender: CattleGender
+        gender: CattleGender,
+        recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
+        bodyWeight: Double?,
+        cattleImage: Data?,
+        notes: String?
     ) throws {
         context.insert(
             Cattle(
@@ -34,6 +40,12 @@ final class SwiftDataCattleRepository: CattleRepository {
                 dateAcquired: dateAcquired,
                 breed: breed,
                 gender: gender,
+                recordedAge: recordedAge,
+                chestGirth: chestGirth,
+                bodyLength: bodyLength,
+                bodyWeight: bodyWeight,
+                cattleImage: cattleImage,
+                notes: notes
             )
         )
         try context.save()
@@ -81,6 +93,14 @@ final class SwiftDataCattleRepository: CattleRepository {
         let cattle = try findCattle(for: cattleID)
 
         cattle.bodyWeight = bodyWeight
+        
+        try context.save()
+    }
+    
+    func updateNotes(for cattleID: UUID, notes: String) throws {
+        let cattle = try findCattle(for: cattleID)
+
+        cattle.notes = notes
         
         try context.save()
     }

@@ -42,9 +42,9 @@ struct HomeView: View {
             VStack(alignment: .leading) {
                 Text("Halo, Bapak Tono!")
                     .font(AppFont.largeTitle)
-                    .padding(.horizontal, AppSpacing.medium)
-                    .padding(.top, AppSpacing.medium)
-                    .padding(.bottom, AppSpacing.small)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.md)
+                    .padding(.bottom, AppSpacing.sm)
                 let filteredCattles = cattlesViewModel.filteredItems(
                     selectedBreed: selectedBreed,
                     selectedGender: selectedGender,
@@ -58,7 +58,7 @@ struct HomeView: View {
                         : "Kamu memiliki \(filteredCattles.count) sapi terdaftar."
                 )
                 .font(AppFont.body)
-                .padding(.horizontal, AppSpacing.medium)
+                .padding(.horizontal, AppSpacing.md)
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     if cattlesViewModel.items.isEmpty || filteredCattles.count == 0 {
@@ -67,7 +67,7 @@ struct HomeView: View {
                         Spacer()
                     } else {
                         AddCattleButton(tambahSapi: $tambahSapi)
-                            .padding(.vertical, AppSpacing.xm)
+                            .padding(.vertical, AppSpacing.xs)
                         CattlesView(
                             viewModel: cattlesViewModel,
                             selectedBreed: selectedBreed,

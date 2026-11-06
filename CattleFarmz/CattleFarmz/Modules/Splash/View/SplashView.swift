@@ -22,9 +22,24 @@ struct SplashView: View {
             AppColor.Surface.canvas
                 .ignoresSafeArea()
 
-            Text(viewModel.appName)
-                .font(AppFont.largeTitle)
-                .foregroundStyle(AppColor.Text.primary)
+            VStack(spacing: AppSpacing.md) {
+                Text(viewModel.appName)
+                    .font(AppFont.largeTitle)
+                    .foregroundStyle(AppColor.Text.secondary)
+
+                if let message = viewModel.errorMessage {
+                    Text(message)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(AppColor.Text.secondary)
+
+                    GlassPrimaryButton("Try again") {
+                        Task {
+                            await viewModel.start()
+                        }
+                    }
+                }
+            }
+            .padding(AppSpacing.md)
         }
         .task {
             await viewModel.start()

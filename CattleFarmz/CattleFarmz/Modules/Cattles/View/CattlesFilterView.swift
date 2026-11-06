@@ -15,10 +15,10 @@ struct CattlesFilterView: View {
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Primitive.Base.white
                 .ignoresSafeArea()
 
-            VStack(alignment: .leading, spacing: AppSpacing.medium) {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
                 VStack(alignment: .leading) {
                     Text("Jenis Sapi")
                         .font(AppFont.body)
@@ -26,7 +26,7 @@ struct CattlesFilterView: View {
                         options: CattleBreed.allCases.map(\.rawValue),
                         selectedOptions: $selectedBreed
                     )
-                    .padding(.bottom, AppSpacing.small)
+                    .padding(.bottom, AppSpacing.sm)
                     Divider()
                 }
 
@@ -37,7 +37,7 @@ struct CattlesFilterView: View {
                         options: CattleGender.allCases.map(\.rawValue),
                         selectedOptions: $selectedGender
                     )
-                    .padding(.bottom, AppSpacing.small)
+                    .padding(.bottom, AppSpacing.sm)
                     Divider()
                 }
                 
@@ -52,16 +52,19 @@ struct CattlesFilterView: View {
                 
                 Spacer()
                 
-                VStack(spacing: AppSpacing.small) {
+                VStack(spacing: AppSpacing.sm) {
                     Button {
                         filter()
                     } label: {
                         Text("Terapkan Filter")
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.onPrimary)
-                            .padding(.vertical, AppSpacing.xm)
+                            .foregroundStyle(AppColor.Text.primary)
+                            .padding(.vertical, AppSpacing.xs)
                             .frame(maxWidth: .infinity)
-                            .glassEffect(.regular.tint(AppColor.primary))
+                            .glassEffect(
+                                .regular
+                                    .tint(AppColor.Primitive.Primary.shade500)
+                            )
                     }
                     
                     Button {
@@ -71,14 +74,14 @@ struct CattlesFilterView: View {
                     } label: {
                         Text("Bersihkan Seluruhnya")
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.primary)
-                            .padding(.vertical, AppSpacing.xm)
+                            .foregroundStyle(AppColor.Text.primary)
+                            .padding(.vertical, AppSpacing.xs)
                             .frame(maxWidth: .infinity)
-                            .glassEffect(.regular.tint(AppColor.surface))
+                            .glassEffect(.regular.tint(AppColor.Surface.canvas))
                     }
                 }
             }
-            .padding(AppSpacing.medium)
+            .padding(AppSpacing.md)
         }
         .navigationTitle("Filter")
         .navigationBarTitleDisplayMode(.inline)

@@ -16,6 +16,13 @@ final class DIContainer {
     let haptics: any HapticProviding
     private let cattleRepository: any CattleRepository
     private let weightCalculation: any WeightCalculation
+
+    /// LiDAR capture service shared by every scan session.
+    ///
+    /// Created on first use, so launching the app never allocates an AR
+    /// session or asks for camera permission.
+    private(set) lazy var scanCapture: any ScanCapturing = CaptureService()
+
     
     private let feedProvider: () throws ->[FeedIngredient]
     private let rationCalculator: any RationCalculating
@@ -123,6 +130,27 @@ final class DIContainer {
             options: ["Sapi 1", "Sapi 2", "Sapi 3"],
             onSelect: onSelect
         )
+    }
+
+    /// Creates the scanning tab view model.
+    func makeScanningViewModel(navigation: ScanningNavigation) -> ScanningViewModel {
+        ScanningViewModel(navigation: navigation)
+    }
+
+    /// Creates the view model for one full-screen scan session.
+    func makeScanSessionViewModel(
+        onFinish: @escaping (ScanResult?) -> Void
+    ) -> ScanSessionViewModel {
+        ScanSessionViewModel(
+            service: scanCapture,
+            makeMeasurement: makeMeasurementViewModel(capture:),
+            onFinish: onFinish
+        )
+    }
+
+    /// Creates the measurement view model for one captured frame.
+    func makeMeasurementViewModel(capture: Capture) -> MeasurementViewModel {
+        MeasurementViewModel(capture: capture, renderer: DepthRenderer())
     }
     
     func makeRationPlanningViewModel()

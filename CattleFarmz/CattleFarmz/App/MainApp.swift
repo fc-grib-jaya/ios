@@ -12,6 +12,7 @@ import SwiftData
 /// both to `RootView`, which decides which screen is visible.
 @main
 struct MainApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var coordinator = AppCoordinator()
 
     // Model types come from modules; only the App layer may know them.

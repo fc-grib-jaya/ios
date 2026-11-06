@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var cattlesViewModel: CattlesViewModel
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
+    private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
 
     init(
@@ -18,12 +19,14 @@ struct HomeView: View {
         cattlesViewModel: CattlesViewModel,
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
+        onScanTap: @escaping () -> Void
         onCardTap: @escaping (String) -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
+        self.onScanTap = onScanTap
         self.onCardTap = onCardTap
     }
 
@@ -159,6 +162,7 @@ struct HomeView: View {
             ),
             onProfileTap: {},
             onExamplePickerTap: {},
+            onScanTap: {}
             onCardTap: { _ in }
         )
     }

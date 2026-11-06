@@ -26,6 +26,10 @@ struct MainTabView: View {
                             }
                         )
                     },
+                    onScanTap: {
+                        coordinator.showScanSession(onFinish: { scanResult in
+                            print(scanResult?.girthCM)
+                        })
                     onCardTap: { cattleID in
                         coordinator.goToSapiDetail(id: cattleID)
                     }
@@ -73,6 +77,9 @@ struct MainTabView: View {
                     )
                 }
             }
+        }
+        .fullScreenCover(item: $coordinator.cover) { cover in
+            AppCoverView(cover: cover, container: container)
         }
     }
 

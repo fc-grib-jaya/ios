@@ -18,25 +18,25 @@ struct ProfileView: View {
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
 
-            VStack(spacing: AppSpacing.medium) {
+            VStack(spacing: AppSpacing.md) {
                 Image(systemName: "person.crop.circle.fill")
                     .resizable()
                     .scaledToFit()
                     .frame(width: Self.avatarSize, height: Self.avatarSize)
-                    .foregroundStyle(AppColor.primary)
+                    .foregroundStyle(AppColor.Button.Primary.background)
 
                 Text(viewModel.profile.name)
                     .font(AppFont.title)
-                    .foregroundStyle(AppColor.textPrimary)
+                    .foregroundStyle(AppColor.Text.primary)
 
                 Text(viewModel.profile.email)
                     .font(AppFont.body)
-                    .foregroundStyle(AppColor.textSecondary)
+                    .foregroundStyle(AppColor.Text.secondary)
             }
-            .padding(AppSpacing.large)
+            .padding(AppSpacing.xl)
         }
         .navigationTitle("Profile")
     }

@@ -38,9 +38,6 @@ struct SplashView: View {
                         }
                     }
                 }
-//                else {
-//                    ProgressView("Preparing feed catalog…")
-//                }
             }
             .padding(AppSpacing.medium)
         }

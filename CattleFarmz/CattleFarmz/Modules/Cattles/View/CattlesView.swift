@@ -32,7 +32,7 @@ struct CattlesView: View {
     }
 
     var body: some View {
-        LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
+        LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
             ForEach(viewModel.filteredItems(
                 selectedBreed: selectedBreed,
                 selectedGender: selectedGender,

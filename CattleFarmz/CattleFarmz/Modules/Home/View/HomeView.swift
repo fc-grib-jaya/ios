@@ -37,7 +37,7 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
             VStack(alignment: .leading) {
                 Text("Halo, Bapak Tono!")

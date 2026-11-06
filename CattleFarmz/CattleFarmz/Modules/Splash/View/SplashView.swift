@@ -19,12 +19,12 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
 
             Text(viewModel.appName)
                 .font(AppFont.largeTitle)
-                .foregroundStyle(AppColor.textPrimary)
+                .foregroundStyle(AppColor.Text.primary)
         }
         .task {
             await viewModel.start()

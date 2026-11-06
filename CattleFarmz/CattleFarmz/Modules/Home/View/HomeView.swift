@@ -5,16 +5,14 @@
 
 import SwiftUI
 
-/// Home screen placeholder with an entry point to the profile page.
-///
-/// The view never references the profile screen; it asks the `App` layer to
-/// navigate by calling `onProfileTap`.
+/// Home screen with an entry point to the profile page and cattle detail pages.
 struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @State private var cattlesViewModel: CattlesViewModel
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
     private let onScanTap: () -> Void
+    private let onCardTap: (String) -> Void
 
     init(
         viewModel: HomeViewModel,
@@ -22,79 +20,137 @@ struct HomeView: View {
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
         onScanTap: @escaping () -> Void
+        onCardTap: @escaping (String) -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
         self.onScanTap = onScanTap
+        self.onCardTap = onCardTap
     }
+
+    @State var tambahSapi: Bool = false
+    @State var filterSapi: Bool = false
+
+    @State private var selectedBreed: Set<String> = []
+    @State private var selectedGender: Set<String> = []
+    @State private var selectedAgeRange: Set<String> = []
+    @State private var sortAscending = false
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
+            VStack(alignment: .leading) {
+                Text("Halo, Bapak Tono!")
+                    .font(AppFont.largeTitle)
+                    .padding(.horizontal, AppSpacing.medium)
+                    .padding(.top, AppSpacing.medium)
+                    .padding(.bottom, AppSpacing.small)
+                let filteredCattles = cattlesViewModel.filteredItems(
+                    selectedBreed: selectedBreed,
+                    selectedGender: selectedGender,
+                    selectedAgeRange: selectedAgeRange,
+                    sortAscending: sortAscending
+                )
 
-            VStack {
-                Button("Test haptics") {
-                    viewModel.startScan()
-                }
-                .buttonStyle(.glassProminent)
+                Text(
+                    cattlesViewModel.items.isEmpty || filteredCattles.count == 0
+                        ? "Kamu belum menambahkan sapi. Tambahkan untuk hitung bobot dan rancangan pakan."
+                        : "Kamu memiliki \(filteredCattles.count) sapi terdaftar."
+                )
+                .font(AppFont.body)
+                .padding(.horizontal, AppSpacing.medium)
                 
-                CattlesView(viewModel: cattlesViewModel)
-            }
-
-        }
-        .navigationTitle(viewModel.title)
-        //        .navigationSubtitle("Urus sapimu sing nggenah")
-        .toolbar {
-            ToolbarItem(
-                placement: .topBarLeading,
-                content: {
-
-                    Menu {
-                        Button("Opsi 1", systemImage: "star") {
-                            // Aksi opsi 1
-                        }
-                        Button("Opsi 2", systemImage: "gear") {
-                            // Aksi opsi 2
-                        }
-                        Divider()
-                        Button(
-                            "Hapus",
-                            systemImage: "trash",
-                            role: .destructive
-                        ) {
-                            // Delete
-                        }
-                    } label: {
-                        Label("Menu", systemImage: "line.3.horizontal.decrease")
+                ScrollView(.vertical, showsIndicators: false) {
+                    if cattlesViewModel.items.isEmpty || filteredCattles.count == 0 {
+                        NoCattleCard(tambahSapi: $tambahSapi)
+                            .padding()
+                        Spacer()
+                    } else {
+                        AddCattleButton(tambahSapi: $tambahSapi)
+                            .padding(.vertical, AppSpacing.xm)
+                        CattlesView(
+                            viewModel: cattlesViewModel,
+                            selectedBreed: selectedBreed,
+                            selectedGender: selectedGender,
+                            selectedAgeRange: selectedAgeRange,
+                            sortAscending: sortAscending,
+                            onCardTap: onCardTap
+                        )
                     }
                 }
-            )
+            }
+        }
+        .task { await cattlesViewModel.load() }
+        .navigationTitle(viewModel.title)
+        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    viewModel.startScan()
-                    onScanTap()
+                    sortAscending.toggle()
                 } label: {
-                    Image(systemName: "camera.fill")
+                    Image(systemName: "arrow.up.arrow.down")
+                        .scaleEffect(y: sortAscending ? 1 : -1)
                 }
-                .accessibilityLabel("Buka kamera LiDAR")
+                .accessibilityLabel(
+                    sortAscending
+                        ? "Urutkan tanggal terbaru ke terlama"
+                        : "Urutkan tanggal terlama ke terbaru"
+                )
             }
 
-            ToolbarItem(placement: .confirmationAction) {
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+            ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    onExamplePickerTap()
+                    filterSapi = true
                 } label: {
-                    Label("done", systemImage: "plus")
+                    Label("Menu", systemImage: "line.3.horizontal.decrease")
                 }
-                .tint(.green)
-                .accessibilityLabel("Pick Example")
+                .accessibilityLabel("Filter sapi")
+            }
+        }
+        .navigationDestination(isPresented: $tambahSapi) {
+            SapiFormView {
+                name,
+                date,
+                breed,
+                gender,
+                recordedAge,
+                bodyWeight,
+                cattleImage,
+                notes in
+                try cattlesViewModel.add(
+                    name: name,
+                    dateAcquired: date,
+                    breed: breed,
+                    gender: gender,
+                    recordedAge: recordedAge,
+                    chestGirth: nil,
+                    bodyLength: nil,
+                    bodyWeight: bodyWeight,
+                    cattleImage: cattleImage?.jpegData(
+                        compressionQuality: 0.85
+                    ),
+                    notes: notes
+                )
+
+                await cattlesViewModel.load()
+            }
+        }
+        .sheet(isPresented: $filterSapi) {
+            NavigationStack {
+                CattlesFilterView(
+                    selectedBreed: $selectedBreed,
+                    selectedGender: $selectedGender,
+                    selectedAgeRange: $selectedAgeRange
+                )
             }
         }
     }
 }
-
 
 #Preview {
     NavigationStack {
@@ -107,7 +163,7 @@ struct HomeView: View {
             onProfileTap: {},
             onExamplePickerTap: {},
             onScanTap: {}
+            onCardTap: { _ in }
         )
     }
 }
-

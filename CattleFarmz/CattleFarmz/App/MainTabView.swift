@@ -6,9 +6,6 @@
 import SwiftUI
 
 /// Main tab interface: Home, Scan, and History.
-///
-/// Only this view knows which module backs each tab, and it is the place where
-/// module navigation closures are wired to the coordinator.
 struct MainTabView: View {
     let container: DIContainer
     @Bindable var coordinator: AppCoordinator
@@ -33,14 +30,19 @@ struct MainTabView: View {
                         coordinator.showScanSession(onFinish: { scanResult in
                             print(scanResult?.girthCM)
                         })
+                    onCardTap: { cattleID in
+                        coordinator.goToSapiDetail(id: cattleID)
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
-
-                    default: EmptyView()
+                    case .sapiDetail(let id):
+                        CattlesDetailView(
+                            cattleID: id,
+                            viewModel: container.makeCattlesViewModel()
+                        )
                     }
                 }
             }
@@ -48,27 +50,22 @@ struct MainTabView: View {
                 Label("Beranda", systemImage: "house")
             }
 
-            ScanningView(
-                viewModel: container.makeScanningViewModel(
-                    navigation: ScanningNavigation(
-                        onScanTap: coordinator.showScanSession(onFinish:)
-                    )
-                )
-            )
-            .tabItem {
-                Label("Bobot", systemImage: "powermeter")
-            }
+//            ScanningView()
+//                .tabItem {
+//                    Label("Bobot", systemImage: "powermeter")
+//                }
 
             HistoryView()
                 .tabItem {
                     Label("Pakan", systemImage: "carrot")
                 }
 
-            ProfileView(viewModel: container.makeProfileViewModel())
-                .tabItem {
-                    Label("Profil", systemImage: "person")
-                }
+//            ProfileView(viewModel: container.makeProfileViewModel())
+//                .tabItem {
+//                    Label("Profil", systemImage: "person")
+//                }
         }
+        .tint(AppColor.primary)
         .sheet(item: $coordinator.sheet) { sheet in
             switch sheet {
             case .examplePickerSheet(let current, let onSelect):

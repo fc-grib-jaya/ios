@@ -19,23 +19,12 @@ struct ScanningView: View {
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
 
-            VStack(spacing: AppSpacing.medium) {
-                Button {
-                    viewModel.startScan()
-                } label: {
-                    Label("Buka kamera LiDAR", systemImage: "camera.fill")
-                        .padding(.vertical, AppSpacing.small)
-                }
-                .buttonStyle(.glassProminent)
-
-//                if let result = viewModel.lastResult {
-//                    lastResultCard(result)
-//                }
-            }
-            .padding(AppSpacing.large)
+            Text("Scan placeholder")
+                .font(AppFont.body)
+                .foregroundStyle(AppColor.Text.secondary)
         }
         .forcePortrait()
     }

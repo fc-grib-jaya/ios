@@ -30,7 +30,9 @@ struct MainTabView: View {
                         )
                     },
                     onScanTap: {
-                        coordinator.showScanSession(onFinish: { _ in })
+                        coordinator.showScanSession(onFinish: { scanResult in
+                            print(scanResult?.girthCM)
+                        })
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in

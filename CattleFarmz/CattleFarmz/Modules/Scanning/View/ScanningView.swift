@@ -31,41 +31,41 @@ struct ScanningView: View {
                 }
                 .buttonStyle(.glassProminent)
 
-                if let result = viewModel.lastResult {
-                    lastResultCard(result)
-                }
+//                if let result = viewModel.lastResult {
+//                    lastResultCard(result)
+//                }
             }
             .padding(AppSpacing.large)
         }
         .forcePortrait()
     }
 
-    private func lastResultCard(_ result: ScanResult) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.small) {
-            Text("Hasil terakhir")
-                .font(AppFont.headline)
-            LabeledContent(
-                "Panjang badan",
-                value: result.lengthCM.formatted(.number.precision(.fractionLength(1))) + " cm"
-            )
-            if let girth = result.girthCM {
-                LabeledContent(
-                    "Lingkar dada",
-                    value: girth.formatted(.number.precision(.fractionLength(1))) + " cm"
-                )
-            }
-            if let weight = result.weightKG {
-                LabeledContent(
-                    "Bobot Winter",
-                    value: "≈ " + weight.formatted(.number.precision(.fractionLength(0))) + " kg"
-                )
-            }
-        }
-        .font(AppFont.caption)
-        .foregroundStyle(AppColor.textPrimary)
-        .padding(AppSpacing.medium)
-        .background(AppColor.surface, in: RoundedRectangle(cornerRadius: AppRadius.medium))
-    }
+//    private func lastResultCard(_ result: ScanResult) -> some View {
+//        VStack(alignment: .leading, spacing: AppSpacing.small) {
+//            Text("Hasil terakhir")
+//                .font(AppFont.headline)
+//            LabeledContent(
+//                "Panjang badan",
+//                value: result.lengthCM.formatted(.number.precision(.fractionLength(1))) + " cm"
+//            )
+//            if let girth = result.girthCM {
+//                LabeledContent(
+//                    "Lingkar dada",
+//                    value: girth.formatted(.number.precision(.fractionLength(1))) + " cm"
+//                )
+//            }
+//            if let weight = result.weightKG {
+//                LabeledContent(
+//                    "Bobot Winter",
+//                    value: "≈ " + weight.formatted(.number.precision(.fractionLength(0))) + " kg"
+//                )
+//            }
+//        }
+//        .font(AppFont.caption)
+//        .foregroundStyle(AppColor.textPrimary)
+//        .padding(AppSpacing.medium)
+//        .background(AppColor.surface, in: RoundedRectangle(cornerRadius: AppRadius.medium))
+//    }
 }
 
 #Preview {

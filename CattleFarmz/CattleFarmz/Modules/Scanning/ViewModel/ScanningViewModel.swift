@@ -14,7 +14,7 @@ import Observation
 @MainActor
 final class ScanningViewModel {
     /// Measurement from the most recent finished session.
-    private(set) var lastResult: ScanResult?
+    private(set) var finalResult: ScanResult?
 
     private let navigation: ScanningNavigation
 
@@ -25,7 +25,9 @@ final class ScanningViewModel {
     func startScan() {
         navigation.onScanTap { [weak self] result in
             guard let result else { return }
-            self?.lastResult = result
+            print(result)
+
+            self?.finalResult = result
         }
     }
 }

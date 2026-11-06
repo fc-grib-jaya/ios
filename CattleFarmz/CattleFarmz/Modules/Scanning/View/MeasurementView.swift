@@ -104,10 +104,11 @@ struct MeasurementView: View {
                     Button {
                         advanceStage()
                     } label : {
-                        Label(advanceTitle, systemImage: "")
+                        Label("Lanjut", systemImage: "checkmark")
                     }
                     .tint(.blue)
                     .disabled(!canAdvanceStage)
+                    .labelStyle(.titleOnly)
                 }
             }
             if model.flow.stage == .results {
@@ -122,16 +123,6 @@ struct MeasurementView: View {
         }
         .task { model.prepare() }
         .forceLandscape()
-    }
-
-    /// The footer's primary action, now shown in the top bar.
-    private var advanceTitle: String {
-        switch model.flow.stage {
-        case .inspection, .results:
-            "Lanjut"
-        case .point(let index):
-            index == model.steps.count - 1 ? "Hitung" : "Lanjut"
-        }
     }
 
     private var canAdvanceStage: Bool {

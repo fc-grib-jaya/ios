@@ -9,7 +9,7 @@ import SwiftUI
 struct MainTabView: View {
     let container: DIContainer
     @Bindable var coordinator: AppCoordinator
-    
+
     var body: some View {
         TabView {
             NavigationStack(path: $coordinator.path) {
@@ -30,8 +30,9 @@ struct MainTabView: View {
                         coordinator.showScanSession(onFinish: { scanResult in
                             print(scanResult?.girthCM)
                         })
+                    },
                     onCardTap: { cattleID in
-                        coordinator.goToSapiDetail(id: cattleID)
+                        coordinator.goToSapiDetail(cattleID: cattleID)
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
@@ -49,39 +50,39 @@ struct MainTabView: View {
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-            
+
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
             .tabItem {
                 Label("Pakan", systemImage: "leaf")
             }
-                HistoryView()
-                    .tabItem {
-                        Label("History", systemImage: "carrot")
-                    }
-                
-                ProfileView(viewModel: container.makeProfileViewModel())
-                    .tabItem {
-                        Label("Profil", systemImage: "person")
-                    }
-            }
-            .sheet(item: $coordinator.sheet) { sheet in
-                switch sheet {
-                case .examplePickerSheet(let current, let onSelect):
-                    ExamplePickerSheetView(
-                        viewModel: container.makeExamplePickerSheetViewModel(
-                            current: current,
-                            onSelect: onSelect
-                        )
-                    )
+            HistoryView()
+                .tabItem {
+                    Label("History", systemImage: "carrot")
                 }
+
+            ProfileView(viewModel: container.makeProfileViewModel())
+                .tabItem {
+                    Label("Profil", systemImage: "person")
+                }
+        }
+        .sheet(item: $coordinator.sheet) { sheet in
+            switch sheet {
+            case .examplePickerSheet(let current, let onSelect):
+                ExamplePickerSheetView(
+                    viewModel: container.makeExamplePickerSheetViewModel(
+                        current: current,
+                        onSelect: onSelect
+                    )
+                )
             }
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)
         }
     }
+}
 
 #Preview {
     MainTabView(container: DIContainer.preview, coordinator: AppCoordinator())

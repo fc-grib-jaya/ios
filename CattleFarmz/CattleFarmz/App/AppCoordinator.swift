@@ -40,6 +40,10 @@ final class AppCoordinator {
 
         path.append(.profile)
     }
+    
+    func goToSapiDetail(cattleID: String) {
+        path.append(.sapiDetail(id: cattleID))
+    }
 
     /// App Sheet handling
 

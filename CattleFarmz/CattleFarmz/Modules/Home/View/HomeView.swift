@@ -19,7 +19,7 @@ struct HomeView: View {
         cattlesViewModel: CattlesViewModel,
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
-        onScanTap: @escaping () -> Void
+        onScanTap: @escaping () -> Void,
         onCardTap: @escaping (String) -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
@@ -162,7 +162,7 @@ struct HomeView: View {
             ),
             onProfileTap: {},
             onExamplePickerTap: {},
-            onScanTap: {}
+            onScanTap: {},
             onCardTap: { _ in }
         )
     }

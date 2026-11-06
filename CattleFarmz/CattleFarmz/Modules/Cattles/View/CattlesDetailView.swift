@@ -21,7 +21,7 @@ struct CattlesDetailView: View {
             if let cattle {
                 let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
 
-                LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
+                LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
                     Text(cattle.name)
                     Text("\(cattle.currentAge) bulan")
 
@@ -53,7 +53,7 @@ struct CattlesDetailView: View {
                             bodyWeight: bodyWeight
                         ) {
                             Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
-                                .padding(.bottom, AppSpacing.small)
+                                .padding(.bottom, AppSpacing.sm)
                         }
 
                         ForEach(NonCarcassPart.allCases, id: \.self) { part in
@@ -74,8 +74,8 @@ struct CattlesDetailView: View {
                     }
                 }
                 .font(AppFont.body)
-                .foregroundStyle(AppColor.textPrimary)
-                .padding(AppSpacing.medium)
+                .foregroundStyle(AppColor.Text.primary)
+                .padding(AppSpacing.md)
             } else {
                 ContentUnavailableView(
                     "Sapi Tidak Ditemukan",

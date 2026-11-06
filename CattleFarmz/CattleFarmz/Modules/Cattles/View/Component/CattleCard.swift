@@ -25,7 +25,7 @@ struct CattleCard: View {
                     .frame(width: 60, height: 60)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .padding(.trailing, AppSpacing.small)
+                    .padding(.trailing, AppSpacing.sm)
                 
                 VStack(alignment: .leading) {
                     Text(name)
@@ -33,7 +33,7 @@ struct CattleCard: View {
                     Text("\(breed.rawValue) • \(gender.rawValue) • \(age) bulan")
                 }
             }
-            .padding(.bottom, AppSpacing.small)
+            .padding(.bottom, AppSpacing.sm)
             
             Divider()
             
@@ -43,7 +43,7 @@ struct CattleCard: View {
                         .font(AppFont.body)
                     Text("Update: \(formatDate(updated))")
                         .font(AppFont.caption)
-                        .foregroundStyle(AppColor.textSecondary)
+                        .foregroundStyle(AppColor.Text.secondary)
                 }
                 Spacer()
                 Text(
@@ -52,12 +52,12 @@ struct CattleCard: View {
                     : String(format: "%.2f kg", weight!)
                 )
                     .font(AppFont.title)
-                    .foregroundStyle(AppColor.textBrown)
+                    .foregroundStyle(AppColor.Text.secondary)
             }
         }
-        .padding(AppSpacing.medium)
+        .padding(AppSpacing.md)
         .frame(maxWidth: .infinity)
-        .background(AppColor.background)
+        .background(AppColor.Card.background)
         .cornerRadius(16)
         .shadow(radius: 10, x: 0, y: 2)
     }

@@ -141,13 +141,13 @@ struct RationPlanningView: View {
 
             if viewModel.selectedFeeds.isEmpty {
                 Text("Choose at least one feed to begin.")
-                    .foregroundStyle(AppColor.textSecondary)
+                    .foregroundStyle(AppColor.Text.secondary)
             }
 
             ForEach(viewModel.selectedFeeds) { feed in
                 VStack(
                     alignment: .leading,
-                    spacing: AppSpacing.small
+                    spacing: AppSpacing.sm
                 ) {
                     HStack {
                         Text(feed.name)
@@ -204,7 +204,7 @@ struct RationPlanningView: View {
                     + "\(viewModel.selectedFeedIDs.count) selected"
                 )
                 .font(AppFont.caption)
-                .foregroundStyle(AppColor.textSecondary)
+                .foregroundStyle(AppColor.Text.secondary)
             }
 
             ForEach(viewModel.filteredFeeds) { feed in
@@ -212,7 +212,7 @@ struct RationPlanningView: View {
                     Button {
                         viewModel.toggleFeed(feed)
                     } label: {
-                        HStack(spacing: AppSpacing.small) {
+                        HStack(spacing: AppSpacing.sm) {
                             Image(
                                 systemName:
                                     viewModel.selectedFeedIDs.contains(feed.id)
@@ -225,11 +225,11 @@ struct RationPlanningView: View {
                                 spacing: AppSpacing.xs
                             ) {
                                 Text(feed.name)
-                                    .foregroundStyle(AppColor.textPrimary)
+                                    .foregroundStyle(AppColor.Text.primary)
 
                                 Text(feed.category.rawValue)
                                     .font(AppFont.caption)
-                                    .foregroundStyle(AppColor.textSecondary)
+                                    .foregroundStyle(AppColor.Text.secondary)
                             }
                         }
                     }
@@ -247,7 +247,7 @@ struct RationPlanningView: View {
 
             if viewModel.filteredFeeds.isEmpty {
                 Text("No feeds match your search.")
-                    .foregroundStyle(AppColor.textSecondary)
+                    .foregroundStyle(AppColor.Text.secondary)
             }
         }
         .navigationTitle("Choose feeds")
@@ -299,7 +299,7 @@ struct RationPlanningView: View {
             ForEach(result.items) { item in
                 VStack(
                     alignment: .leading,
-                    spacing: AppSpacing.small
+                    spacing: AppSpacing.sm
                 ) {
                     Text(item.ingredient.name)
                         .font(AppFont.headline)
@@ -355,7 +355,7 @@ struct RationPlanningView: View {
                         warning,
                         systemImage: "exclamationmark.triangle.fill"
                     )
-                    .foregroundStyle(AppColor.primary)
+                    .foregroundStyle(Color.primary)
                 }
             }
         }
@@ -415,7 +415,7 @@ struct RationPlanningView: View {
                         "Reference: \(resultMeasurement(row.2, unit: row.3))"
                     )
                     .font(AppFont.caption)
-                    .foregroundStyle(AppColor.textSecondary)
+                    .foregroundStyle(AppColor.Text.secondary)
 
                     if let actualValue = row.1,
                        let referenceValue = row.2 {
@@ -427,13 +427,13 @@ struct RationPlanningView: View {
                         .font(AppFont.caption)
                         .foregroundStyle(
                             actualValue < referenceValue
-                            ? AppColor.primary
-                            : AppColor.textSecondary
+                            ? AppColor.Text.primary
+                            : AppColor.Text.secondary
                         )
                     } else {
                         Text("Comparison unavailable")
                             .font(AppFont.caption)
-                            .foregroundStyle(AppColor.textSecondary)
+                            .foregroundStyle(AppColor.Text.secondary)
                     }
                 }
             } label: {

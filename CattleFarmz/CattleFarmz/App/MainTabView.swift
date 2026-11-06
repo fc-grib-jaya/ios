@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import PhosphorSwift
 
 /// Main tab interface: Home, Scan, and History.
 struct MainTabView: View {

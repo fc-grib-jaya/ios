@@ -1,0 +1,413 @@
+﻿Nama Pakan,Jenis Hewan,Kategori,Protein (%),TDN (%),Ca (%),P (%),Mg (%),Fe (ppm),Cu (ppm),Zn (ppm),Harga (Rp/satuan)
+Rumput Gajah,Sapi,Hijauan,10.2,55.0,0.5,0.3,0.2,250,10,40,1000
+Jerami Padi,Sapi,Hijauan,4.5,43.0,0.4,0.2,0.1,200,5,30,800
+Bungkil Kedelai,Sapi,Konsentrat,42.0,75.0,0.3,0.6,0.3,120,15,50,8000
+Minyak Kelapa (L),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
+Minyak Kelapa (L),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
+Minyak Kelapa (L),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,0,0,0,18000
+Dedak Padi,Sapi,Konsentrat,12.5,65.0,0.1,0.5,0.4,300,20,70,3500
+Jagung Giling,Sapi,Konsentrat,9.0,78.0,0.1,0.3,0.2,50,8,25,5000
+Rumput Raja,Sapi,Hijauan,11.5,58.0,0.6,0.4,0.3,280,12,45,1200
+Rumput Benggala,Sapi,Hijauan,9.8,54.0,0.4,0.3,0.2,230,8,38,950
+Rumput Setaria,Sapi,Hijauan,8.5,52.0,0.5,0.3,0.2,210,9,35,900
+Lamtoro,Sapi,Hijauan,22.0,65.0,1.2,0.3,0.4,320,15,42,1500
+Gamal,Sapi,Hijauan,20.0,62.0,1.0,0.2,0.3,290,12,40,1400
+Jerami Jagung,Sapi,Hijauan,5.5,48.0,0.3,0.2,0.2,180,7,25,750
+Jerami Kedelai,Sapi,Hijauan,6.2,50.0,1.3,0.2,0.3,220,8,28,850
+Kulit Kopi,Sapi,Hijauan,8.0,45.0,0.5,0.1,0.2,300,20,40,600
+Tebon Jagung,Sapi,Hijauan,9.0,60.0,0.3,0.3,0.2,190,8,30,1100
+Silase Jagung,Sapi,Hijauan,8.5,65.0,0.4,0.3,0.2,200,10,35,1300
+Hay Alfalfa,Sapi,Hijauan,18.0,58.0,1.5,0.3,0.3,250,15,35,7000
+Ampas Tahu,Sapi,Konsentrat,20.0,70.0,0.3,0.2,0.1,150,10,40,2500
+Bungkil Kelapa,Sapi,Konsentrat,21.0,74.0,0.2,0.6,0.3,240,25,55,4000
+Bungkil Sawit,Sapi,Konsentrat,16.0,72.0,0.3,0.5,0.3,380,22,45,3200
+Onggok,Sapi,Konsentrat,2.5,76.0,0.2,0.1,0.1,120,5,15,2000
+Molases,Sapi,Konsentrat,4.0,80.0,0.8,0.1,0.3,100,15,20,3000
+Tepung Ikan,Sapi,Konsentrat,60.0,70.0,5.0,3.0,0.5,350,8,80,12000
+Bungkil Kacang Tanah,Sapi,Konsentrat,45.0,75.0,0.2,0.5,0.3,300,15,60,7500
+Wheat Pollard,Sapi,Konsentrat,16.5,70.0,0.1,0.8,0.4,150,12,95,4500
+Kulit Singkong,Sapi,Konsentrat,4.2,68.0,0.4,0.1,0.2,130,8,20,1800
+Tumpi Jagung,Sapi,Konsentrat,7.5,75.0,0.1,0.2,0.2,100,5,30,2800
+Ampas Bir,Sapi,Konsentrat,25.0,70.0,0.3,0.5,0.2,170,15,65,3800
+DDGS Jagung,Sapi,Konsentrat,28.0,82.0,0.2,0.8,0.3,250,8,75,6500
+Gaplek,Sapi,Konsentrat,3.0,80.0,0.1,0.1,0.1,50,5,15,3000
+Rumput Gajah,Kambing,Hijauan,10.2,55.0,0.5,0.3,0.2,250,10,40,1000
+Jerami Padi,Kambing,Hijauan,4.5,43.0,0.4,0.2,0.1,200,5,30,800
+Bungkil Kedelai,Kambing,Konsentrat,42.0,75.0,0.3,0.6,0.3,120,15,50,8000
+Dedak Padi,Kambing,Konsentrat,12.5,65.0,0.1,0.5,0.4,300,20,70,3500
+Jagung Giling,Kambing,Konsentrat,9.0,78.0,0.1,0.3,0.2,50,8,25,5000
+Rumput Raja,Kambing,Hijauan,11.5,58.0,0.6,0.4,0.3,280,12,45,1200
+Rumput Benggala,Kambing,Hijauan,9.8,54.0,0.4,0.3,0.2,230,8,38,950
+Rumput Setaria,Kambing,Hijauan,8.5,52.0,0.5,0.3,0.2,210,9,35,900
+Lamtoro,Kambing,Hijauan,22.0,65.0,1.2,0.3,0.4,320,15,42,1500
+Gamal,Kambing,Hijauan,20.0,62.0,1.0,0.2,0.3,290,12,40,1400
+Jerami Jagung,Kambing,Hijauan,5.5,48.0,0.3,0.2,0.2,180,7,25,750
+Jerami Kedelai,Kambing,Hijauan,6.2,50.0,1.3,0.2,0.3,220,8,28,850
+Kulit Kopi,Kambing,Hijauan,8.0,45.0,0.5,0.1,0.2,300,20,40,600
+Tebon Jagung,Kambing,Hijauan,9.0,60.0,0.3,0.3,0.2,190,8,30,1100
+Silase Jagung,Kambing,Hijauan,8.5,65.0,0.4,0.3,0.2,200,10,35,1300
+Hay Alfalfa,Kambing,Hijauan,18.0,58.0,1.5,0.3,0.3,250,15,35,7000
+Ampas Tahu,Kambing,Konsentrat,20.0,70.0,0.3,0.2,0.1,150,10,40,2500
+Bungkil Kelapa,Kambing,Konsentrat,21.0,74.0,0.2,0.6,0.3,240,25,55,4000
+Bungkil Sawit,Kambing,Konsentrat,16.0,72.0,0.3,0.5,0.3,380,22,45,3200
+Onggok,Kambing,Konsentrat,2.5,76.0,0.2,0.1,0.1,120,5,15,2000
+Molases,Kambing,Konsentrat,4.0,80.0,0.8,0.1,0.3,100,15,20,3000
+Tepung Ikan,Kambing,Konsentrat,60.0,70.0,5.0,3.0,0.5,350,8,80,12000
+Bungkil Kacang Tanah,Kambing,Konsentrat,45.0,75.0,0.2,0.5,0.3,300,15,60,7500
+Wheat Pollard,Kambing,Konsentrat,16.5,70.0,0.1,0.8,0.4,150,12,95,4500
+Kulit Singkong,Kambing,Konsentrat,4.2,68.0,0.4,0.1,0.2,130,8,20,1800
+Tumpi Jagung,Kambing,Konsentrat,7.5,75.0,0.1,0.2,0.2,100,5,30,2800
+Ampas Bir,Kambing,Konsentrat,25.0,70.0,0.3,0.5,0.2,170,15,65,3800
+DDGS Jagung,Kambing,Konsentrat,28.0,82.0,0.2,0.8,0.3,250,8,75,6500
+Gaplek,Kambing,Konsentrat,3.0,80.0,0.1,0.1,0.1,50,5,15,3000
+Rumput Gajah,Domba,Hijauan,10.2,55.0,0.5,0.3,0.2,250,10,40,1000
+Jerami Padi,Domba,Hijauan,4.5,43.0,0.4,0.2,0.1,200,5,30,800
+Bungkil Kedelai,Domba,Konsentrat,42.0,75.0,0.3,0.6,0.3,120,15,50,8000
+Dedak Padi,Domba,Konsentrat,12.5,65.0,0.1,0.5,0.4,300,20,70,3500
+Jagung Giling,Domba,Konsentrat,9.0,78.0,0.1,0.3,0.2,50,8,25,5000
+Rumput Raja,Domba,Hijauan,11.5,58.0,0.6,0.4,0.3,280,12,45,1200
+Rumput Benggala,Domba,Hijauan,9.8,54.0,0.4,0.3,0.2,230,8,38,950
+Rumput Setaria,Domba,Hijauan,8.5,52.0,0.5,0.3,0.2,210,9,35,900
+Lamtoro,Domba,Hijauan,22.0,65.0,1.2,0.3,0.4,320,15,42,1500
+Gamal,Domba,Hijauan,20.0,62.0,1.0,0.2,0.3,290,12,40,1400
+Jerami Jagung,Domba,Hijauan,5.5,48.0,0.3,0.2,0.2,180,7,25,750
+Jerami Kedelai,Domba,Hijauan,6.2,50.0,1.3,0.2,0.3,220,8,28,850
+Kulit Kopi,Domba,Hijauan,8.0,45.0,0.5,0.1,0.2,300,20,40,600
+Tebon Jagung,Domba,Hijauan,9.0,60.0,0.3,0.3,0.2,190,8,30,1100
+Silase Jagung,Domba,Hijauan,8.5,65.0,0.4,0.3,0.2,200,10,35,1300
+Hay Alfalfa,Domba,Hijauan,18.0,58.0,1.5,0.3,0.3,250,15,35,7000
+Ampas Tahu,Domba,Konsentrat,20.0,70.0,0.3,0.2,0.1,150,10,40,2500
+Bungkil Kelapa,Domba,Konsentrat,21.0,74.0,0.2,0.6,0.3,240,25,55,4000
+Bungkil Sawit,Domba,Konsentrat,16.0,72.0,0.3,0.5,0.3,380,22,45,3200
+Onggok,Domba,Konsentrat,2.5,76.0,0.2,0.1,0.1,120,5,15,2000
+Molases,Domba,Konsentrat,4.0,80.0,0.8,0.1,0.3,100,15,20,3000
+Tepung Ikan,Domba,Konsentrat,60.0,70.0,5.0,3.0,0.5,350,8,80,12000
+Bungkil Kacang Tanah,Domba,Konsentrat,45.0,75.0,0.2,0.5,0.3,300,15,60,7500
+Wheat Pollard,Domba,Konsentrat,16.5,70.0,0.1,0.8,0.4,150,12,95,4500
+Kulit Singkong,Domba,Konsentrat,4.2,68.0,0.4,0.1,0.2,130,8,20,1800
+Tumpi Jagung,Domba,Konsentrat,7.5,75.0,0.1,0.2,0.2,100,5,30,2800
+Ampas Bir,Domba,Konsentrat,25.0,70.0,0.3,0.5,0.2,170,15,65,3800
+DDGS Jagung,Domba,Konsentrat,28.0,82.0,0.2,0.8,0.3,250,8,75,6500
+Gaplek,Domba,Konsentrat,3.0,80.0,0.1,0.1,0.1,50,5,15,3000
+Daun Singkong,Sapi,Hijauan,21.0,65.0,1.2,0.3,0.4,300,10,42,1000
+Daun Ubi Jalar,Sapi,Hijauan,16.0,60.0,0.9,0.4,0.3,280,10,38,900
+Kaliandra,Sapi,Hijauan,23.0,55.0,1.3,0.2,0.4,250,12,40,1200
+Indigofera,Sapi,Hijauan,25.0,70.0,1.5,0.4,0.5,300,14,45,1500
+Daun Singkong,Kambing,Hijauan,21.0,65.0,1.2,0.3,0.4,300,10,42,1000
+Daun Ubi Jalar,Kambing,Hijauan,16.0,60.0,0.9,0.4,0.3,280,10,38,900
+Kaliandra,Kambing,Hijauan,23.0,55.0,1.3,0.2,0.4,250,12,40,1200
+Indigofera,Kambing,Hijauan,25.0,70.0,1.5,0.4,0.5,300,14,45,1500
+Daun Singkong,Domba,Hijauan,21.0,65.0,1.2,0.3,0.4,300,10,42,1000
+Daun Ubi Jalar,Domba,Hijauan,16.0,60.0,0.9,0.4,0.3,280,10,38,900
+Kaliandra,Domba,Hijauan,23.0,55.0,1.3,0.2,0.4,250,12,40,1200
+Indigofera,Domba,Hijauan,25.0,70.0,1.5,0.4,0.5,300,14,45,1500
+Ampas Kelapa,Sapi,Konsentrat,23.0,79.0,0.2,0.6,0.3,280,20,60,2000
+Ampas Kelapa,Kambing,Konsentrat,23.0,79.0,0.2,0.6,0.3,280,20,60,2000
+Ampas Kelapa,Domba,Konsentrat,23.0,79.0,0.2,0.6,0.3,280,20,60,2000
+Ampas Sagu,Sapi,Konsentrat,2.1,68.0,0.2,0.1,0.1,95,6,18,1500
+Ampas Sagu,Kambing,Konsentrat,2.1,68.0,0.2,0.1,0.1,95,6,18,1500
+Ampas Sagu,Domba,Konsentrat,2.1,68.0,0.2,0.1,0.1,95,6,18,1500
+Batang Pisang,Sapi,Hijauan,3.5,50.0,0.3,0.2,0.4,260,8,32,500
+Batang Pisang,Kambing,Hijauan,3.5,50.0,0.3,0.2,0.4,260,8,32,500
+Batang Pisang,Domba,Hijauan,3.5,50.0,0.3,0.2,0.4,260,8,32,500
+Kulit Pisang,Sapi,Hijauan,6.5,58.0,0.6,0.1,0.3,200,7,25,400
+Kulit Pisang,Kambing,Hijauan,6.5,58.0,0.6,0.1,0.3,200,7,25,400
+Kulit Pisang,Domba,Hijauan,6.5,58.0,0.6,0.1,0.3,200,7,25,400
+Putak (Gewang),Sapi,Hijauan,5.2,62.0,0.3,0.2,0.1,150,6,22,1200
+Putak (Gewang),Kambing,Hijauan,5.2,62.0,0.3,0.2,0.1,150,6,22,1200
+Putak (Gewang),Domba,Hijauan,5.2,62.0,0.3,0.2,0.1,150,6,22,1200
+Rumput Odot,Sapi,Hijauan,12.8,61.0,0.7,0.4,0.3,270,11,42,1100
+Rumput Odot,Kambing,Hijauan,12.8,61.0,0.7,0.4,0.3,270,11,42,1100
+Rumput Odot,Domba,Hijauan,12.8,61.0,0.7,0.4,0.3,270,11,42,1100
+Daun Nangka,Sapi,Hijauan,14.5,62.0,1.0,0.3,0.3,245,9,30,750
+Daun Nangka,Kambing,Hijauan,14.5,62.0,1.0,0.3,0.3,245,9,30,750
+Daun Nangka,Domba,Hijauan,14.5,62.0,1.0,0.3,0.3,245,9,30,750
+Daun Bambu,Sapi,Hijauan,16.8,56.0,0.6,0.3,0.2,220,8,25,600
+Daun Bambu,Kambing,Hijauan,16.8,56.0,0.6,0.3,0.2,220,8,25,600
+Daun Bambu,Domba,Hijauan,16.8,56.0,0.6,0.3,0.2,220,8,25,600
+Kulit Kakao,Sapi,Hijauan,7.8,47.0,0.6,0.2,0.3,320,22,45,550
+Kulit Kakao,Kambing,Hijauan,7.8,47.0,0.6,0.2,0.3,320,22,45,550
+Kulit Kakao,Domba,Hijauan,7.8,47.0,0.6,0.2,0.3,320,22,45,550
+Tepung Limbah Udang,Sapi,Konsentrat,45.0,60.0,7.0,1.5,0.3,150,25,70,9000
+Tepung Limbah Udang,Kambing,Konsentrat,45.0,60.0,7.0,1.5,0.3,150,25,70,9000
+Tepung Limbah Udang,Domba,Konsentrat,45.0,60.0,7.0,1.5,0.3,150,25,70,9000
+Daun Pepaya,Sapi,Hijauan,20.5,60.0,0.8,0.4,0.3,240,9,35,850
+Daun Pepaya,Kambing,Hijauan,20.5,60.0,0.8,0.4,0.3,240,9,35,850
+Daun Pepaya,Domba,Hijauan,20.5,60.0,0.8,0.4,0.3,240,9,35,850
+Sesbania (Turi),Sapi,Hijauan,24.0,68.0,1.6,0.4,0.4,310,12,38,1300
+Sesbania (Turi),Kambing,Hijauan,24.0,68.0,1.6,0.4,0.4,310,12,38,1300
+Sesbania (Turi),Domba,Hijauan,24.0,68.0,1.6,0.4,0.4,310,12,38,1300
+Kulit Nanas,Sapi,Hijauan,4.2,53.0,0.3,0.1,0.2,140,6,20,450
+Kulit Nanas,Kambing,Hijauan,4.2,53.0,0.3,0.1,0.2,140,6,20,450
+Kulit Nanas,Domba,Hijauan,4.2,53.0,0.3,0.1,0.2,140,6,20,450
+Ampas Kecap,Sapi,Konsentrat,35.0,72.0,0.5,0.7,0.3,180,18,55,3000
+Ampas Kecap,Kambing,Konsentrat,35.0,72.0,0.5,0.7,0.3,180,18,55,3000
+Ampas Kecap,Domba,Konsentrat,35.0,72.0,0.5,0.7,0.3,180,18,55,3000
+Biji Kapuk,Sapi,Konsentrat,30.0,85.0,0.2,0.6,0.3,200,16,58,4800
+Biji Kapuk,Kambing,Konsentrat,30.0,85.0,0.2,0.6,0.3,200,16,58,4800
+Biji Kapuk,Domba,Konsentrat,30.0,85.0,0.2,0.6,0.3,200,16,58,4800
+Bungkil Biji Kapas,Sapi,Konsentrat,40.0,75.0,0.2,0.6,0.4,220,15,50,7200
+Bungkil Biji Kapas,Kambing,Konsentrat,40.0,75.0,0.2,0.6,0.4,220,15,50,7200
+Bungkil Biji Kapas,Domba,Konsentrat,40.0,75.0,0.2,0.6,0.4,220,15,50,7200
+Daun Katuk,Sapi,Hijauan,27.5,65.0,1.8,0.4,0.4,280,10,40,1200
+Daun Katuk,Kambing,Hijauan,27.5,65.0,1.8,0.4,0.4,280,10,40,1200
+Daun Katuk,Domba,Hijauan,27.5,65.0,1.8,0.4,0.4,280,10,40,1200
+Daun Sengon,Sapi,Hijauan,21.0,65.0,1.0,0.3,0.3,230,9,35,800
+Daun Sengon,Kambing,Hijauan,21.0,65.0,1.0,0.3,0.3,230,9,35,800
+Daun Sengon,Domba,Hijauan,21.0,65.0,1.0,0.3,0.3,230,9,35,800
+Rumput Brachiaria,Sapi,Hijauan,9.5,56.0,0.5,0.3,0.2,240,9,38,980
+Rumput Brachiaria,Kambing,Hijauan,9.5,56.0,0.5,0.3,0.2,240,9,38,980
+Rumput Brachiaria,Domba,Hijauan,9.5,56.0,0.5,0.3,0.2,240,9,38,980
+Rumput Panicum Maximum,Sapi,Hijauan,10.0,55.0,0.6,0.3,0.2,235,9,36,950
+Rumput Panicum Maximum,Kambing,Hijauan,10.0,55.0,0.6,0.3,0.2,235,9,36,950
+Rumput Panicum Maximum,Domba,Hijauan,10.0,55.0,0.6,0.3,0.2,235,9,36,950
+Daun Kelor,Sapi,Hijauan,26.5,75.0,2.0,0.6,0.5,350,8,30,1800
+Daun Kelor,Kambing,Hijauan,26.5,75.0,2.0,0.6,0.5,350,8,30,1800
+Daun Kelor,Domba,Hijauan,26.5,75.0,2.0,0.6,0.5,350,8,30,1800
+Rumput Mott,Sapi,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
+Rumput Mott,Kambing,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
+Rumput Mott,Domba,Hijauan,14.0,62.0,0.8,0.4,0.3,260,11,40,1150
+Kacang Hijau Afkir,Sapi,Konsentrat,24.0,81.0,0.2,0.4,0.3,280,15,55,4500
+Kacang Hijau Afkir,Kambing,Konsentrat,24.0,81.0,0.2,0.4,0.3,280,15,55,4500
+Kacang Hijau Afkir,Domba,Konsentrat,24.0,81.0,0.2,0.4,0.3,280,15,55,4500
+Tepung Darah,Sapi,Konsentrat,80.0,75.0,0.3,0.3,0.2,2800,12,40,10000
+Tepung Darah,Kambing,Konsentrat,80.0,75.0,0.3,0.3,0.2,2800,12,40,10000
+Tepung Darah,Domba,Konsentrat,80.0,75.0,0.3,0.3,0.2,2800,12,40,10000
+Bungkil Jarak,Sapi,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
+Bungkil Jarak,Kambing,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
+Bungkil Jarak,Domba,Konsentrat,38.0,75.0,0.7,0.9,0.4,380,18,65,4000
+Tepung Bulu,Sapi,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
+Tepung Bulu,Kambing,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
+Tepung Bulu,Domba,Konsentrat,85.0,70.0,0.3,0.4,0.1,320,10,35,8000
+Single Cell Protein,Sapi,Konsentrat,70.0,85.0,0.4,0.8,0.3,250,15,60,12000
+Single Cell Protein,Kambing,Konsentrat,70.0,85.0,0.4,0.8,0.3,250,15,60,12000
+Single Cell Protein,Domba,Konsentrat,70.0,85.0,0.4,0.8,0.3,250,15,60,12000
+Ragi Bir Kering,Sapi,Konsentrat,45.0,80.0,0.2,1.4,0.2,150,12,45,7500
+Ragi Bir Kering,Kambing,Konsentrat,45.0,80.0,0.2,1.4,0.2,150,12,45,7500
+Ragi Bir Kering,Domba,Konsentrat,45.0,80.0,0.2,1.4,0.2,150,12,45,7500
+Bungkil Kedelai Hidrolisat,Sapi,Konsentrat,55.0,82.0,0.3,0.7,0.3,180,16,55,9000
+Bungkil Kedelai Hidrolisat,Kambing,Konsentrat,55.0,82.0,0.3,0.7,0.3,180,16,55,9000
+Bungkil Kedelai Hidrolisat,Domba,Konsentrat,55.0,82.0,0.3,0.7,0.3,180,16,55,9000
+Konsentrat Protein Jagung,Sapi,Konsentrat,65.0,85.0,0.2,0.6,0.3,200,14,50,11000
+Konsentrat Protein Jagung,Kambing,Konsentrat,65.0,85.0,0.2,0.6,0.3,200,14,50,11000
+Konsentrat Protein Jagung,Domba,Konsentrat,65.0,85.0,0.2,0.6,0.3,200,14,50,11000
+Dried Distillers Yeast,Sapi,Konsentrat,48.0,86.0,0.2,1.5,0.3,180,15,65,8500
+Dried Distillers Yeast,Kambing,Konsentrat,48.0,86.0,0.2,1.5,0.3,180,15,65,8500
+Dried Distillers Yeast,Domba,Konsentrat,48.0,86.0,0.2,1.5,0.3,180,15,65,8500
+Protein Hidrolisat Kedelai,Sapi,Konsentrat,75.0,88.0,0.3,0.8,0.3,200,16,58,13000
+Protein Hidrolisat Kedelai,Kambing,Konsentrat,75.0,88.0,0.3,0.8,0.3,200,16,58,13000
+Protein Hidrolisat Kedelai,Domba,Konsentrat,75.0,88.0,0.3,0.8,0.3,200,16,58,13000
+Protein Concentrate Peas,Sapi,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
+Protein Concentrate Peas,Kambing,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
+Protein Concentrate Peas,Domba,Konsentrat,55.0,84.0,0.4,0.9,0.4,220,18,52,9500
+High Protein Corn Extract,Sapi,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
+High Protein Corn Extract,Kambing,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
+High Protein Corn Extract,Domba,Konsentrat,68.0,87.0,0.2,0.7,0.3,190,14,48,12000
+Protein Plus Mix,Sapi,Konsentrat,82.0,90.0,0.5,1.0,0.4,250,20,65,15000
+Protein Plus Mix,Kambing,Konsentrat,82.0,90.0,0.5,1.0,0.4,250,20,65,15000
+Protein Plus Mix,Domba,Konsentrat,82.0,90.0,0.5,1.0,0.4,250,20,65,15000
+Super Protein Concentrate,Sapi,Konsentrat,90.0,85.0,0.6,0.9,0.4,280,22,70,16000
+Super Protein Concentrate,Kambing,Konsentrat,90.0,85.0,0.6,0.9,0.4,280,22,70,16000
+Super Protein Concentrate,Domba,Konsentrat,90.0,85.0,0.6,0.9,0.4,280,22,70,16000
+High Energy Protein Mix,Sapi,Konsentrat,75.0,92.0,0.4,0.8,0.3,240,18,60,14500
+High Energy Protein Mix,Kambing,Konsentrat,75.0,92.0,0.4,0.8,0.3,240,18,60,14500
+High Energy Protein Mix,Domba,Konsentrat,75.0,92.0,0.4,0.8,0.3,240,18,60,14500
+Premium Bypass Protein,Sapi,Konsentrat,85.0,88.0,0.5,0.9,0.4,260,20,68,15500
+Premium Bypass Protein,Kambing,Konsentrat,85.0,88.0,0.5,0.9,0.4,260,20,68,15500
+Premium Bypass Protein,Domba,Konsentrat,85.0,88.0,0.5,0.9,0.4,260,20,68,15500
+Daun Petai Cina,Sapi,Hijauan,25.2,69.0,1.3,0.3,0.4,290,12,40,1000
+Daun Petai Cina,Kambing,Hijauan,25.2,69.0,1.3,0.3,0.4,290,12,40,1000
+Daun Petai Cina,Domba,Hijauan,25.2,69.0,1.3,0.3,0.4,290,12,40,1000
+Ampas Tempe,Sapi,Konsentrat,22.5,76.0,0.3,0.2,0.2,180,12,45,2000
+Ampas Tempe,Kambing,Konsentrat,22.5,76.0,0.3,0.2,0.2,180,12,45,2000
+Ampas Tempe,Domba,Konsentrat,22.5,76.0,0.3,0.2,0.2,180,12,45,2000
+Kulit Tempe,Sapi,Konsentrat,18.5,72.0,0.2,0.2,0.2,160,10,40,1500
+Kulit Tempe,Kambing,Konsentrat,18.5,72.0,0.2,0.2,0.2,160,10,40,1500
+Kulit Tempe,Domba,Konsentrat,18.5,72.0,0.2,0.2,0.2,160,10,40,1500
+Daun Rami,Sapi,Hijauan,23.0,67.0,2.2,0.4,0.3,320,14,42,900
+Daun Rami,Kambing,Hijauan,23.0,67.0,2.2,0.4,0.3,320,14,42,900
+Daun Rami,Domba,Hijauan,23.0,67.0,2.2,0.4,0.3,320,14,42,900
+Daun Trembesi,Sapi,Hijauan,24.0,68.0,1.5,0.3,0.4,280,12,38,850
+Daun Trembesi,Kambing,Hijauan,24.0,68.0,1.5,0.3,0.4,280,12,38,850
+Daun Trembesi,Domba,Hijauan,24.0,68.0,1.5,0.3,0.4,280,12,38,850
+Daun Sirsak,Sapi,Hijauan,19.5,65.0,1.2,0.3,0.3,240,10,35,800
+Daun Sirsak,Kambing,Hijauan,19.5,65.0,1.2,0.3,0.3,240,10,35,800
+Daun Sirsak,Domba,Hijauan,19.5,65.0,1.2,0.3,0.3,240,10,35,800
+Kulit Melinjo,Sapi,Hijauan,15.8,63.0,0.8,0.2,0.2,220,9,32,600
+Kulit Melinjo,Kambing,Hijauan,15.8,63.0,0.8,0.2,0.2,220,9,32,600
+Kulit Melinjo,Domba,Hijauan,15.8,63.0,0.8,0.2,0.2,220,9,32,600
+Kedelai Sangrai,Sapi,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
+Kedelai Sangrai,Kambing,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
+Kedelai Sangrai,Domba,Konsentrat,37.5,85.0,0.3,0.6,0.3,240,16,52,8500
+Ampas Kecambah,Sapi,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
+Ampas Kecambah,Kambing,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
+Ampas Kecambah,Domba,Konsentrat,26.0,75.0,0.2,0.4,0.2,200,12,40,2500
+Daun Waru,Sapi,Hijauan,21.5,64.0,1.4,0.3,0.3,260,11,38,750
+Daun Waru,Kambing,Hijauan,21.5,64.0,1.4,0.3,0.3,260,11,38,750
+Daun Waru,Domba,Hijauan,21.5,64.0,1.4,0.3,0.3,260,11,38,750
+Ampas Cincau,Sapi,Hijauan,16.5,60.0,0.9,0.2,0.2,180,8,30,600
+Ampas Cincau,Kambing,Hijauan,16.5,60.0,0.9,0.2,0.2,180,8,30,600
+Ampas Cincau,Domba,Hijauan,16.5,60.0,0.9,0.2,0.2,180,8,30,600
+Ampas Sereh,Sapi,Hijauan,7.2,52.0,0.4,0.1,0.2,150,6,25,400
+Ampas Sereh,Kambing,Hijauan,7.2,52.0,0.4,0.1,0.2,150,6,25,400
+Ampas Sereh,Domba,Hijauan,7.2,52.0,0.4,0.1,0.2,150,6,25,400
+Kulit Kedelai,Sapi,Konsentrat,17.5,70.0,0.5,0.2,0.2,190,10,35,1800
+Kulit Kedelai,Kambing,Konsentrat,17.5,70.0,0.5,0.2,0.2,190,10,35,1800
+Kulit Kedelai,Domba,Konsentrat,17.5,70.0,0.5,0.2,0.2,190,10,35,1800
+Ampas Toge,Sapi,Konsentrat,15.0,68.0,0.3,0.2,0.2,170,9,32,1200
+Ampas Toge,Kambing,Konsentrat,15.0,68.0,0.3,0.2,0.2,170,9,32,1200
+Ampas Toge,Domba,Konsentrat,15.0,68.0,0.3,0.2,0.2,170,9,32,1200
+Daun Eceng Gondok,Sapi,Hijauan,19.2,63.0,1.0,0.3,0.3,280,12,38,500
+Daun Eceng Gondok,Kambing,Hijauan,19.2,63.0,1.0,0.3,0.3,280,12,38,500
+Daun Eceng Gondok,Domba,Hijauan,19.2,63.0,1.0,0.3,0.3,280,12,38,500
+Ketela Karet,Sapi,Hijauan,17.8,65.0,1.1,0.2,0.3,240,10,35,600
+Ketela Karet,Kambing,Hijauan,17.8,65.0,1.1,0.2,0.3,240,10,35,600
+Ketela Karet,Domba,Hijauan,17.8,65.0,1.1,0.2,0.3,240,10,35,600
+Daun Mangga,Sapi,Hijauan,16.5,62.0,0.9,0.2,0.2,220,9,32,450
+Daun Mangga,Kambing,Hijauan,16.5,62.0,0.9,0.2,0.2,220,9,32,450
+Daun Mangga,Domba,Hijauan,16.5,62.0,0.9,0.2,0.2,220,9,32,450
+Daun Sukun,Sapi,Hijauan,18.5,64.0,1.2,0.3,0.3,250,11,36,550
+Daun Sukun,Kambing,Hijauan,18.5,64.0,1.2,0.3,0.3,250,11,36,550
+Daun Sukun,Domba,Hijauan,18.5,64.0,1.2,0.3,0.3,250,11,36,550
+Daun Pohon Asam,Sapi,Hijauan,20.8,66.0,1.3,0.3,0.3,260,12,38,700
+Daun Pohon Asam,Kambing,Hijauan,20.8,66.0,1.3,0.3,0.3,260,12,38,700
+Daun Pohon Asam,Domba,Hijauan,20.8,66.0,1.3,0.3,0.3,260,12,38,700
+Ampas Jagung Muda,Sapi,Konsentrat,12.5,72.0,0.2,0.3,0.2,180,8,30,1500
+Ampas Jagung Muda,Kambing,Konsentrat,12.5,72.0,0.2,0.3,0.2,180,8,30,1500
+Ampas Jagung Muda,Domba,Konsentrat,12.5,72.0,0.2,0.3,0.2,180,8,30,1500
+Ampas Bihun,Sapi,Konsentrat,8.5,75.0,0.1,0.2,0.1,150,7,25,1200
+Ampas Bihun,Kambing,Konsentrat,8.5,75.0,0.1,0.2,0.1,150,7,25,1200
+Ampas Bihun,Domba,Konsentrat,8.5,75.0,0.1,0.2,0.1,150,7,25,1200
+Bungkil Kopra Fermentasi,Sapi,Konsentrat,25.5,78.0,0.3,0.5,0.3,220,15,45,3500
+Bungkil Kopra Fermentasi,Kambing,Konsentrat,25.5,78.0,0.3,0.5,0.3,220,15,45,3500
+Bungkil Kopra Fermentasi,Domba,Konsentrat,25.5,78.0,0.3,0.5,0.3,220,15,45,3500
+Ampas Kopi,Sapi,Konsentrat,13.5,70.0,0.4,0.2,0.2,290,18,42,1000
+Ampas Kopi,Kambing,Konsentrat,13.5,70.0,0.4,0.2,0.2,290,18,42,1000
+Ampas Kopi,Domba,Konsentrat,13.5,70.0,0.4,0.2,0.2,290,18,42,1000
+Bonggol Pisang Fermentasi,Sapi,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
+Bonggol Pisang Fermentasi,Kambing,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
+Bonggol Pisang Fermentasi,Domba,Konsentrat,8.2,74.0,0.3,0.2,0.2,160,7,28,800
+Daun Lamtoro Gung,Sapi,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
+Daun Lamtoro Gung,Kambing,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
+Daun Lamtoro Gung,Domba,Hijauan,23.5,67.0,1.4,0.3,0.4,270,13,40,900
+CGM (Corn Gluten Meal) Premium,Sapi,Konsentrat,65.0,83.0,0.2,0.5,0.3,220,15,50,9500
+CGM (Corn Gluten Meal) Premium,Kambing,Konsentrat,65.0,83.0,0.2,0.5,0.3,220,15,50,9500
+CGM (Corn Gluten Meal) Premium,Domba,Konsentrat,65.0,83.0,0.2,0.5,0.3,220,15,50,9500
+Tepung Kedelai Full Fat,Sapi,Konsentrat,43.0,88.0,0.3,0.6,0.3,250,18,55,9000
+Tepung Kedelai Full Fat,Kambing,Konsentrat,43.0,88.0,0.3,0.6,0.3,250,18,55,9000
+Tepung Kedelai Full Fat,Domba,Konsentrat,43.0,88.0,0.3,0.6,0.3,250,18,55,9000
+Bungkil Kacang Hijau Premium,Sapi,Konsentrat,32.0,82.0,0.2,0.4,0.2,180,12,42,6500
+Bungkil Kacang Hijau Premium,Kambing,Konsentrat,32.0,82.0,0.2,0.4,0.2,180,12,42,6500
+Bungkil Kacang Hijau Premium,Domba,Konsentrat,32.0,82.0,0.2,0.4,0.2,180,12,42,6500
+MBM (Meat Bone Meal) Premium,Sapi,Konsentrat,55.0,72.0,8.0,4.0,0.3,350,25,80,8500
+MBM (Meat Bone Meal) Premium,Kambing,Konsentrat,55.0,72.0,8.0,4.0,0.3,350,25,80,8500
+MBM (Meat Bone Meal) Premium,Domba,Konsentrat,55.0,72.0,8.0,4.0,0.3,350,25,80,8500
+HPDDG (High Protein DDG),Sapi,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
+HPDDG (High Protein DDG),Kambing,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
+HPDDG (High Protein DDG),Domba,Konsentrat,45.0,85.0,0.2,0.8,0.3,280,15,65,8000
+Bungkil Kanola Premium,Sapi,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
+Bungkil Kanola Premium,Kambing,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
+Bungkil Kanola Premium,Domba,Konsentrat,38.0,78.0,0.7,1.0,0.3,320,20,70,7500
+
+Lemak Sapi (Tallow),Sapi,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
+Lemak Sapi (Tallow),Kambing,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
+Lemak Sapi (Tallow),Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,0,0,0,12000
+Minyak Ikan (L),Sapi,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,19000
+Minyak Ikan (L),Kambing,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,19000
+Minyak Ikan (L),Domba,Konsentrat,0.0,165.0,0.0,0.0,0.0,0,0,0,19000
+Minyak Kopra (L),Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,15000
+Minyak Kopra (L),Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,15000
+Minyak Kopra (L),Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,0,0,0,15000
+Tepung Tapioka,Sapi,Konsentrat,2.5,85.0,0.1,0.1,0.1,40,4,12,4000
+Tepung Tapioka,Kambing,Konsentrat,2.5,85.0,0.1,0.1,0.1,40,4,12,4000
+Tepung Tapioka,Domba,Konsentrat,2.5,85.0,0.1,0.1,0.1,40,4,12,4000
+Pati Sagu,Sapi,Konsentrat,1.8,87.0,0.1,0.0,0.1,35,3,10,3500
+Pati Sagu,Kambing,Konsentrat,1.8,87.0,0.1,0.0,0.1,35,3,10,3500
+Pati Sagu,Domba,Konsentrat,1.8,87.0,0.1,0.0,0.1,35,3,10,3500
+Tepung Sagu,Sapi,Konsentrat,2.2,86.0,0.1,0.1,0.1,38,4,11,3800
+Tepung Sagu,Kambing,Konsentrat,2.2,86.0,0.1,0.1,0.1,38,4,11,3800
+Tepung Sagu,Domba,Konsentrat,2.2,86.0,0.1,0.1,0.1,38,4,11,3800
+Gula Kelapa,Sapi,Konsentrat,0.0,95.0,0.5,0.0,0.1,10,2,5,8000
+Gula Kelapa,Kambing,Konsentrat,0.0,95.0,0.5,0.0,0.1,10,2,5,8000
+Gula Kelapa,Domba,Konsentrat,0.0,95.0,0.5,0.0,0.1,10,2,5,8000
+Gula Aren,Sapi,Konsentrat,0.0,93.0,0.4,0.0,0.1,12,2,6,7500
+Gula Aren,Kambing,Konsentrat,0.0,93.0,0.4,0.0,0.1,12,2,6,7500
+Gula Aren,Domba,Konsentrat,0.0,93.0,0.4,0.0,0.1,12,2,6,7500
+Tetes Tebu Premium,Sapi,Konsentrat,5.5,85.0,1.0,0.1,0.4,120,18,25,4000
+Tetes Tebu Premium,Kambing,Konsentrat,5.5,85.0,1.0,0.1,0.4,120,18,25,4000
+Tetes Tebu Premium,Domba,Konsentrat,5.5,85.0,1.0,0.1,0.4,120,18,25,4000
+Cassava Starch,Sapi,Konsentrat,1.5,88.0,0.1,0.0,0.1,30,3,8,3200
+Cassava Starch,Kambing,Konsentrat,1.5,88.0,0.1,0.0,0.1,30,3,8,3200
+Cassava Starch,Domba,Konsentrat,1.5,88.0,0.1,0.0,0.1,30,3,8,3200
+Beras Pecah,Sapi,Konsentrat,8.0,85.0,0.1,0.2,0.1,45,5,15,4500
+Beras Pecah,Kambing,Konsentrat,8.0,85.0,0.1,0.2,0.1,45,5,15,4500
+Beras Pecah,Domba,Konsentrat,8.0,85.0,0.1,0.2,0.1,45,5,15,4500
+Menir,Sapi,Konsentrat,9.0,86.0,0.1,0.2,0.1,50,6,18,4000
+Menir,Kambing,Konsentrat,9.0,86.0,0.1,0.2,0.1,50,6,18,4000
+Menir,Domba,Konsentrat,9.0,86.0,0.1,0.2,0.1,50,6,18,4000
+Tepung Singkong Premium,Sapi,Konsentrat,2.8,87.0,0.1,0.1,0.1,35,4,10,3500
+Tepung Singkong Premium,Kambing,Konsentrat,2.8,87.0,0.1,0.1,0.1,35,4,10,3500
+Tepung Singkong Premium,Domba,Konsentrat,2.8,87.0,0.1,0.1,0.1,35,4,10,3500
+Singkong Kukus,Sapi,Konsentrat,2.5,83.0,0.1,0.1,0.1,40,4,12,2500
+Singkong Kukus,Kambing,Konsentrat,2.5,83.0,0.1,0.1,0.1,40,4,12,2500
+Singkong Kukus,Domba,Konsentrat,2.5,83.0,0.1,0.1,0.1,40,4,12,2500
+Ubi Jalar Kukus,Sapi,Konsentrat,4.5,85.0,0.1,0.2,0.1,55,5,15,3000
+Ubi Jalar Kukus,Kambing,Konsentrat,4.5,85.0,0.1,0.2,0.1,55,5,15,3000
+Ubi Jalar Kukus,Domba,Konsentrat,4.5,85.0,0.1,0.2,0.1,55,5,15,3000
+Tepung Ubi Jalar,Sapi,Konsentrat,4.0,86.0,0.1,0.2,0.1,50,5,14,4000
+Tepung Ubi Jalar,Kambing,Konsentrat,4.0,86.0,0.1,0.2,0.1,50,5,14,4000
+Tepung Ubi Jalar,Domba,Konsentrat,4.0,86.0,0.1,0.2,0.1,50,5,14,4000
+Jagung Pipil Kukus,Sapi,Konsentrat,9.5,85.0,0.1,0.3,0.2,55,8,28,5500
+Jagung Pipil Kukus,Kambing,Konsentrat,9.5,85.0,0.1,0.3,0.2,55,8,28,5500
+Jagung Pipil Kukus,Domba,Konsentrat,9.5,85.0,0.1,0.3,0.2,55,8,28,5500
+Tepung Garut,Sapi,Konsentrat,1.0,85.0,0.1,0.1,0.1,30,3,8,4500
+Tepung Garut,Kambing,Konsentrat,1.0,85.0,0.1,0.1,0.1,30,3,8,4500
+Tepung Garut,Domba,Konsentrat,1.0,85.0,0.1,0.1,0.1,30,3,8,4500
+Beras Ketan Pecah,Sapi,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
+Beras Ketan Pecah,Kambing,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
+Beras Ketan Pecah,Domba,Konsentrat,7.5,87.0,0.1,0.2,0.1,40,5,15,5000
+Molases (L),Sapi,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,4000
+Molases (L),Kambing,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,4000
+Molases (L),Domba,Konsentrat,3.1,95.0,1.0,0.1,0.3,25,4,12,4000
+Minyak Sawit (L),Sapi,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,15000
+Minyak Sawit (L),Kambing,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,15000
+Minyak Sawit (L),Domba,Konsentrat,0.0,180.0,0.0,0.0,0.0,20,0,0,15000
+Minyak Kelapa (L),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Kelapa (L),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Kelapa (L),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,18000
+Minyak Jagung (L),Sapi,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,20000
+Minyak Jagung (L),Kambing,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,20000
+Minyak Jagung (L),Domba,Konsentrat,0.0,175.0,0.0,0.0,0.0,15,0,0,20000
+Lemak Sapi (Tallow),Sapi,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,10000
+Lemak Sapi (Tallow),Kambing,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,10000
+Lemak Sapi (Tallow),Domba,Konsentrat,0.0,170.0,0.0,0.0,0.0,15,0,0,10000
+Gliserol,Sapi,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
+Gliserol,Kambing,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
+Gliserol,Domba,Konsentrat,0.0,160.0,0.0,0.0,0.0,20,0,0,8000
+Gula Tebu,Sapi,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
+Gula Tebu,Kambing,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
+Gula Tebu,Domba,Konsentrat,0.0,94.0,0.1,0.0,0.0,30,2,6,4000
+Tepung Ikan Premium,Sapi,Konsentrat,65.0,75.0,5.5,3.0,0.5,15,20,60,18000
+Tepung Ikan Premium,Kambing,Konsentrat,65.0,75.0,5.5,3.0,0.5,15,20,60,18000
+Tepung Ikan Premium,Domba,Konsentrat,65.0,75.0,5.5,3.0,0.5,15,20,60,18000
+Bungkil Kedelai Impor,Sapi,Konsentrat,48.0,84.0,0.3,0.7,0.3,35,15,45,12000
+Bungkil Kedelai Impor,Kambing,Konsentrat,48.0,84.0,0.3,0.7,0.3,35,15,45,12000
+Bungkil Kedelai Impor,Domba,Konsentrat,48.0,84.0,0.3,0.7,0.3,35,15,45,12000
+DDGS Jagung,Sapi,Konsentrat,27.0,88.0,0.2,0.8,0.3,30,10,30,8000
+DDGS Jagung,Kambing,Konsentrat,27.0,88.0,0.2,0.8,0.3,30,10,30,8000
+DDGS Jagung,Domba,Konsentrat,27.0,88.0,0.2,0.8,0.3,30,10,30,8000
+CGM (Corn Gluten Meal),Sapi,Konsentrat,60.0,83.0,0.2,0.5,0.2,20,15,45,15000
+CGM (Corn Gluten Meal),Kambing,Konsentrat,60.0,83.0,0.2,0.5,0.2,20,15,45,15000
+CGM (Corn Gluten Meal),Domba,Konsentrat,60.0,83.0,0.2,0.5,0.2,20,15,45,15000
+MBM (Meat Bone Meal),Sapi,Konsentrat,50.0,72.0,8.0,4.0,0.3,10,15,45,11000
+MBM (Meat Bone Meal),Kambing,Konsentrat,50.0,72.0,8.0,4.0,0.3,10,15,45,11000
+MBM (Meat Bone Meal),Domba,Konsentrat,50.0,72.0,8.0,4.0,0.3,10,15,45,11000
+Tepung Darah,Sapi,Konsentrat,80.0,75.0,0.3,0.3,0.1,8,10,30,14000
+Tepung Darah,Kambing,Konsentrat,80.0,75.0,0.3,0.3,0.1,8,10,30,14000
+Tepung Darah,Domba,Konsentrat,80.0,75.0,0.3,0.3,0.1,8,10,30,14000
+Yeast Culture,Sapi,Konsentrat,40.0,85.0,0.2,1.5,0.2,5,8,24,20000
+Yeast Culture,Kambing,Konsentrat,40.0,85.0,0.2,1.5,0.2,5,8,24,20000
+Yeast Culture,Domba,Konsentrat,40.0,85.0,0.2,1.5,0.2,5,8,24,20000
+Single Cell Protein,Sapi,Konsentrat,70.0,83.0,0.1,0.8,0.2,5,10,30,25000
+Single Cell Protein,Kambing,Konsentrat,70.0,83.0,0.1,0.8,0.2,5,10,30,25000
+Single Cell Protein,Domba,Konsentrat,70.0,83.0,0.1,0.8,0.2,5,10,30,25000

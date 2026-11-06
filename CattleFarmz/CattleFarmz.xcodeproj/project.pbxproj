@@ -6,8 +6,19 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		92B84B6F309AE93600A09384 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3D9EF8033097104800923953 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3D9EF80A3097104800923953;
+			remoteInfo = CattleFarmz;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		3D9EF80B3097104800923953 /* CattleFarmz.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CattleFarmz.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		92B84B6B309AE93600A09384 /* CattleFarmzTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CattleFarmzTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -16,10 +27,20 @@
 			path = CattleFarmz;
 			sourceTree = "<group>";
 		};
+		92B84B6C309AE93600A09384 /* CattleFarmzTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = CattleFarmzTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		3D9EF8083097104800923953 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		92B84B68309AE93600A09384 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 			);
@@ -31,6 +52,8 @@
 			isa = PBXGroup;
 			children = (
 				3D9EF80D3097104800923953 /* CattleFarmz */,
+				92B84B6C309AE93600A09384 /* CattleFarmzTests */,
+				92B84C6B309B400A00A09384 /* Frameworks */,
 				3D9EF80C3097104800923953 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -39,8 +62,16 @@
 			isa = PBXGroup;
 			children = (
 				3D9EF80B3097104800923953 /* CattleFarmz.app */,
+				92B84B6B309AE93600A09384 /* CattleFarmzTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		92B84C6B309B400A00A09384 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -64,6 +95,27 @@
 			productReference = 3D9EF80B3097104800923953 /* CattleFarmz.app */;
 			productType = "com.apple.product-type.application";
 		};
+		92B84B6A309AE93600A09384 /* CattleFarmzTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92B84B71309AE93600A09384 /* Build configuration list for PBXNativeTarget "CattleFarmzTests" */;
+			buildPhases = (
+				92B84B67309AE93600A09384 /* Sources */,
+				92B84B68309AE93600A09384 /* Frameworks */,
+				92B84B69309AE93600A09384 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92B84B70309AE93600A09384 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				92B84B6C309AE93600A09384 /* CattleFarmzTests */,
+			);
+			name = CattleFarmzTests;
+			productName = CattleFarmzTests;
+			productReference = 92B84B6B309AE93600A09384 /* CattleFarmzTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -77,6 +129,10 @@
 					3D9EF80A3097104800923953 = {
 						CreatedOnToolsVersion = 27.1;
 					};
+					92B84B6A309AE93600A09384 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 3D9EF80A3097104800923953;
+					};
 				};
 			};
 			buildConfigurationList = 3D9EF8063097104800923953 /* Build configuration list for PBXProject "CattleFarmz" */;
@@ -88,18 +144,26 @@
 			);
 			mainGroup = 3D9EF8023097104800923953;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3D9EF80C3097104800923953 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				3D9EF80A3097104800923953 /* CattleFarmz */,
+				92B84B6A309AE93600A09384 /* CattleFarmzTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3D9EF8093097104800923953 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		92B84B69309AE93600A09384 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -112,7 +176,20 @@
 			files = (
 			);
 		};
+		92B84B67309AE93600A09384 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		92B84B70309AE93600A09384 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3D9EF80A3097104800923953 /* CattleFarmz */;
+			targetProxy = 92B84B6F309AE93600A09384 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		3D9EF8163097104800923953 /* Debug configuration for PBXProject "CattleFarmz" */ = {
@@ -246,7 +323,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 79796NA26H;
+				DEVELOPMENT_TEAM = LS9QQUVP7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
@@ -283,7 +360,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 79796NA26H;
+				DEVELOPMENT_TEAM = LS9QQUVP7Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
@@ -312,6 +389,50 @@
 			};
 			name = Release;
 		};
+		92B84B72309AE93600A09384 /* Debug configuration for PBXNativeTarget "CattleFarmzTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LS9QQUVP7Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.academy.yuandimianta.CattleFarmzTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CattleFarmz.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CattleFarmz";
+			};
+			name = Debug;
+		};
+		92B84B73309AE93600A09384 /* Release configuration for PBXNativeTarget "CattleFarmzTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = LS9QQUVP7Y;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.academy.yuandimianta.CattleFarmzTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CattleFarmz.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/CattleFarmz";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -328,6 +449,14 @@
 			buildConfigurations = (
 				3D9EF8193097104800923953 /* Debug configuration for PBXNativeTarget "CattleFarmz" */,
 				3D9EF81A3097104800923953 /* Release configuration for PBXNativeTarget "CattleFarmz" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		92B84B71309AE93600A09384 /* Build configuration list for PBXNativeTarget "CattleFarmzTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92B84B72309AE93600A09384 /* Debug configuration for PBXNativeTarget "CattleFarmzTests" */,
+				92B84B73309AE93600A09384 /* Release configuration for PBXNativeTarget "CattleFarmzTests" */,
 			);
 			defaultConfigurationName = Release;
 		};

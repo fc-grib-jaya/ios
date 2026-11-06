@@ -58,8 +58,8 @@ struct CattlesView: View {
             }
         }
         .font(AppFont.body)
-        .foregroundStyle(AppColor.textPrimary)
-        .padding(AppSpacing.medium)
+        .foregroundStyle(AppColor.Text.primary)
+        .padding(AppSpacing.md)
         .task { await viewModel.load() }
     }
 }

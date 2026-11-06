@@ -39,36 +39,36 @@ struct SapiFormView: View {
     
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Text.primary
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
-                VStack (alignment: .leading, spacing: AppSpacing.medium){
+                VStack (alignment: .leading, spacing: AppSpacing.md){
                     VStack (alignment: .leading){
                         HStack (spacing: 1){
                             Text("Nama Sapi")
-                                .foregroundStyle(AppColor.textPrimary)
+                                .foregroundStyle(AppColor.Text.primary)
                             Text("*")
-                                .foregroundStyle(AppColor.textRequired)
+                                .foregroundStyle(Color.red)
                         }
                         .font(AppFont.body)
                         
                         TextField("Tuliskan Nama Sapi", text: $namaSapi)
                             .font(AppFont.body)
                             .autocorrectionDisabled()
-                            .padding(AppSpacing.medium)
+                            .padding(AppSpacing.md)
                             .background(
                                 RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.surface)
+                                    .fill(AppColor.Input.background)
                             )
                     }
                     
                     VStack (alignment: .leading){
                         HStack(spacing: 1) {
                             Text("Jenis Sapi")
-                                .foregroundStyle(AppColor.textPrimary)
+                                .foregroundStyle(AppColor.Text.primary)
                             Text("*")
-                                .foregroundStyle(AppColor.textRequired)
+                                .foregroundStyle(Color.red)
                         }
                         .font(AppFont.body)
                         
@@ -83,32 +83,35 @@ struct SapiFormView: View {
                         }
                         .pickerStyle(.menu)
                         .font(AppFont.body)
-                        .tint(jenisSapi == nil ? AppColor.textSecondary.opacity(0.5) : AppColor.textPrimary)
-                        .padding(AppSpacing.medium)
+                        .tint(
+                            jenisSapi == nil ? AppColor.Text
+                                .secondary.opacity(0.5) : AppColor.Text.primary
+                        )
+                        .padding(AppSpacing.md)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
                             RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.surface)
+                                .fill(AppColor.Surface.canvas)
                         )
                     }
                     
                     VStack (alignment: .leading){
                         HStack (spacing: 1) {
                             Text("Jenis Kelamin Sapi")
-                                .foregroundStyle(AppColor.textPrimary)
+                                .foregroundStyle(AppColor.Text.primary)
                             Text("*")
-                                .foregroundStyle(AppColor.textRequired)
+                                .foregroundStyle(Color.red)
                         }
                         .font(AppFont.body)
                         
-                        HStack(spacing: AppSpacing.medium) {
+                        HStack(spacing: AppSpacing.md) {
                             ForEach(CattleGender.allCases, id: \.self) { gender in
                                 let isSelected = genderSapi == gender
 
                                 Button {
                                     genderSapi = gender
                                 } label: {
-                                    HStack(spacing: AppSpacing.small) {
+                                    HStack(spacing: AppSpacing.sm) {
                                         Image(systemName: isSelected
                                               ? "largecircle.fill.circle"
                                               : "circle")
@@ -117,14 +120,22 @@ struct SapiFormView: View {
                                     }
                                     .font(AppFont.body)
                                     .foregroundStyle(
-                                        isSelected ? AppColor.primary : AppColor.textPrimary
+                                        isSelected ? AppColor.Button.Primary.background : AppColor.Button.Secondary.foreground
                                     )
                                     .frame(maxWidth: .infinity)
-                                    .padding(AppSpacing.xm)
+                                    .padding(AppSpacing.xs)
                                     .background(
                                         RoundedRectangle(cornerRadius: 30)
-                                            .fill(isSelected ? AppColor.primary.opacity(0.2) : AppColor.surface)
-                                            .stroke(isSelected ? AppColor.primary : AppColor.primary.opacity(0.2))
+                                            .fill(
+                                                isSelected ? AppColor.Card.background
+                                                    .opacity(
+                                                        0.2
+                                                    ) : AppColor.Surface.canvas
+                                            )
+                                            .stroke(
+                                                isSelected ? AppColor.Border.focus : AppColor.Border.subtle
+                                                    .opacity(0.2)
+                                            )
                                     )
                                 }
                                 .buttonStyle(.plain)
@@ -135,9 +146,9 @@ struct SapiFormView: View {
                     VStack (alignment: .leading){
                         HStack (spacing: 1) {
                             Text("Usia Sapi (Bulan)")
-                                .foregroundStyle(AppColor.textPrimary)
+                                .foregroundStyle(AppColor.Text.primary)
                             Text("*")
-                                .foregroundStyle(AppColor.textRequired)
+                                .foregroundStyle(Color.red)
                         }
                         .font(AppFont.body)
                         
@@ -159,34 +170,34 @@ struct SapiFormView: View {
                                 umurSapi = 0
                             }
                         }
-                        .padding(AppSpacing.medium)
+                        .padding(AppSpacing.md)
                         .background(
                             RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.surface)
+                                .fill(AppColor.Surface.canvas)
                         )
                     }
                     
                     Text("Bobot dan Foto Sapi")
-                        .foregroundStyle(AppColor.textPrimary)
+                        .foregroundStyle(AppColor.Text.primary)
                         .font(AppFont.body)
                     VStack (alignment: .leading){
                         
-                        HStack(spacing: AppSpacing.small) {
+                        HStack(spacing: AppSpacing.sm) {
                             weightModeButton("Isi Bobot", mode: .manual)
                             weightModeButton("Estimasi Bobot", mode: .camera)
                         }
-                        .padding(.bottom, AppSpacing.small)
+                        .padding(.bottom, AppSpacing.sm)
                         
                         if (weightEntryMode == .manual) {
                             Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")
                                 .font(AppFont.caption)
-                                .padding(.bottom, AppSpacing.small)
+                                .padding(.bottom, AppSpacing.sm)
                             
                             HStack (spacing: 1) {
                                 Text("Bobot")
-                                    .foregroundStyle(AppColor.textPrimary)
+                                    .foregroundStyle(AppColor.Text.primary)
                                 Text("*")
-                                    .foregroundStyle(AppColor.textRequired)
+                                    .foregroundStyle(Color.red)
                             }
                             .font(AppFont.body)
                             
@@ -201,19 +212,19 @@ struct SapiFormView: View {
                                 .keyboardType(.decimalPad)
                                 
                                 Text("kg")
-                                    .foregroundStyle(AppColor.textPrimary)
+                                    .foregroundStyle(AppColor.Text.primary)
                             }
-                            .padding(AppSpacing.xm)
+                            .padding(AppSpacing.xs)
                             .background(
                                 RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.surface)
+                                    .fill(AppColor.Surface.canvas)
                             )
                             
                             //Camera
                             Button {
                                 isShowingCamera = true
                             } label: {
-                                VStack(spacing: AppSpacing.medium) {
+                                VStack(spacing: AppSpacing.md) {
                                     if let gambarSapi {
                                         Image(uiImage: gambarSapi)
                                             .resizable()
@@ -232,29 +243,29 @@ struct SapiFormView: View {
                                     }
                                 }
                                 .font(AppFont.body)
-                                .foregroundStyle(AppColor.textSecondary.opacity(0.5))
+                                .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
                                 .frame(maxWidth: .infinity)
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.surface)
-                                        .stroke(AppColor.textSecondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                                        .fill(AppColor.Surface.canvas)
+                                        .stroke(AppColor.Text.secondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                                 )
                             }
                             .buttonStyle(.plain)
                         } else {
                             Text("Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi.")
                                 .font(AppFont.caption)
-                                .padding(.bottom, AppSpacing.small)
+                                .padding(.bottom, AppSpacing.sm)
                             
                             HStack {
                                 Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
                                     .font(AppFont.caption)
                                 Spacer()
                             }
-                            .padding(AppSpacing.xm)
+                            .padding(AppSpacing.xs)
                             .background(
                                 RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.surface)
+                                    .fill(AppColor.Surface.canvas)
                             )
                             
                             Button {
@@ -268,13 +279,19 @@ struct SapiFormView: View {
                                         .lineLimit(1)
                                 }
                                 .font(AppFont.body)
-                                .foregroundStyle(AppColor.textSecondary.opacity(0.5))
+                                .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
                                 .padding(.vertical, AppSpacing.xl)
                                 .frame(maxWidth: .infinity)
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.surface)
-                                        .stroke(AppColor.textSecondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                                        .fill(AppColor.Surface.canvas)
+                                        .stroke(
+                                            AppColor.Text.secondary,
+                                            style: StrokeStyle(
+                                                lineWidth: 1,
+                                                dash: [2, 3]
+                                            )
+                                        )
                                 )
                             }
                             .buttonStyle(.plain)
@@ -282,16 +299,16 @@ struct SapiFormView: View {
                         
                     }
                     .font(AppFont.body)
-                    .padding(AppSpacing.medium)
+                    .padding(AppSpacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: 23)
-                            .fill(AppColor.surface.opacity(0.5))
+                            .fill(AppColor.Surface.canvas.opacity(0.5))
                     )
                     
                     VStack (alignment: .leading){
                         Text("Catatan")
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.textPrimary)
+                            .foregroundStyle(AppColor.Text.primary)
                         
                         TextField(
                             text: $catatan,
@@ -301,13 +318,13 @@ struct SapiFormView: View {
                         }
                             .font(AppFont.body)
                             .autocorrectionDisabled()
-                            .padding(AppSpacing.medium)
+                            .padding(AppSpacing.md)
                             .background(
                                 RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.surface)
+                                    .fill(AppColor.Surface.canvas)
                             )
                     }
-                    .padding(.bottom, AppSpacing.large)
+                    .padding(.bottom, AppSpacing.lg)
                     
                     Button {
                         guard let breed = jenisSapi,
@@ -328,10 +345,15 @@ struct SapiFormView: View {
                     } label: {
                         Text("Simpan Data")
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.onPrimary)
-                            .padding(.vertical, AppSpacing.medium)
+                            .foregroundStyle(
+                                AppColor.Primitive.Primary.shade500
+                            )
+                            .padding(.vertical, AppSpacing.md)
                             .frame(maxWidth: .infinity)
-                            .glassEffect(.regular.tint(AppColor.primary))
+                            .glassEffect(
+                                .regular
+                                    .tint(AppColor.Button.Primary.background)
+                            )
                             .opacity(isSaveDisabled ? 0.5 : 1)
                     }
                     .disabled(isSaveDisabled)
@@ -363,10 +385,16 @@ struct SapiFormView: View {
         } label: {
             Text(title)
                 .font(AppFont.body)
-                .foregroundStyle(AppColor.onPrimary)
-                .padding(.vertical, AppSpacing.xm)
+                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                .padding(.vertical, AppSpacing.xs)
                 .frame(maxWidth: .infinity)
-                .glassEffect(.regular.tint(isSelected ? AppColor.primary : AppColor.primary.opacity(0.3)))
+                .glassEffect(
+                    .regular
+                        .tint(
+                            isSelected ? AppColor.Button.Primary.background : AppColor.Button.Secondary.foreground
+                                .opacity(0.3)
+                        )
+                )
         }
         .buttonStyle(.plain)
     }

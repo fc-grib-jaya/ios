@@ -329,17 +329,12 @@ struct SapiFormView: View {
                         Text("Simpan Data")
                             .font(AppFont.body)
                             .foregroundStyle(AppColor.onPrimary)
-                            .padding(.vertical, AppSpacing.xm)
+                            .padding(.vertical, AppSpacing.medium)
                             .frame(maxWidth: .infinity)
                             .glassEffect(.regular.tint(AppColor.primary))
+                            .opacity(isSaveDisabled ? 0.5 : 1)
                     }
-                    .disabled(
-                        namaSapi.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        || jenisSapi == nil
-                        || genderSapi == nil
-                        || umurSapi == nil
-                        || (weightEntryMode == .manual && bobotSapi == nil)
-                    )
+                    .disabled(isSaveDisabled)
                 }
                 .padding()
             }
@@ -369,11 +364,19 @@ struct SapiFormView: View {
             Text(title)
                 .font(AppFont.body)
                 .foregroundStyle(AppColor.onPrimary)
-                .padding(.vertical, AppSpacing.medium)
+                .padding(.vertical, AppSpacing.xm)
                 .frame(maxWidth: .infinity)
                 .glassEffect(.regular.tint(isSelected ? AppColor.primary : AppColor.primary.opacity(0.3)))
         }
         .buttonStyle(.plain)
+    }
+    
+    private var isSaveDisabled: Bool {
+        namaSapi.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        || jenisSapi == nil
+        || genderSapi == nil
+        || umurSapi == nil
+        || (weightEntryMode == .manual && bobotSapi == nil)
     }
 }
 

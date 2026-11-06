@@ -15,7 +15,7 @@ struct CattlesView: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: AppSpacing.medium) {
+            LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
                 ForEach(viewModel.items) { cattle in
                     let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
                     
@@ -31,7 +31,7 @@ struct CattlesView: View {
 
                             if let meatWeight = viewModel.meatWeight(for: cattle, bodyWeight: bodyWeight) {
                                 Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
-                                    .padding(.bottom, AppSpacing.small)
+                                    .padding(.bottom, AppSpacing.xs)
                             }
 
                             ForEach(NonCarcassPart.allCases, id: \.self) { part in
@@ -52,12 +52,12 @@ struct CattlesView: View {
                             Text("Not Measured")
                         }
                     }
-                    .padding(.bottom, AppSpacing.medium)
+                    .padding(.bottom, AppSpacing.md)
                 }
             }
             .font(AppFont.body)
-            .foregroundStyle(AppColor.textPrimary)
-            .padding(AppSpacing.medium)
+            .foregroundStyle(AppColor.Text.primary)
+            .padding(AppSpacing.md)
         }
         .task { await viewModel.load() }
     }

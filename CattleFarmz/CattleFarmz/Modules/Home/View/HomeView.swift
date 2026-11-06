@@ -29,14 +29,21 @@ struct HomeView: View {
 
     var body: some View {
         ZStack {
-            AppColor.background
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
 
             VStack {
-                Button("Test haptics") {
-                    viewModel.startScan()
+                if #available(iOS 26.0, *) {
+                    Button("Test haptics") {
+                        viewModel.startScan()
+                    }
+                    .buttonStyle(.glassProminent)
+                } else {
+                    Button("Test haptics") {
+                        viewModel.startScan()
+                    }
+                    .buttonStyle(.borderedProminent)
                 }
-                .buttonStyle(.glassProminent)
                 
                 CattlesView(viewModel: cattlesViewModel)
             }

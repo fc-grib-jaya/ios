@@ -11,8 +11,6 @@ struct LoadingView: View {
     let onFinished: () -> Void
 
     @State private var stage = 0
-    @State private var showFirstDot = true
-    @State private var showSecondDot = false
     @State private var showTwoDots = false
     @State private var formationRotation: Double = 0
     @State private var loadingRotation: Double = 0
@@ -29,38 +27,29 @@ struct LoadingView: View {
                 .ignoresSafeArea()
 
             ZStack {
-                if stage >= 2 {
+                if stage >= 1 {
                     ZStack {
                         circleDot
-                            .scaleEffect(showTwoDots ? 1 : 0)
-                            .offset(x: isConverged ? 0 : -AppSpacing.xl)
+                            .offset(
+                                x: isConverged
+                                    ? 0
+                                    : (showTwoDots ? -AppSpacing.lg : 0)
+                            )
 
                         circleDot
                             .scaleEffect(showTwoDots ? 1 : 0)
-                            .offset(x: isConverged ? 0 : AppSpacing.xl)
+                            .offset(x: isConverged ? 0 : AppSpacing.lg)
+                        
+                        circleDot
+                            .scaleEffect(showTwoDots ? 1 : 0)
+                            .offset(x:0,y: isConverged ? 0 : -AppSpacing.lg)
+
+                        circleDot
+                            .scaleEffect(showTwoDots ? 1 : 0)
+                            .offset(x:0,y: isConverged ? 0 : AppSpacing.lg)
                     }
                     .rotationEffect(.degrees(formationRotation))
                 }
-
-                // Titik kedua: muncul di tengah, lalu bergerak ke kanan.
-                if stage >= 1 {
-                    circleDot
-                        .scaleEffect(showSecondDot ? 1 : 0, anchor: .center)
-                        .offset(
-                            x: isConverged
-                                ? 0
-                            : (stage == 1 ? 0 : AppSpacing.xl)
-                        )
-                }
-
-                // Titik pertama: dari tengah bergerak ke kiri.
-                circleDot
-                    .scaleEffect(showFirstDot ? 1 : 0, anchor: .center)
-                    .offset(
-                        x: isConverged
-                            ? 0
-                        : (stage >= 2 ? -AppSpacing.xl : 0)
-                    )
             }
             .rotationEffect(.degrees(loadingRotation))
             .opacity(isHidden ? 0 : 1)
@@ -71,24 +60,26 @@ struct LoadingView: View {
     }
 
     private func runAnimation() async {
-        try? await Task.sleep(for: .milliseconds(200))
-        guard !Task.isCancelled else { return }
-
-        withAnimation(.easeInOut(duration: 0.4)) {
-            stage = 1
-            showSecondDot = true
-        }
-
+        
         try? await Task.sleep(for: .milliseconds(300))
         guard !Task.isCancelled else { return }
+//        withAnimation(.easeIn(duration: 0.35)) {
+//            isHidden = false
+//        }
+        
+        withAnimation(.easeIn(duration: 1.2)) {
+            stage = 1
+            loadingRotation += 180
+            isConverged = false
+        }
 
-        withAnimation(.easeInOut(duration: 0.5)) {
+        try? await Task.sleep(for: .milliseconds(700))
+        guard !Task.isCancelled else { return }
+
+        withAnimation(.spring(response: 0.7, dampingFraction: 0.5)) {
+            showTwoDots = true
             stage = 2
         }
-        
-        try? await Task.sleep(for: .milliseconds(500))
-        guard !Task.isCancelled else { return }
-        showTwoDots = true
 
         try? await Task.sleep(for: .milliseconds(200))
         guard !Task.isCancelled else { return }
@@ -101,26 +92,26 @@ struct LoadingView: View {
         guard !Task.isCancelled else { return }
 
         for _ in 0..<2 {
-            withAnimation(.easeInOut(duration: 0.8)) {
-                loadingRotation += 360
+            withAnimation(.spring(response: 2, dampingFraction: 0.55)) {
+                loadingRotation += 390
             }
 
-            try? await Task.sleep(for: .milliseconds(800))
+            try? await Task.sleep(for: .milliseconds(1100))
             guard !Task.isCancelled else { return }
 
-            try? await Task.sleep(for: .milliseconds(150))
+            try? await Task.sleep(for: .milliseconds(300))
             guard !Task.isCancelled else { return }
         }
 
         withAnimation(.easeInOut(duration: 0.6)) {
-            loadingRotation += 180
+            loadingRotation += 240
             isConverged = true
         }
 
         try? await Task.sleep(for: .milliseconds(650))
         guard !Task.isCancelled else { return }
 
-        withAnimation(.easeOut(duration: 0.35)) {
+        withAnimation(.easeOut(duration: 0.3)) {
             isHidden = true
         }
 
@@ -133,7 +124,7 @@ struct LoadingView: View {
     private var circleDot: some View {
         Circle()
             .fill(AppColor.Primitive.Primary.shade500)
-            .frame(width: 30, height: 30)
+            .frame(width: 20, height: 20)
     }
 }
 

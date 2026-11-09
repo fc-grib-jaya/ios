@@ -297,7 +297,7 @@ struct MeasurementView: View {
                     )
                 }
                 Text(
-                    "Profil dada membaca piksel raw depth sepanjang garis. Celah dan lonjakan depth memutus segmen. Lingkar dada dan bobot belum dihitung."
+                    "Profil dada membaca piksel raw depth sepanjang garis. Celah dan lonjakan depth memutus segmen."
                 )
             }.font(.caption).padding(.top, 8)
         }

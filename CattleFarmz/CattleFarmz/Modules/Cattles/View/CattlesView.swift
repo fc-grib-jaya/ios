@@ -9,36 +9,19 @@ import UIKit
 /// Cattles screen: a scrollable list of cattle.
 struct CattlesView: View {
     @State private var viewModel: CattlesViewModel
-    private let selectedBreed: Set<String>
-    private let selectedGender: Set<String>
-    private let selectedAgeRange: Set<String>
-    private let sortAscending: Bool
     private let onCardTap: (String) -> Void
 
     init(
         viewModel: CattlesViewModel,
-        selectedBreed: Set<String> = [],
-        selectedGender: Set<String> = [],
-        selectedAgeRange: Set<String> = [],
-        sortAscending: Bool = false,
         onCardTap: @escaping (String) -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
-        self.selectedBreed = selectedBreed
-        self.selectedGender = selectedGender
-        self.selectedAgeRange = selectedAgeRange
-        self.sortAscending = sortAscending
         self.onCardTap = onCardTap
     }
 
     var body: some View {
         LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
-            ForEach(viewModel.filteredItems(
-                selectedBreed: selectedBreed,
-                selectedGender: selectedGender,
-                selectedAgeRange: selectedAgeRange,
-                sortAscending: sortAscending
-            )) { cattle in
+            ForEach(viewModel.filteredItems) { cattle in
                 let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
                 let image = cattle.cattleImage.flatMap { UIImage(data: $0) }
                 Button {

@@ -69,7 +69,7 @@ enum CarcassPercentage {
                     .paru: 1.0,
                     .limpa: 0.3,
                     .pencernaan: 15.0,
-                    .hati: 5.0
+                    .lemak: 5.0
                 ],
                 meatPercentOfCarcass: 75.0
             )
@@ -89,7 +89,7 @@ enum CarcassPercentage {
                     .paru: 1.0,
                     .limpa: 0.3,
                     .pencernaan: 16.0,
-                    .hati: 5.0
+                    .lemak: 5.0
                 ],
                 meatPercentOfCarcass: 72.0
             )

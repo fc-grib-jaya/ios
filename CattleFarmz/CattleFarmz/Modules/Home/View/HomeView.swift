@@ -46,7 +46,7 @@ struct HomeView: View {
                     .padding(.top, AppSpacing.md)
                     .padding(.bottom, AppSpacing.sm)
 
-                Text(cattlesViewModel.listSubtitle)
+                cattlesViewModel.listSubtitle
                     .font(AppFont.body)
                     .padding(.horizontal, AppSpacing.md)
 

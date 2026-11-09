@@ -10,6 +10,8 @@ struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
     private let cattleID: UUID?
     @State private var cattle: Cattle?
+    @State private var isEditing = false
+    @State private var errorMessage: String?
 
     init(cattleID: String, viewModel: CattlesViewModel) {
         self.cattleID = UUID(uuidString: cattleID)
@@ -21,60 +23,42 @@ struct CattlesDetailView: View {
             if let cattle {
                 let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
 
-                LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
-                    Text(cattle.name)
-                    Text("\(cattle.currentAge) bulan")
-
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
                     if let imageData = cattle.cattleImage,
                        let image = UIImage(data: imageData) {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFit()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 180, alignment: .top)
+                            .clipped()
+                            .cornerRadius(AppSpacing.Card.compact)
                     } else {
                         Image("CattlePlaceholder")
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 250, height: 250)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 180, alignment: .top)
                             .clipped()
+                            .cornerRadius(AppSpacing.Card.compact)
                     }
 
-                    if let bodyWeight {
-                        Text("Berat Sapi: \(bodyWeight, specifier: "%.2f") kg")
+                    CattlesDetailCard(
+                        name: cattle.name,
+                        breed: cattle.breed,
+                        gender: cattle.gender,
+                        age: cattle.recordedAge,
+                        weight: bodyWeight,
+                        updatedDate: cattle.dateAcquired,
+                        chestGirth: cattle.chestGirth,
+                        bodyLength: cattle.bodyLength,
+                        notes: cattle.notes
+                    )
 
-                        if let carcassWeight = viewModel.carcassWeight(
-                            for: cattle,
-                            bodyWeight: bodyWeight
-                        ) {
-                            Text("Berat Karkas: \(carcassWeight, specifier: "%.2f") kg")
-                        }
-
-                        if let meatWeight = viewModel.meatWeight(
-                            for: cattle,
-                            bodyWeight: bodyWeight
-                        ) {
-                            Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
-                                .padding(.bottom, AppSpacing.sm)
-                        }
-
-                        ForEach(NonCarcassPart.allCases, id: \.self) { part in
-                            if let partWeight = viewModel.nonCarcassWeight(
-                                for: cattle,
-                                bodyWeight: bodyWeight,
-                                part: part
-                            ) {
-                                HStack {
-                                    Text(part.displayName)
-                                    Spacer()
-                                    Text("\(partWeight, specifier: "%.2f") kg")
-                                }
-                            }
-                        }
-                    } else {
-                        Text("Not Measured")
-                    }
+                    Text("Terakhir disimpan: \(formatDate(cattle.dateAcquired))")
+                        .font(AppFont.caption)
+                        .foregroundStyle(AppColor.Primitive.Neutral.shade500)
                 }
-                .font(AppFont.body)
-                .foregroundStyle(AppColor.Text.primary)
                 .padding(AppSpacing.md)
             } else {
                 ContentUnavailableView(
@@ -85,21 +69,85 @@ struct CattlesDetailView: View {
             }
         }
         .navigationTitle(cattle?.name ?? "Detail Sapi")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if cattle != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Edit") {
+                        isEditing = true
+                    }
+                }
+            }
+        }
         .task {
-            guard let cattleID else { return }
+            await loadCattle()
+        }
+        .sheet(isPresented: $isEditing) {
+            if let cattle {
+                NavigationStack {
+                    CattlesEditForm(cattle: cattle) { values in
+                        save(values, for: cattle)
+                    }
+                }
+            }
+        }
+        .alert("Gagal Menyimpan", isPresented: errorAlertIsPresented) {
+            Button("OK", role: .cancel) {
+                errorMessage = nil
+            }
+        } message: {
+            Text(errorMessage ?? "Perubahan tidak dapat disimpan.")
+        }
+    }
 
-            await viewModel.load()
-            cattle = viewModel.items.first { $0.id == cattleID }
+    private var errorAlertIsPresented: Binding<Bool> {
+        Binding(
+            get: { errorMessage != nil },
+            set: { isPresented in
+                if !isPresented {
+                    errorMessage = nil
+                }
+            }
+        )
+    }
+
+    private func loadCattle() async {
+        guard let cattleID else { return }
+
+        await viewModel.load()
+        cattle = viewModel.items.first { $0.id == cattleID }
+    }
+
+    private func save(_ values: CattleEditValues, for cattle: Cattle) -> String? {
+        do {
+            try viewModel.update(
+                for: cattle,
+                name: values.name,
+                dateAcquired: values.dateAcquired,
+                breed: values.breed,
+                gender: values.gender,
+                recordedAge: values.recordedAge,
+                chestGirth: values.chestGirth,
+                bodyLength: values.bodyLength,
+                bodyWeight: values.bodyWeight,
+                notes: values.notes
+            )
+            self.cattle = viewModel.items.first { $0.id == cattle.id }
+            return nil
+        } catch {
+            return "Periksa kembali data yang dimasukkan."
         }
     }
 }
 
 #Preview {
-    CattlesDetailView(
-        cattleID: Cattle.samples[0].id.uuidString,
-        viewModel: CattlesViewModel(
-            repository: MockCattleRepository(),
-            calculation: WeightCalculator()
+    NavigationStack {
+        CattlesDetailView(
+            cattleID: Cattle.samples[2].id.uuidString,
+            viewModel: CattlesViewModel(
+                repository: MockCattleRepository(),
+                calculation: WeightCalculator()
+            )
         )
-    )
+    }
 }

@@ -38,6 +38,33 @@ final class CattlesViewModel {
         items = try repository.cattles()
     }
     
+    func update(
+        for cattle: Cattle,
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
+        bodyWeight: Double?,
+        notes: String?
+    ) throws {
+        try repository.update(
+            for: cattle.id,
+            name: name,
+            dateAcquired: dateAcquired,
+            breed: breed,
+            gender: gender,
+            recordedAge: recordedAge,
+            chestGirth: chestGirth,
+            bodyLength: bodyLength,
+            bodyWeight: bodyWeight,
+            notes: notes
+        )
+        items = try repository.cattles()
+    }
+
     func updateMeasurements(
         for cattle: Cattle,
         chestGirth: Double,

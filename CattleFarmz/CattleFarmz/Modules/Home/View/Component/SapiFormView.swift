@@ -39,7 +39,7 @@ struct SapiFormView: View {
     
     var body: some View {
         ZStack {
-            AppColor.Text.primary
+            AppColor.Primitive.Base.white
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
@@ -120,21 +120,21 @@ struct SapiFormView: View {
                                     }
                                     .font(AppFont.body)
                                     .foregroundStyle(
-                                        isSelected ? AppColor.Button.Primary.background : AppColor.Button.Secondary.foreground
+                                        AppColor.Button.Primary.background
                                     )
                                     .frame(maxWidth: .infinity)
-                                    .padding(AppSpacing.xs)
+                                    .padding(AppSpacing.sm)
                                     .background(
                                         RoundedRectangle(cornerRadius: 30)
                                             .fill(
-                                                isSelected ? AppColor.Card.background
+                                                isSelected ? AppColor.Button.Primary.background
                                                     .opacity(
                                                         0.2
                                                     ) : AppColor.Surface.canvas
                                             )
                                             .stroke(
-                                                isSelected ? AppColor.Border.focus : AppColor.Border.subtle
-                                                    .opacity(0.2)
+                                                isSelected ? AppColor.Border.subtle
+                                                    .opacity(0.2) : AppColor.Border.focus.opacity(0.2)
                                             )
                                     )
                                 }
@@ -302,7 +302,7 @@ struct SapiFormView: View {
                     .padding(AppSpacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: 23)
-                            .fill(AppColor.Surface.canvas.opacity(0.5))
+                            .fill(AppColor.Input.background.opacity(0.8))
                     )
                     
                     VStack (alignment: .leading){
@@ -358,7 +358,7 @@ struct SapiFormView: View {
                     }
                     .disabled(isSaveDisabled)
                 }
-                .padding()
+                .padding(AppSpacing.md)
             }
         }
         .fullScreenCover(isPresented: $isShowingCamera) {
@@ -385,14 +385,13 @@ struct SapiFormView: View {
         } label: {
             Text(title)
                 .font(AppFont.body)
-                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                .foregroundStyle(isSelected ? AppColor.Button.Primary.foreground : AppColor.Button.Primary.background)
                 .padding(.vertical, AppSpacing.xs)
                 .frame(maxWidth: .infinity)
                 .glassEffect(
                     .regular
                         .tint(
-                            isSelected ? AppColor.Button.Primary.background : AppColor.Button.Secondary.foreground
-                                .opacity(0.3)
+                            isSelected ? AppColor.Primitive.Primary.shade400 : AppColor.Primitive.Neutral.shade300
                         )
                 )
         }

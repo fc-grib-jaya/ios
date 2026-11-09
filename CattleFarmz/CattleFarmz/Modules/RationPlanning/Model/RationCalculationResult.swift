@@ -13,6 +13,20 @@ struct RationCalculationResult {
     let requirements: NutrientContent
 
     let warnings: [String]
+    
+    let estimatedDryMatterKilogramsPerAnimalPerDay: Double
+    let referenceForagePercent: Double
+    
+    let recommendations: [String]
+
+    var estimatedDryMatterKilogramsPerHerdPerDay: Double {
+        estimatedDryMatterKilogramsPerAnimalPerDay
+            * Double(profile.animalCount)
+    }
+
+    var referenceConcentratePercent: Double {
+        100 - referenceForagePercent
+    }
 
     var kilogramsPerAnimalPerDay: Double {
         items.reduce(0) {

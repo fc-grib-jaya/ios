@@ -49,11 +49,14 @@ final class CattlesViewModel {
     /// Cattle visible under the active filter and sort settings.
     var filteredItems: [Cattle] {
         let filtered = items.filter { cattle in
-            let matchesBreed = selectedBreeds.isEmpty
+            let matchesBreed =
+                selectedBreeds.isEmpty
                 || selectedBreeds.contains(cattle.breed.rawValue)
-            let matchesGender = selectedGenders.isEmpty
+            let matchesGender =
+                selectedGenders.isEmpty
                 || selectedGenders.contains(cattle.gender.rawValue)
-            let matchesAge = selectedAgeRanges.isEmpty
+            let matchesAge =
+                selectedAgeRanges.isEmpty
                 || selectedAgeRanges.contains { range in
                     ageRange(for: cattle.currentAge) == range
                 }
@@ -105,7 +108,7 @@ final class CattlesViewModel {
         self.repository = repository
         self.calculation = calculation
     }
-    
+
     func add(
         name: String,
         dateAcquired: Date,
@@ -118,10 +121,21 @@ final class CattlesViewModel {
         cattleImage: Data?,
         notes: String?
     ) throws {
-        try repository.add(name: name, dateAcquired: dateAcquired, breed: breed, gender: gender, recordedAge: recordedAge, chestGirth: chestGirth, bodyLength: bodyLength, bodyWeight: bodyWeight, cattleImage: cattleImage, notes: notes)
+        try repository.add(
+            name: name,
+            dateAcquired: dateAcquired,
+            breed: breed,
+            gender: gender,
+            recordedAge: recordedAge,
+            chestGirth: chestGirth,
+            bodyLength: bodyLength,
+            bodyWeight: bodyWeight,
+            cattleImage: cattleImage,
+            notes: notes
+        )
         items = try repository.cattles()
     }
-    
+
     func update(
         for cattle: Cattle,
         name: String,
@@ -160,7 +174,7 @@ final class CattlesViewModel {
             bodyLength: bodyLength
         )
     }
-    
+
     func updateWeight(
         for cattle: Cattle,
         weight: Double
@@ -170,7 +184,7 @@ final class CattlesViewModel {
             bodyWeight: weight
         )
     }
-    
+
     func updateNotes(
         for cattle: Cattle,
         notes: String
@@ -182,7 +196,7 @@ final class CattlesViewModel {
         guard let chestGirth = cattle.chestGirth else {
             return nil
         }
-        
+
         return calculation.cattleWeight(
             chestGirth: chestGirth,
             bodyLength: cattle.bodyLength,
@@ -190,7 +204,7 @@ final class CattlesViewModel {
             gender: cattle.gender
         )
     }
-    
+
     func carcassWeight(
         for cattle: Cattle,
         bodyWeight: Double
@@ -201,7 +215,7 @@ final class CattlesViewModel {
             bodyWeight: bodyWeight
         )
     }
-    
+
     func nonCarcassWeight(
         for cattle: Cattle,
         bodyWeight: Double,
@@ -224,10 +238,67 @@ final class CattlesViewModel {
             bodyWeight: bodyWeight
         )
     }
-    
+
+    /// Computes the weight breakdown for a cattle on the fly.
+    /// Non-carcass weight is the sum over all `NonCarcassPart` cases.
+    func weightBreakdown(for cattle: Cattle) -> CattleWeightBreakdown {
+        guard let bodyWeight = cattle.bodyWeight ?? cattleWeight(for: cattle)
+        else {
+            return CattleWeightBreakdown(
+                bodyWeight: nil,
+                carcass: nil,
+                nonCarcass: nil,
+                meat: nil,
+                nonCarcassParts: [:]
+            )
+        }
+
+        let nonCarcassParts = Dictionary(
+            uniqueKeysWithValues: NonCarcassPart.allCases.compactMap { part in
+                nonCarcassWeight(
+                    for: cattle,
+                    bodyWeight: bodyWeight,
+                    part: part
+                )
+                .map { (part, $0) }
+            }
+        )
+        let nonCarcass = nonCarcassParts.values.reduce(0.0, +)
+
+        return CattleWeightBreakdown(
+            bodyWeight: bodyWeight,
+            carcass: carcassWeight(for: cattle, bodyWeight: bodyWeight),
+            nonCarcass: nonCarcass,
+            meat: meatWeight(for: cattle, bodyWeight: bodyWeight),
+            nonCarcassParts: nonCarcassParts
+        )
+    }
+
     /// Selects a sort field and keeps the current direction.
     func selectSort(_ option: CattleSortOption) {
         sortOption = option
+    }
+
+    /// Applies edit-form values to the given cattle, then refreshes the list.
+    /// Returns an error message when the save fails, `nil` on success.
+    func editCattle(_ values: CattleEditValues, for cattle: Cattle) -> String? {
+        do {
+            try update(
+                for: cattle,
+                name: values.name,
+                dateAcquired: values.dateAcquired,
+                breed: values.breed,
+                gender: values.gender,
+                recordedAge: values.recordedAge,
+                chestGirth: values.chestGirth,
+                bodyLength: values.bodyLength,
+                bodyWeight: values.bodyWeight,
+                notes: values.notes
+            )
+            return nil
+        } catch {
+            return "Periksa kembali data yang dimasukkan."
+        }
     }
 
     /// Flips the sort direction of `filteredItems`.

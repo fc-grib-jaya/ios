@@ -9,19 +9,28 @@ import UIKit
 struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
     private let cattleID: UUID?
-    @State private var cattle: Cattle?
-    @State private var isEditing = false
-    @State private var errorMessage: String?
+    private let onEditTap: (Cattle, @escaping (CattleEditValues) -> String?) -> Void
 
-    init(cattleID: String, viewModel: CattlesViewModel) {
+    init(
+        cattleID: String,
+        viewModel: CattlesViewModel,
+        onEditTap: @escaping (Cattle, @escaping (CattleEditValues) -> String?) -> Void
+    ) {
         self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
+        self.onEditTap = onEditTap
+    }
+
+    /// Derived from the ViewModel so edits made through the shared instance
+    /// are reflected here without manual syncing.
+    private var currentCattle: Cattle? {
+        viewModel.items.first { $0.id == cattleID }
     }
 
     var body: some View {
         ScrollView {
-            if let cattle {
-                let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
+            if let cattle = currentCattle {
+                let breakdown = viewModel.weightBreakdown(for: cattle)
 
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
                     if let imageData = cattle.cattleImage,
@@ -48,12 +57,46 @@ struct CattlesDetailView: View {
                         breed: cattle.breed,
                         gender: cattle.gender,
                         age: cattle.recordedAge,
-                        weight: bodyWeight,
+                        weight: breakdown.bodyWeight,
                         updatedDate: cattle.dateAcquired,
                         chestGirth: cattle.chestGirth,
                         bodyLength: cattle.bodyLength,
                         notes: cattle.notes
                     )
+
+                    VStack(alignment: .leading, spacing: AppSpacing.md) {
+                        weightRow(title: "Berat Karkas", value: breakdown.carcass)
+                        weightRow(title: "Berat Non-Karkas", value: breakdown.nonCarcass)
+                        weightRow(title: "Berat Daging", value: breakdown.meat)
+                    }
+                    .padding(AppSpacing.md)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(AppColor.Card.background)
+                    .cornerRadius(AppSpacing.Card.compact)
+                    .shadow(radius: 10, x: 0, y: 2)
+
+                    if !carcassSankeyItems(breakdown).isEmpty {
+                        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                            Text("Persentase Karkas")
+                                .font(AppFont.title)
+                                .foregroundStyle(AppColor.Text.primary)
+
+                            // Tight layer spacing so all three levels fit
+                            // the card width. Tall enough that every
+                            // last-level row keeps its minimum thickness
+                            // (13 labeled rows need more than 360pt).
+                            HorizontalSankeyChart(
+                                data: carcassSankeyItems(breakdown),
+                                levelSpacing: 84
+                            )
+                            .frame(height: 520)
+                        }
+                        .padding(AppSpacing.md)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(AppColor.Card.background)
+                        .cornerRadius(AppSpacing.Card.compact)
+                        .shadow(radius: 10, x: 0, y: 2)
+                    }
 
                     Text("Terakhir disimpan: \(formatDate(cattle.dateAcquired))")
                         .font(AppFont.caption)
@@ -68,75 +111,159 @@ struct CattlesDetailView: View {
                 )
             }
         }
-        .navigationTitle(cattle?.name ?? "Detail Sapi")
+        .navigationTitle(currentCattle?.name ?? "Detail Sapi")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if cattle != nil {
+            if let cattle = currentCattle {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Edit") {
-                        isEditing = true
+                        onEditTap(cattle) { values in
+                            viewModel.editCattle(values, for: cattle)
+                        }
                     }
                 }
             }
         }
         .task {
-            await loadCattle()
-        }
-        .sheet(isPresented: $isEditing) {
-            if let cattle {
-                NavigationStack {
-                    CattlesEditForm(cattle: cattle) { values in
-                        save(values, for: cattle)
-                    }
-                }
-            }
-        }
-        .alert("Gagal Menyimpan", isPresented: errorAlertIsPresented) {
-            Button("OK", role: .cancel) {
-                errorMessage = nil
-            }
-        } message: {
-            Text(errorMessage ?? "Perubahan tidak dapat disimpan.")
+            await viewModel.load()
         }
     }
 
-    private var errorAlertIsPresented: Binding<Bool> {
-        Binding(
-            get: { errorMessage != nil },
-            set: { isPresented in
-                if !isPresented {
-                    errorMessage = nil
-                }
-            }
-        )
+    private func weightRow(title: String, value: Double?) -> some View {
+        HStack {
+            Text(title)
+                .font(AppFont.mediumBody)
+                .foregroundStyle(AppColor.Text.primary)
+            Spacer()
+            Text(value.map { String(format: "%.2f kg", $0) } ?? "Belum diukur")
+                .font(AppFont.body)
+                .foregroundStyle(AppColor.Text.primary)
+        }
     }
 
-    private func loadCattle() async {
-        guard let cattleID else { return }
+    /// Builds the carcass-percentage Sankey tree, all as percentages of the
+    /// live weight:
+    /// level 1 total weight -> level 2 carcass (upper) and non-carcass (lower)
+    /// -> level 3 meat & bone under carcass, one leaf per non-carcass part
+    /// under non-carcass.
+    /// Leaf values must be positive, so empty/zero slices are omitted;
+    /// returns an empty array when nothing can be shown.
+    private func carcassSankeyItems(
+        _ breakdown: CattleWeightBreakdown
+    ) -> [SankeyItem] {
+        guard let bodyWeight = breakdown.bodyWeight, bodyWeight > 0 else {
+            return []
+        }
 
-        await viewModel.load()
-        cattle = viewModel.items.first { $0.id == cattleID }
-    }
+        func percent(_ value: Double) -> Double {
+            value / bodyWeight * 100
+        }
 
-    private func save(_ values: CattleEditValues, for cattle: Cattle) -> String? {
-        do {
-            try viewModel.update(
-                for: cattle,
-                name: values.name,
-                dateAcquired: values.dateAcquired,
-                breed: values.breed,
-                gender: values.gender,
-                recordedAge: values.recordedAge,
-                chestGirth: values.chestGirth,
-                bodyLength: values.bodyLength,
-                bodyWeight: values.bodyWeight,
-                notes: values.notes
+        let meatPercent = breakdown.meat.map(percent)
+
+        var carcassChildren: [SankeyItem] = []
+        if let meatPercent {
+            carcassChildren.append(
+                SankeyItem(
+                    id: "meat",
+                    title: "Daging",
+                    value: meatPercent,
+                    color: AppColor.Primitive.Primary.shade600,
+                    order: 0 // layer 3: 0.0
+                )
             )
-            self.cattle = viewModel.items.first { $0.id == cattle.id }
-            return nil
-        } catch {
-            return "Periksa kembali data yang dimasukkan."
         }
+        if let carcass = breakdown.carcass, let meatPercent {
+            let bonePercent = percent(carcass) - meatPercent
+            if bonePercent > 0 {
+                carcassChildren.append(
+                    SankeyItem(
+                        id: "bone",
+                        title: "Tulang",
+                        value: bonePercent,
+                        color: AppColor.Button.Secondary.pressedBackground,
+                        order: 1 // layer 3: 0.1
+                    )
+                )
+            }
+        }
+
+        // Layer 3 ordering: meat 0.0, bone 0.1, non-carcass parts from 2.
+        let nonCarcassChildren: [SankeyItem] = NonCarcassPart.allCases
+            .enumerated()
+            .compactMap { index, part in
+                guard let weight = breakdown.nonCarcassParts[part],
+                      percent(weight) > 0 else {
+                    return nil
+                }
+                return SankeyItem(
+                    id: "non-\(part.rawValue)",
+                    title: part.displayName,
+                    value: percent(weight),
+                    color: AppColor.Button.Secondary.pressedBackground,
+                    order: 2 + index
+                )
+            }
+
+        var children: [SankeyItem] = []
+        if let carcass = breakdown.carcass {
+            if carcassChildren.isEmpty {
+                children.append(
+                    SankeyItem(
+                        id: "carcass",
+                        title: "Karkas",
+                        value: percent(carcass),
+                        color: AppColor.Button.Secondary.foreground,
+                        order: 0
+                    )
+                )
+            } else {
+                children.append(
+                    SankeyItem(
+                        id: "carcass",
+                        title: "Karkas",
+                        color: AppColor.Button.Secondary.foreground,
+                        order: 0,
+                        children: carcassChildren
+                    )
+                )
+            }
+        }
+        if let nonCarcass = breakdown.nonCarcass {
+            if nonCarcassChildren.isEmpty {
+                children.append(
+                    SankeyItem(
+                        id: "nonCarcass",
+                        title: "Non Karkas",
+                        value: percent(nonCarcass),
+                        color: AppColor.Button.Secondary.pressedBackground,
+                        order: 1
+                    )
+                )
+            } else {
+                children.append(
+                    SankeyItem(
+                        id: "nonCarcass",
+                        title: "Non Karkas",
+                        color: AppColor.Button.Secondary.pressedBackground,
+                        order: 1,
+                        children: nonCarcassChildren
+                    )
+                )
+            }
+        }
+
+        guard !children.isEmpty else { return [] }
+
+        return [
+            SankeyItem(
+                id: "body",
+                title: "Bobot",
+                color: AppColor.Primitive.Secondary.shade600,
+                order: 0,
+                children: children
+            )
+        ]
     }
 }
 
@@ -147,7 +274,8 @@ struct CattlesDetailView: View {
             viewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
                 calculation: WeightCalculator()
-            )
+            ),
+            onEditTap: { _, _ in }
         )
     }
 }

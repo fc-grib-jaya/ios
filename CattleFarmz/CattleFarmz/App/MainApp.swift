@@ -30,6 +30,9 @@ struct MainApp: App {
             )
             modelContainer = mc
             container = DIContainer.live(modelContext: mc.mainContext)
+            
+            UISegmentedControl.appearance().selectedSegmentTintColor =
+                UIColor(AppColor.Primitive.Primary.shade500)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }

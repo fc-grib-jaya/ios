@@ -11,7 +11,7 @@ import Observation
 @MainActor
 final class HomeViewModel {
     /// Navigation title of the home screen.
-    let title = "Lemoo"
+    let title = "Lemboo"
 
     /// Placeholder copy shown until the home content is implemented.
     let placeholder = "Home screen placeholder"

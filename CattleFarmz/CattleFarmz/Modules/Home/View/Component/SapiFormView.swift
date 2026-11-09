@@ -182,121 +182,122 @@ struct SapiFormView: View {
                         .font(AppFont.body)
                     VStack (alignment: .leading){
                         
-                        HStack(spacing: AppSpacing.sm) {
-                            weightModeButton("Isi Bobot", mode: .manual)
-                            weightModeButton("Estimasi Bobot", mode: .camera)
-                        }
-                        .padding(.bottom, AppSpacing.sm)
-                        
-                        if (weightEntryMode == .manual) {
-                            Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")
-                                .font(AppFont.caption)
-                                .padding(.bottom, AppSpacing.sm)
-                            
-                            HStack (spacing: 1) {
-                                Text("Bobot")
-                                    .foregroundStyle(AppColor.Text.primary)
-                                Text("*")
-                                    .foregroundStyle(Color.red)
+                        VStack (alignment: .leading){
+                            Picker("weight Entry Mode", selection: $weightEntryMode){
+                                Text("Isi Bobot").tag(WeightEntryMode.manual)
+                                Text("Estimasi Bobot").tag(WeightEntryMode.camera)
                             }
-                            .font(AppFont.body)
+                            .pickerStyle(.segmented)
                             
-                            HStack {
-                                TextField(
-                                    value: $bobotSapi,
-                                    format: .number,
-                                    prompt: Text("e.g. \"604,19\"").italic()
-                                ) {
-                                    Text("Bobot Sapi (kg)")
-                                }
-                                .keyboardType(.decimalPad)
-                                
-                                Text("kg")
-                                    .foregroundStyle(AppColor.Text.primary)
-                            }
-                            .padding(AppSpacing.xs)
-                            .background(
-                                RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.Surface.canvas)
-                            )
-                            
-                            //Camera
-                            Button {
-                                isShowingCamera = true
-                            } label: {
-                                VStack(spacing: AppSpacing.md) {
-                                    if let gambarSapi {
-                                        Image(uiImage: gambarSapi)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .aspectRatio(1, contentMode: .fit)
-                                            .frame(maxWidth: .infinity)
-                                            .clipShape(RoundedRectangle(cornerRadius: 23))
-                                    } else {
-                                        VStack {
-                                            Image(systemName: "camera.fill")
-                                                .font(AppFont.largeTitle)
-                                            Text("Ambil foto sapi")
-                                                .italic()
-                                        }
-                                            .padding(.vertical, AppSpacing.xl)
-                                    }
-                                }
-                                .font(AppFont.body)
-                                .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
-                                .frame(maxWidth: .infinity)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.Surface.canvas)
-                                        .stroke(AppColor.Text.secondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            Text("Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi.")
-                                .font(AppFont.caption)
-                                .padding(.bottom, AppSpacing.sm)
-                            
-                            HStack {
-                                Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
+                            if (weightEntryMode == .manual) {
+                                Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")
                                     .font(AppFont.caption)
-                                Spacer()
-                            }
-                            .padding(AppSpacing.xs)
-                            .background(
-                                RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.Surface.canvas)
-                            )
-                            
-                            Button {
-                                // Lidar
-                            } label: {
-                                VStack {
-                                    Image(systemName: "camera.on.rectangle.fill")
-                                        .font(AppFont.largeTitle)
-                                    Text("Estimasi bobot dan foto sapi")
-                                        .italic()
-                                        .lineLimit(1)
+                                    .padding(.bottom, AppSpacing.sm)
+                                
+                                HStack (spacing: 1) {
+                                    Text("Bobot")
+                                        .foregroundStyle(AppColor.Text.primary)
+                                    Text("*")
+                                        .foregroundStyle(Color.red)
                                 }
                                 .font(AppFont.body)
-                                .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
-                                .padding(.vertical, AppSpacing.xl)
-                                .frame(maxWidth: .infinity)
+                                
+                                HStack {
+                                    TextField(
+                                        value: $bobotSapi,
+                                        format: .number,
+                                        prompt: Text("e.g. \"604,19\"").italic()
+                                    ) {
+                                        Text("Bobot Sapi (kg)")
+                                    }
+                                    .keyboardType(.decimalPad)
+                                    
+                                    Text("kg")
+                                        .foregroundStyle(AppColor.Text.primary)
+                                }
+                                .padding(AppSpacing.xs)
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
                                         .fill(AppColor.Surface.canvas)
-                                        .stroke(
-                                            AppColor.Text.secondary,
-                                            style: StrokeStyle(
-                                                lineWidth: 1,
-                                                dash: [2, 3]
-                                            )
-                                        )
                                 )
+                                
+                                //Camera
+                                Button {
+                                    isShowingCamera = true
+                                } label: {
+                                    VStack(spacing: AppSpacing.md) {
+                                        if let gambarSapi {
+                                            Image(uiImage: gambarSapi)
+                                                .resizable()
+                                                .scaledToFill()
+                                                .aspectRatio(1, contentMode: .fit)
+                                                .frame(maxWidth: .infinity)
+                                                .clipShape(RoundedRectangle(cornerRadius: 23))
+                                        } else {
+                                            VStack {
+                                                Image(systemName: "camera.fill")
+                                                    .font(AppFont.largeTitle)
+                                                Text("Ambil foto sapi")
+                                                    .italic()
+                                            }
+                                                .padding(.vertical, AppSpacing.xl)
+                                        }
+                                    }
+                                    .font(AppFont.body)
+                                    .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 23)
+                                            .fill(AppColor.Surface.canvas)
+                                            .stroke(AppColor.Text.secondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            } else {
+                                Text("Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi.")
+                                    .font(AppFont.caption)
+                                    .padding(.bottom, AppSpacing.sm)
+                                
+                                HStack {
+                                    Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
+                                        .font(AppFont.caption)
+                                    Spacer()
+                                }
+                                .padding(AppSpacing.xs)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 23)
+                                        .fill(AppColor.Surface.canvas)
+                                )
+                                
+                                Button {
+                                    // Lidar
+                                } label: {
+                                    VStack {
+                                        Image(systemName: "camera.on.rectangle.fill")
+                                            .font(AppFont.largeTitle)
+                                        Text("Estimasi bobot dan foto sapi")
+                                            .italic()
+                                            .lineLimit(1)
+                                    }
+                                    .font(AppFont.body)
+                                    .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
+                                    .padding(.vertical, AppSpacing.xl)
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 23)
+                                            .fill(AppColor.Surface.canvas)
+                                            .stroke(
+                                                AppColor.Text.secondary,
+                                                style: StrokeStyle(
+                                                    lineWidth: 1,
+                                                    dash: [2, 3]
+                                                )
+                                            )
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
-                        
                     }
                     .font(AppFont.body)
                     .padding(AppSpacing.md)
@@ -344,18 +345,8 @@ struct SapiFormView: View {
                         }
                     } label: {
                         Text("Simpan Data")
-                            .font(AppFont.body)
-                            .foregroundStyle(
-                                AppColor.Primitive.Primary.shade500
-                            )
-                            .padding(.vertical, AppSpacing.md)
-                            .frame(maxWidth: .infinity)
-                            .glassEffect(
-                                .regular
-                                    .tint(AppColor.Button.Primary.background)
-                            )
-                            .opacity(isSaveDisabled ? 0.5 : 1)
                     }
+                    .AppButtonStyle(.primary)
                     .disabled(isSaveDisabled)
                 }
                 .padding()
@@ -370,33 +361,6 @@ struct SapiFormView: View {
         }
         .navigationTitle("Tambah Sapi")
         .navigationBarTitleDisplayMode(.inline)
-    }
-    
-    private func weightModeButton(
-        _ title: String,
-        mode: WeightEntryMode
-    ) -> some View {
-        let isSelected = weightEntryMode == mode
-
-        return Button {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                weightEntryMode = mode
-            }
-        } label: {
-            Text(title)
-                .font(AppFont.body)
-                .foregroundStyle(AppColor.Primitive.Primary.shade500)
-                .padding(.vertical, AppSpacing.xs)
-                .frame(maxWidth: .infinity)
-                .glassEffect(
-                    .regular
-                        .tint(
-                            isSelected ? AppColor.Button.Primary.background : AppColor.Button.Secondary.foreground
-                                .opacity(0.3)
-                        )
-                )
-        }
-        .buttonStyle(.plain)
     }
     
     private var isSaveDisabled: Bool {

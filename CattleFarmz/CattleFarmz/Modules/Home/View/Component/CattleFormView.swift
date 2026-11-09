@@ -306,6 +306,15 @@ struct CattleFormView: View {
                                 )
                             }
                             .buttonStyle(.plain)
+                            
+                            WeightDetailCard(
+                                cattleImage: UIImage(named: "CattlePlaceholder")!,
+                                bodyWeight: 573.4,
+                                chestGirth: 174,
+                                bodyLength: 200,
+                                dateAcquired: Date()
+                            )
+
                         }
                         
                     }

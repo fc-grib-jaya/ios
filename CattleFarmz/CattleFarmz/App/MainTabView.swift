@@ -77,7 +77,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-
+            
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
@@ -88,7 +88,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-
+            
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")

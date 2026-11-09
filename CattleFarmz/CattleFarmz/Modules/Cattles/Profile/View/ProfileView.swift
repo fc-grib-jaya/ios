@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-/// Profile screen with an avatar, name, and email.
+/// Profile screen with an avatar and the name captured during onboarding.
 struct ProfileView: View {
     @State private var viewModel: ProfileViewModel
 
@@ -28,13 +28,9 @@ struct ProfileView: View {
                     .frame(width: Self.avatarSize, height: Self.avatarSize)
                     .foregroundStyle(AppColor.Button.Primary.background)
 
-                Text(viewModel.profile.name)
+                Text(viewModel.name)
                     .font(AppFont.title)
                     .foregroundStyle(AppColor.Text.primary)
-
-                Text(viewModel.profile.email)
-                    .font(AppFont.body)
-                    .foregroundStyle(AppColor.Text.secondary)
             }
             .padding(AppSpacing.xl)
         }
@@ -44,6 +40,12 @@ struct ProfileView: View {
 
 #Preview {
     NavigationStack {
-        ProfileView(viewModel: ProfileViewModel())
+        ProfileView(
+            viewModel: ProfileViewModel(
+                repository: MockUserProfileRepository(
+                    profile: UserProfileConfiguration(name: "Tono")
+                )
+            )
+        )
     }
 }

@@ -155,4 +155,61 @@ struct ToastManagerTests {
         #expect(manager.current == nil)
         #expect(manager.exitRequestID == nil)
     }
+
+    @Test
+    func overshootFeedbackPlaysTheTickWithTheCowBell() {
+        let haptics = RecordingHaptics()
+        let sounds = RecordingSounds()
+        let manager = ToastManager(haptics: haptics, sounds: sounds)
+
+        manager.playOvershootFeedback()
+
+        #expect(haptics.played == [.scanTick])
+        #expect(sounds.played == [.cowBell])
+    }
+
+    @Test
+    func ringsOncePerToastWhileTickingOnEveryOvershoot() throws {
+        let haptics = RecordingHaptics()
+        let sounds = RecordingSounds()
+        let manager = ToastManager(haptics: haptics, sounds: sounds)
+        manager.show("Saved")
+
+        // The entrance animation reports two overshoots per toast.
+        manager.playOvershootFeedback()
+        manager.playOvershootFeedback()
+
+        #expect(haptics.played == [.scanTick, .scanTick])
+        #expect(sounds.played == [.cowBell])
+
+        let first = try #require(manager.current)
+        manager.finish(first.id)
+        manager.show("Saved again")
+        manager.playOvershootFeedback()
+
+        #expect(sounds.played == [.cowBell, .cowBell])
+    }
+}
+
+/// Records the patterns a toast manages to play.
+@MainActor
+private final class RecordingHaptics: HapticProviding {
+    private(set) var played: [HapticPattern] = []
+
+    func prepare() {}
+
+    func play(_ pattern: HapticPattern) {
+        played.append(pattern)
+    }
+}
+
+@MainActor
+private final class RecordingSounds: SoundPlaying {
+    private(set) var played: [SoundEffect] = []
+
+    func prepare() {}
+
+    func play(_ effect: SoundEffect) {
+        played.append(effect)
+    }
 }

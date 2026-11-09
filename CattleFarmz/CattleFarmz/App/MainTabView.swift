@@ -99,15 +99,7 @@ struct MainTabView: View {
         }
         .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
-            switch sheet {
-            case .examplePickerSheet(let current, let onSelect):
-                ExamplePickerSheetView(
-                    viewModel: container.makeExamplePickerSheetViewModel(
-                        current: current,
-                        onSelect: onSelect
-                    )
-                )
-            }
+            AppSheetView(sheet: sheet, container: container)
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)

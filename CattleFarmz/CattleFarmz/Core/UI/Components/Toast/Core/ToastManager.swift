@@ -32,23 +32,32 @@ final class ToastManager {
     private(set) var exitRequestID: UUID?
 
     private var queue: [ToastItem] = []
+    /// True once the bell for the active toast played.
+    private var hasSoundedForCurrent = false
     private let haptics: any HapticProviding
+    private let sounds: any SoundPlaying
 
-    init(haptics: any HapticProviding) {
+    init(haptics: any HapticProviding, sounds: any SoundPlaying) {
         self.haptics = haptics
+        self.sounds = sounds
     }
 
-    /// Silent haptics, used by previews and tests.
+    /// Silent haptics and audio, used by previews and tests.
     convenience init() {
-        self.init(haptics: NoopHaptics())
+        self.init(haptics: NoopHaptics(), sounds: NoopSoundPlayer())
     }
 
     /// Plays the tick that answers an overshoot of the entrance animation.
     ///
     /// The view calls this when the circle reaches an overshoot extreme, so the
-    /// feedback is tied to the animation rather than to the request.
+    /// feedback is tied to the animation rather than to the request. The
+    /// animation reports two overshoots; the cow bell answers the first landing
+    /// only, so it is not retriggered while still ringing.
     func playOvershootFeedback() {
         haptics.play(.scanTick)
+        guard !hasSoundedForCurrent else { return }
+        hasSoundedForCurrent = true
+        sounds.play(.cowBell)
     }
 
     /// Enqueues a toast and presents it when no other toast is active.
@@ -100,6 +109,7 @@ final class ToastManager {
         guard current == nil, !queue.isEmpty else { return }
         let next = queue.removeFirst()
         exitRequestID = nil
+        hasSoundedForCurrent = false
         current = next
     }
 }

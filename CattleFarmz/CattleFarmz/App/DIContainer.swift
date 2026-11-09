@@ -119,7 +119,12 @@ final class DIContainer {
     func makeCattlesViewModel() -> CattlesViewModel {
         CattlesViewModel(repository: cattleRepository, calculation: weightCalculation)
     }
-    
+
+    /// Creates the add-cattle form view model.
+    func makeCattleFormViewModel() -> CattleFormViewModel {
+        CattleFormViewModel(calculation: weightCalculation)
+    }
+
     /// Creates the example picker sheet view model.
     func makeExamplePickerSheetViewModel(
         current: String,

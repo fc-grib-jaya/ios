@@ -1,5 +1,5 @@
 //
-//  SapiFormView.swift
+//  CattleFormView.swift
 //  CattleFarmz
 //
 //  Created by Dylan Amadeus on 04/11/26.
@@ -8,16 +8,19 @@
 import SwiftUI
 import UIKit
 
-struct SapiFormView: View {
-    @State private var namaSapi = ""
-    @State private var jenisSapi: CattleBreed?
-    @State private var genderSapi: CattleGender?
-    @State private var umurSapi: Int?
-    @State private var bobotSapi: Double?
-    @State private var gambarSapi: UIImage?
+struct CattleFormView: View {
+    @State private var namaCattle = ""
+    @State private var jenisCattle: CattleBreed?
+    @State private var genderCattle: CattleGender?
+    @State private var umurCattle: Int?
+    @State private var bobotCattle: Double?
+    @State private var gambarCattle: UIImage?
     @State private var catatan = ""
     
     @Environment(\.dismiss) var cancel
+    /// Starts one scan session. `onFinish` receives the measurement, or `nil` when the user cancelled.
+    let onScanSession: (@escaping (ScanResult?) -> Void) -> Void
+    let viewModel: CattleFormViewModel
     let onSave: (
         String,
         Date,
@@ -35,11 +38,10 @@ struct SapiFormView: View {
         case camera
     }
     @State private var weightEntryMode: WeightEntryMode = .manual
-    @State private var isShowingCamera = false
-    
+
     var body: some View {
         ZStack {
-            AppColor.Primitive.Base.white
+            AppColor.Surface.canvas
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
@@ -53,7 +55,7 @@ struct SapiFormView: View {
                         }
                         .font(AppFont.body)
                         
-                        TextField("Tuliskan Nama Sapi", text: $namaSapi)
+                        TextField("Tuliskan Nama Sapi", text: $namaCattle)
                             .font(AppFont.body)
                             .autocorrectionDisabled()
                             .padding(AppSpacing.md)
@@ -72,7 +74,7 @@ struct SapiFormView: View {
                         }
                         .font(AppFont.body)
                         
-                        Picker("Masukkan Jenis Sapi", selection: $jenisSapi) {
+                        Picker("Masukkan Jenis Sapi", selection: $jenisCattle) {
                             Text("Masukkan Jenis Sapi")
                                 .tag(nil as CattleBreed?)
                             
@@ -84,7 +86,7 @@ struct SapiFormView: View {
                         .pickerStyle(.menu)
                         .font(AppFont.body)
                         .tint(
-                            jenisSapi == nil ? AppColor.Text
+                            jenisCattle == nil ? AppColor.Text
                                 .secondary.opacity(0.5) : AppColor.Text.primary
                         )
                         .padding(AppSpacing.md)
@@ -106,10 +108,10 @@ struct SapiFormView: View {
                         
                         HStack(spacing: AppSpacing.md) {
                             ForEach(CattleGender.allCases, id: \.self) { gender in
-                                let isSelected = genderSapi == gender
+                                let isSelected = genderCattle == gender
 
                                 Button {
-                                    genderSapi = gender
+                                    genderCattle = gender
                                 } label: {
                                     HStack(spacing: AppSpacing.sm) {
                                         Image(systemName: isSelected
@@ -153,7 +155,7 @@ struct SapiFormView: View {
                         .font(AppFont.body)
                         
                         TextField(
-                            value: $umurSapi,
+                            value: $umurCattle,
                             format: .number,
                             prompt: Text("e.g. \"12\"").italic()
                         ) {
@@ -161,13 +163,13 @@ struct SapiFormView: View {
                         }
                         .keyboardType(.numberPad)
                         .font(AppFont.body)
-                        .onChange(of: umurSapi) { _, value in
+                        .onChange(of: umurCattle) { _, value in
                             guard let value else { return }
 
                             if value > 99 {
-                                umurSapi = 99
+                                umurCattle = 99
                             } else if value < 0 {
-                                umurSapi = 0
+                                umurCattle = 0
                             }
                         }
                         .padding(AppSpacing.md)
@@ -203,7 +205,7 @@ struct SapiFormView: View {
                             
                             HStack {
                                 TextField(
-                                    value: $bobotSapi,
+                                    value: $bobotCattle,
                                     format: .number,
                                     prompt: Text("e.g. \"604,19\"").italic()
                                 ) {
@@ -220,13 +222,17 @@ struct SapiFormView: View {
                                     .fill(AppColor.Surface.canvas)
                             )
                             
-                            //Camera
+                            //Scan session
                             Button {
-                                isShowingCamera = true
+                                onScanSession { result in
+                                    print(result)
+                                    viewModel.storeScanResult(result)
+                                    syncEstimatedWeight()
+                                }
                             } label: {
                                 VStack(spacing: AppSpacing.md) {
-                                    if let gambarSapi {
-                                        Image(uiImage: gambarSapi)
+                                    if let gambarCattle {
+                                        Image(uiImage: gambarCattle)
                                             .resizable()
                                             .scaledToFill()
                                             .aspectRatio(1, contentMode: .fit)
@@ -270,6 +276,11 @@ struct SapiFormView: View {
                             
                             Button {
                                 // Lidar
+                                onScanSession { result in
+                                    viewModel.storeScanResult(result)
+                                    syncEstimatedWeight()
+                                    print(result)
+                                }
                             } label: {
                                 VStack {
                                     Image(systemName: "camera.on.rectangle.fill")
@@ -327,16 +338,16 @@ struct SapiFormView: View {
                     .padding(.bottom, AppSpacing.lg)
                     
                     Button {
-                        guard let breed = jenisSapi,
-                              let gender = genderSapi else {
+                        guard let breed = jenisCattle,
+                              let gender = genderCattle else {
                             return
                         }
 
-                        guard let umurSapi else { return }
+                        guard let umurCattle else { return }
 
                         Task {
                             do {
-                                try await onSave(namaSapi, .now, breed, gender, umurSapi, bobotSapi, gambarSapi, catatan)
+                                try await onSave(namaCattle, .now, breed, gender, umurCattle, bobotCattle, gambarCattle, catatan)
                                 cancel()
                             } catch {
                                 saveError = error.localizedDescription
@@ -361,15 +372,20 @@ struct SapiFormView: View {
                 .padding(AppSpacing.md)
             }
         }
-        .fullScreenCover(isPresented: $isShowingCamera) {
-            CameraPicker(
-                image: $gambarSapi,
-                isPresented: $isShowingCamera
-            )
-            .ignoresSafeArea()
-        }
         .navigationTitle("Tambah Sapi")
         .navigationBarTitleDisplayMode(.inline)
+        .onChange(of: jenisCattle) { _, _ in
+            syncEstimatedWeight()
+        }
+        .onChange(of: genderCattle) { _, _ in
+            syncEstimatedWeight()
+        }
+    }
+
+    /// Fills `bobotCattle` from the stored scan once breed and gender are both
+    /// selected; recalculated whenever either field changes.
+    private func syncEstimatedWeight() {
+        bobotCattle = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
     }
     
     private func weightModeButton(
@@ -399,16 +415,19 @@ struct SapiFormView: View {
     }
     
     private var isSaveDisabled: Bool {
-        namaSapi.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        || jenisSapi == nil
-        || genderSapi == nil
-        || umurSapi == nil
-        || (weightEntryMode == .manual && bobotSapi == nil)
+        namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        || jenisCattle == nil
+        || genderCattle == nil
+        || umurCattle == nil
+        || (weightEntryMode == .manual && bobotCattle == nil)
     }
 }
 
 #Preview {
     NavigationStack {
-        SapiFormView { _, _, _, _, _, _, _, _ in }
+        CattleFormView(
+            onScanSession: { _ in },
+            viewModel: CattleFormViewModel(calculation: WeightCalculator())
+        ) { _, _, _, _, _, _, _, _ in }
     }
 }

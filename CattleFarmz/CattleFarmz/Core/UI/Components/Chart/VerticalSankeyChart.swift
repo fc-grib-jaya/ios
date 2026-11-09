@@ -1,5 +1,5 @@
 //
-//  SankeyChart.swift
+//  VerticalSankeyChart.swift
 //  CattleFarmz
 //
 //  Created by Bomanarakasura on 04/11/26.
@@ -8,85 +8,11 @@
 
 import SwiftUI
 
-// MARK: - Public Model
-
-/// A forest of SankeyItem values describes independent
-/// source-to-leaf trees.
-/// IDs must be globally unique.
-/// Branch values are calculated from their leaves.
-public struct SankeyItem: Identifiable {
-    public let id: String
-    public let title: String
-    public let color: Color
-    public let order: Int
-
-    /// nil inherits VerticalSankeyView.showLabel.
-    public let showLabel: Bool?
-    public let children: [SankeyItem]
-
-    private let leafValue: Double?
-
-    // Leaf initializer
-    public init(
-        id: String,
-        title: String,
-        value: Double,
-        color: Color,
-        order: Int = 0,
-        showLabel: Bool? = nil
-    ) {
-        precondition(
-            value.isFinite && value > 0,
-            "Leaf value must be positive and finite"
-        )
-
-        self.id = id
-        self.title = title
-        self.color = color
-        self.order = order
-        self.showLabel = showLabel
-        self.children = []
-        self.leafValue = value
-    }
-
-    // Branch initializer
-    public init(
-        id: String,
-        title: String,
-        color: Color,
-        order: Int = 0,
-        showLabel: Bool? = nil,
-        children: [SankeyItem]
-    ) {
-        precondition(
-            !children.isEmpty,
-            "Branches must have at least one child"
-        )
-
-        self.id = id
-        self.title = title
-        self.color = color
-        self.order = order
-        self.showLabel = showLabel
-        self.children = children
-        self.leafValue = nil
-    }
-
-    public var value: Double {
-        leafValue ?? children.reduce(0) { $0 + $1.value }
-    }
-}
-
-// MARK: - Selection
-
-public enum SankeySelection: Equatable {
-    case node(id: String)
-    case flow(sourceID: String, targetID: String)
-}
-
 // MARK: - Vertical Sankey View
 
-public struct VerticalSankeyView: View {
+/// Draws a Sankey forest top to bottom: each level is a row of
+/// horizontal bars whose width is proportional to value.
+public struct VerticalSankeyChart: View {
     public let data: [SankeyItem]
     public let showLabel: Bool
     public let levelSpacing: CGFloat
@@ -120,7 +46,7 @@ public struct VerticalSankeyView: View {
     private let topInset: CGFloat = 40
 
     public var body: some View {
-        let levels = Self.flattenLevels(data)
+        let levels = SankeyTree.levels(data)
         let maxDepth = levels.count
 
         let diagramHeight =
@@ -221,12 +147,6 @@ public struct VerticalSankeyView: View {
 
     // MARK: - Layout Types
 
-    private struct IndexedNode {
-        let item: SankeyItem
-        let level: Int
-        let inputIndex: Int
-    }
-
     private struct PlacedNode {
         let item: SankeyItem
         let bar: CGRect
@@ -253,54 +173,10 @@ public struct VerticalSankeyView: View {
         var flows: [PlacedFlow] = []
     }
 
-    // MARK: - Flatten Tree
-
-    private static func flattenLevels(
-        _ roots: [SankeyItem]
-    ) -> [[IndexedNode]] {
-        var levels: [[IndexedNode]] = []
-        var inputIndex = 0
-
-        func walk(
-            _ item: SankeyItem,
-            level: Int
-        ) {
-            if levels.count <= level {
-                levels.append([])
-            }
-
-            levels[level].append(
-                IndexedNode(
-                    item: item,
-                    level: level,
-                    inputIndex: inputIndex
-                )
-            )
-
-            inputIndex += 1
-
-            for child in item.children {
-                walk(child, level: level + 1)
-            }
-        }
-
-        for root in roots {
-            walk(root, level: 0)
-        }
-
-        // Only sort by order.
-        // Equal order preserves original input order.
-        return levels.map { nodes in
-            nodes.sorted {
-                $0.item.order < $1.item.order
-            }
-        }
-    }
-
     // MARK: - Layout Engine
 
     private static func makeLayout(
-        levels: [[IndexedNode]],
+        levels: [[SankeyNode]],
         width: CGFloat,
         total: Double,
         nodeGap: CGFloat,
@@ -553,7 +429,7 @@ public struct VerticalSankeyView: View {
 // MARK: - Preview
 
 #Preview {
-    VerticalSankeyView(
+    VerticalSankeyChart(
         data: [
             SankeyItem(
                 id: "a",
@@ -565,7 +441,7 @@ public struct VerticalSankeyView: View {
                         id: "a1",
                         title: "A1",
                         color: .cyan,
-                        order: 2,
+                        order: 1,
                         children: [
                             SankeyItem(
                                 id: "a11",
@@ -588,7 +464,7 @@ public struct VerticalSankeyView: View {
                         title: "A2",
                         value: 15,
                         color: .pink,
-                        order: 0
+                        order: 3
                     )
                 ]
             ),
@@ -604,7 +480,7 @@ public struct VerticalSankeyView: View {
                         title: "B1",
                         value: 30,
                         color: .teal,
-                        order: 0
+                        order: 2
                     ),
                     SankeyItem(
                         id: "b2",

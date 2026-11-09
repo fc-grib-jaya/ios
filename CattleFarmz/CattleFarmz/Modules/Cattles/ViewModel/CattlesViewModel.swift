@@ -5,12 +5,56 @@
 
 import Foundation
 import Observation
+import UIKit
 
 /// Backing model for the cattles screen.
 @Observable
 @MainActor
 final class CattlesViewModel {
     private(set) var items: [Cattle] = []
+
+    /// Active filter selections. Empty set means "no filter" for that facet.
+    var selectedBreeds: Set<String> = []
+    var selectedGenders: Set<String> = []
+    var selectedAgeRanges: Set<String> = []
+
+    /// True when sorting by acquisition date from oldest to newest.
+    var sortAscending = false
+
+    /// Cattle visible under the active filter and sort settings.
+    var filteredItems: [Cattle] {
+        let filtered = items.filter { cattle in
+            let matchesBreed = selectedBreeds.isEmpty
+                || selectedBreeds.contains(cattle.breed.rawValue)
+            let matchesGender = selectedGenders.isEmpty
+                || selectedGenders.contains(cattle.gender.rawValue)
+            let matchesAge = selectedAgeRanges.isEmpty
+                || selectedAgeRanges.contains { range in
+                    ageRange(for: cattle.currentAge) == range
+                }
+
+            return matchesBreed && matchesGender && matchesAge
+        }
+
+        return filtered.sorted {
+            sortAscending
+                ? $0.dateAcquired < $1.dateAcquired
+                : $0.dateAcquired > $1.dateAcquired
+        }
+    }
+
+    /// True when there is nothing to list (no cattle at all, or none pass the filters).
+    var hasNoVisibleCattle: Bool {
+        items.isEmpty || filteredItems.isEmpty
+    }
+
+    /// Subtitle describing the current list state.
+    var listSubtitle: String {
+        hasNoVisibleCattle
+            ? "Kamu belum menambahkan sapi. Tambahkan untuk hitung bobot dan rancangan pakan."
+            : "Kamu memiliki \(filteredItems.count) sapi terdaftar."
+    }
+
     private let repository: any CattleRepository
     private let calculation: any WeightCalculation
 
@@ -141,27 +185,35 @@ final class CattlesViewModel {
         )
     }
     
-    func filteredItems(
-        selectedBreed: Set<String>,
-        selectedGender: Set<String>,
-        selectedAgeRange: Set<String>,
-        sortAscending: Bool = false
-    ) -> [Cattle] {
-        let filteredItems = items.filter { cattle in
-            let matchesBreed = selectedBreed.isEmpty || selectedBreed.contains(cattle.breed.rawValue)
-            let matchesGender = selectedGender.isEmpty || selectedGender.contains(cattle.gender.rawValue)
-            let matchesAge = selectedAgeRange.isEmpty || selectedAgeRange.contains { range in
-                ageRange(for: cattle.currentAge) == range
-            }
+    /// Flips the sort direction of `filteredItems`.
+    func toggleSort() {
+        sortAscending.toggle()
+    }
 
-            return matchesBreed && matchesGender && matchesAge
-        }
-
-        return filteredItems.sorted {
-            sortAscending
-                ? $0.dateAcquired < $1.dateAcquired
-                : $0.dateAcquired > $1.dateAcquired
-        }
+    /// Adds a cattle entry, encoding the optional photo to JPEG, then refreshes the list.
+    func addCattle(
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        recordedAge: Int,
+        bodyWeight: Double?,
+        cattleImage: UIImage?,
+        notes: String?
+    ) throws {
+        let imageData = cattleImage?.jpegData(compressionQuality: 0.85)
+        try add(
+            name: name,
+            dateAcquired: dateAcquired,
+            breed: breed,
+            gender: gender,
+            recordedAge: recordedAge,
+            chestGirth: nil,
+            bodyLength: nil,
+            bodyWeight: bodyWeight,
+            cattleImage: imageData,
+            notes: notes
+        )
     }
 
     private func ageRange(for ageInMonths: Int) -> String {

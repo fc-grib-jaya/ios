@@ -41,8 +41,13 @@ final class AppCoordinator {
         path.append(.profile)
     }
     
-    func goToSapiDetail(cattleID: String) {
-        path.append(.sapiDetail(id: cattleID))
+    func goToCattleDetail(cattleID: String) {
+        path.append(.cattleDetail(id: cattleID))
+    }
+
+    /// Pushes the add-cattle form onto the Home navigation stack.
+    func showAddCattle() {
+        path.append(.addCattle)
     }
 
     /// App Sheet handling

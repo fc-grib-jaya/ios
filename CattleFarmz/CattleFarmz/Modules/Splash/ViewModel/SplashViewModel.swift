@@ -32,7 +32,7 @@ final class SplashViewModel {
     private var hasFinished = false
     
     init(
-        appName: String = "CattleFarmz",
+        appName: String = "Lemboo",
         displayDuration: Duration = .seconds(1.5),
         prepareCatalog: @escaping () throws -> Void = {},
         onFinished: @escaping () -> Void = {}

@@ -9,7 +9,7 @@ import SwiftUI
 
 // f/23 ya
 struct NoCattleCard: View {
-    @Binding var tambahSapi: Bool
+    let onAddTap: () -> Void
     
     var body: some View {
         VStack {
@@ -24,7 +24,7 @@ struct NoCattleCard: View {
             }
             .padding(.bottom, AppSpacing.md)
             
-            AddCattleButton(tambahSapi: $tambahSapi)
+            AddCattleButton(onTap: onAddTap)
         }
         .padding(AppSpacing.md)
         .frame(maxWidth: .infinity)
@@ -35,5 +35,5 @@ struct NoCattleCard: View {
 }
 
 #Preview {
-    NoCattleCard(tambahSapi: .constant(false))
+    NoCattleCard(onAddTap: {})
 }

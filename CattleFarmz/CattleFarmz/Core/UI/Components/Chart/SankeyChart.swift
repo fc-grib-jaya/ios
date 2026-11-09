@@ -565,7 +565,7 @@ public struct VerticalSankeyView: View {
                         id: "a1",
                         title: "A1",
                         color: .cyan,
-                        order: 2,
+                        order: 1,
                         children: [
                             SankeyItem(
                                 id: "a11",
@@ -588,7 +588,7 @@ public struct VerticalSankeyView: View {
                         title: "A2",
                         value: 15,
                         color: .pink,
-                        order: 0
+                        order: 3
                     )
                 ]
             ),
@@ -604,7 +604,7 @@ public struct VerticalSankeyView: View {
                         title: "B1",
                         value: 30,
                         color: .teal,
-                        order: 0
+                        order: 2
                     ),
                     SankeyItem(
                         id: "b2",

@@ -30,7 +30,7 @@ struct FilterBulletsView: View {
                             : AppColor.Button.Secondary.background.opacity(0.1)
                         )
                         .clipShape(Capsule())
-                        .glassEffect()
+//                        .glassEffect()
                         .onTapGesture {
                             Haptics.selectionChanged()
                             if isSelected {

@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct AddCattleButton: View {
-    @Binding var tambahSapi: Bool
-    
+    let onTap: () -> Void
+
     var body: some View {
         Button {
-            tambahSapi = true
+            onTap()
         } label: {
             Text("+ Tambah Sapi")
                 .font(AppFont.body)
@@ -26,5 +26,5 @@ struct AddCattleButton: View {
 }
 
 #Preview {
-    AddCattleButton(tambahSapi: .constant(false))
+    AddCattleButton(onTap: {})
 }

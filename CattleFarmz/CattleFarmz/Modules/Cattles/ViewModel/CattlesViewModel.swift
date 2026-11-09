@@ -184,7 +184,64 @@ final class CattlesViewModel {
             bodyWeight: bodyWeight
         )
     }
+
+    /// Computes the weight breakdown for a cattle on the fly.
+    /// Non-carcass weight is the sum over all `NonCarcassPart` cases.
+    func weightBreakdown(for cattle: Cattle) -> CattleWeightBreakdown {
+        guard let bodyWeight = cattle.bodyWeight ?? cattleWeight(for: cattle) else {
+            return CattleWeightBreakdown(
+                bodyWeight: nil,
+                carcass: nil,
+                nonCarcass: nil,
+                meat: nil,
+                nonCarcassParts: [:]
+            )
+        }
+
+        let nonCarcassParts = Dictionary(
+            uniqueKeysWithValues: NonCarcassPart.allCases.compactMap { part in
+                nonCarcassWeight(for: cattle, bodyWeight: bodyWeight, part: part)
+                    .map { (part, $0) }
+            }
+        )
+        let nonCarcass = nonCarcassParts.values.reduce(0.0, +)
+
+        return CattleWeightBreakdown(
+            bodyWeight: bodyWeight,
+            carcass: carcassWeight(for: cattle, bodyWeight: bodyWeight),
+            nonCarcass: nonCarcass,
+            meat: meatWeight(for: cattle, bodyWeight: bodyWeight),
+            nonCarcassParts: nonCarcassParts
+        )
+    }
     
+    /// Selects a sort field and keeps the current direction.
+    func selectSort(_ option: CattleSortOption) {
+        sortOption = option
+    }
+
+    /// Applies edit-form values to the given cattle, then refreshes the list.
+    /// Returns an error message when the save fails, `nil` on success.
+    func editCattle(_ values: CattleEditValues, for cattle: Cattle) -> String? {
+        do {
+            try update(
+                for: cattle,
+                name: values.name,
+                dateAcquired: values.dateAcquired,
+                breed: values.breed,
+                gender: values.gender,
+                recordedAge: values.recordedAge,
+                chestGirth: values.chestGirth,
+                bodyLength: values.bodyLength,
+                bodyWeight: values.bodyWeight,
+                notes: values.notes
+            )
+            return nil
+        } catch {
+            return "Periksa kembali data yang dimasukkan."
+        }
+    }
+
     /// Flips the sort direction of `filteredItems`.
     func toggleSort() {
         sortAscending.toggle()

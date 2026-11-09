@@ -49,9 +49,12 @@ struct MainTabView: View {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
                     case .cattleDetail(let id):
+                        // Shares the list instance: editing from the detail
+                        // screen mutates the same data the home list shows.
                         CattlesDetailView(
                             cattleID: id,
-                            viewModel: container.makeCattlesViewModel()
+                            viewModel: cattlesViewModel,
+                            onEditTap: coordinator.showEditCattleSheet
                         )
                     case .addCattle:
                         CattleFormView(
@@ -103,6 +106,10 @@ struct MainTabView: View {
                         onSelect: onSelect
                     )
                 )
+            case .editCattle(let cattle, let onSave):
+                NavigationStack {
+                    CattlesEditForm(cattle: cattle, onSave: onSave)
+                }
             }
         }
         .fullScreenCover(item: $coordinator.cover) { cover in

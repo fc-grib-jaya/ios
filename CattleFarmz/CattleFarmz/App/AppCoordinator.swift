@@ -59,6 +59,13 @@ final class AppCoordinator {
         sheet = .examplePickerSheet(current: current, onSelect: onSelect)
     }
 
+    func showEditCattleSheet(
+        cattle: Cattle,
+        onSave: @escaping (CattleEditValues) -> String?
+    ) {
+        sheet = .editCattle(cattle: cattle, onSave: onSave)
+    }
+
     func dismissSheet() {
         sheet = nil
     }

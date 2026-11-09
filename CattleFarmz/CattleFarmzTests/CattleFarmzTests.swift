@@ -326,4 +326,48 @@ struct ManualRationCalculatorTests {
             ) == nil
         )
     }
+    
+    @Test
+    func calculatesSourceReferenceEstimates() throws {
+        let calculator = makeCalculator()
+        let items = try exampleItems()
+
+        var profile = CattleRationProfile()
+        profile.bodyWeightKilograms = 250
+        profile.animalCount = 4
+
+        let beef = try calculator.calculate(
+            profile: profile,
+            items: items
+        )
+
+        #expect(approximately(
+            beef.estimatedDryMatterKilogramsPerAnimalPerDay,
+            5.5
+        ))
+
+        #expect(approximately(
+            beef.estimatedDryMatterKilogramsPerHerdPerDay,
+            22
+        ))
+
+        #expect(beef.referenceForagePercent == 60)
+        #expect(beef.referenceConcentratePercent == 40)
+
+        profile.selectSex(.female)
+        profile.selectProductionType(.dairy)
+
+        let dairy = try calculator.calculate(
+            profile: profile,
+            items: items
+        )
+
+        #expect(approximately(
+            dairy.estimatedDryMatterKilogramsPerAnimalPerDay,
+            6.25
+        ))
+
+        #expect(dairy.referenceForagePercent == 40)
+        #expect(dairy.referenceConcentratePercent == 60)
+    }
 }

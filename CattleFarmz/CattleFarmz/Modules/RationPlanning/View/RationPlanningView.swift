@@ -294,6 +294,19 @@ struct RationPlanningView: View {
                 value: "\(resultNumber(result.tdnKilogramsPerAnimalPerDay)) kg"
             )
         }
+        
+        Section {
+            ForEach(result.recommendations, id: \.self) { message in
+                Text(message)
+            }
+        } header: {
+            Text("Source guidance")
+        } footer: {
+            Text(
+                "These informational rules follow the source application. "
+                + "They do not automatically adjust the ration."
+            )
+        }
 
         Section("Composition · per animal / day") {
             ForEach(result.items) { item in
@@ -321,7 +334,7 @@ struct RationPlanningView: View {
 
                     LabeledContent(
                         "TDN per animal",
-                        value: "\(resultNumber( (item.ingredient.nutrients.totalDigestibleNutrientsPercent / 100))) kg"
+                        value: "\(resultNumber(item.kilogramsPerAnimalPerDay * (item.ingredient.nutrients.totalDigestibleNutrientsPercent / 100))) kg"
                     )
                 }
             }
@@ -346,6 +359,36 @@ struct RationPlanningView: View {
                     value: "\(resultNumber(result.sharePercent(for: category)))%"
                 )
             }
+        }
+        
+        Section {
+            LabeledContent(
+                "Per animal / day",
+                value: "\(resultNumber(result.estimatedDryMatterKilogramsPerAnimalPerDay)) kg DM"
+            )
+
+            LabeledContent(
+                "Herd / day",
+                value: "\(resultNumber(result.estimatedDryMatterKilogramsPerHerdPerDay)) kg DM"
+            )
+
+            LabeledContent(
+                "Reference forage share",
+                value: "\(resultNumber(result.referenceForagePercent))%"
+            )
+
+            LabeledContent(
+                "Reference concentrate share",
+                value: "\(resultNumber(result.referenceConcentratePercent))%"
+            )
+        } header: {
+            Text("Source reference estimates")
+        } footer: {
+            Text(
+                "Entered feed weights have not been converted to dry matter. "
+                + "These source estimates are informational and do not "
+                + "determine intake sufficiency."
+            )
         }
 
         if !result.warnings.isEmpty {

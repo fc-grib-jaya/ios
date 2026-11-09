@@ -50,7 +50,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-
+            
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
@@ -61,7 +61,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-
+            
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
@@ -75,13 +75,14 @@ struct MainTabView: View {
                         current: current,
                         onSelect: onSelect
                     )
-                }
+                )
             }
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)
         }
     }
+}
 
 #Preview {
     MainTabView(container: DIContainer.preview, coordinator: AppCoordinator())

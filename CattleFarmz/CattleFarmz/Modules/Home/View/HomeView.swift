@@ -14,6 +14,7 @@ struct HomeView: View {
     private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
     private let onAddCattleTap: () -> Void
+    private let onToastTap: () -> Void
 
     init(
         viewModel: HomeViewModel,
@@ -22,7 +23,8 @@ struct HomeView: View {
         onExamplePickerTap: @escaping () -> Void,
         onScanTap: @escaping () -> Void,
         onCardTap: @escaping (String) -> Void,
-        onAddCattleTap: @escaping () -> Void
+        onAddCattleTap: @escaping () -> Void,
+        onToastTap: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
@@ -31,6 +33,7 @@ struct HomeView: View {
         self.onScanTap = onScanTap
         self.onCardTap = onCardTap
         self.onAddCattleTap = onAddCattleTap
+        self.onToastTap = onToastTap
     }
 
     @State private var isFilterPresented = false
@@ -49,6 +52,10 @@ struct HomeView: View {
                 Text(cattlesViewModel.listSubtitle)
                     .font(AppFont.body)
                     .padding(.horizontal, AppSpacing.md)
+
+                AppButton("Show toast", variant: .secondary, action: onToastTap)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.xs)
 
                 ScrollView(.vertical, showsIndicators: false) {
                     if cattlesViewModel.hasNoVisibleCattle {
@@ -109,6 +116,8 @@ struct HomeView: View {
 }
 
 #Preview {
+    @Previewable @State var toastManager = ToastManager()
+
     NavigationStack {
         HomeView(
             viewModel: HomeViewModel(haptics: NoopHaptics()),
@@ -120,7 +129,9 @@ struct HomeView: View {
             onExamplePickerTap: {},
             onScanTap: {},
             onCardTap: { _ in },
-            onAddCattleTap: {}
+            onAddCattleTap: {},
+            onToastTap: { toastManager.show("Your changes have been saved") }
         )
+        .toast(manager: toastManager)
     }
 }

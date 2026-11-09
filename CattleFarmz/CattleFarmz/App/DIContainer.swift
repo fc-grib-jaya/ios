@@ -23,6 +23,9 @@ final class DIContainer {
     /// session or asks for camera permission.
     private(set) lazy var scanCapture: any ScanCapturing = CaptureService()
 
+    /// Toast queue shared by every screen. Attached once in `MainTabView`.
+    let toastManager: ToastManager
+
     
     private let feedProvider: () throws ->[FeedIngredient]
     private let rationCalculator: any RationCalculating
@@ -38,6 +41,7 @@ final class DIContainer {
         prepareCatalog: @escaping () throws -> Void = {}
     ) {
         self.haptics = haptics
+        self.toastManager = ToastManager(haptics: haptics)
         self.cattleRepository = cattleRepository
         self.weightCalculation = weightCalculation
         self.feedProvider = feedProvider

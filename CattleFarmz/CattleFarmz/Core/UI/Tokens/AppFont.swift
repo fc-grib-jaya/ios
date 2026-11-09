@@ -23,6 +23,9 @@ enum AppFont {
     static let body = Font.system(.body)
     static let mediumBody = Font.system(.body, weight: .medium)
 
+    /// Supporting labels, for example a toast message.
+    static let mediumSubheadline = Font.system(.subheadline, weight: .medium)
+
     /// Supporting and secondary copy.
     static let caption = Font.system(.caption)
 }

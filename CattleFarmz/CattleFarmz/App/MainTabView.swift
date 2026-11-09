@@ -42,7 +42,10 @@ struct MainTabView: View {
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
-                    onAddCattleTap: { coordinator.showAddCattle() }
+                    onAddCattleTap: { coordinator.showAddCattle() },
+                    onToastTap: {
+                        container.toastManager.show("Your changes have been saved")
+                    }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -94,6 +97,7 @@ struct MainTabView: View {
                     Label("Profil", systemImage: "person")
                 }
         }
+        .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
             switch sheet {
             case .examplePickerSheet(let current, let onSelect):

@@ -42,8 +42,9 @@ struct CattleCard: View {
                 VStack(alignment: .leading) {
                     Text("Bobot")
                         .font(AppFont.body)
-                    Text("Update: \(formatDate(updated))")
+                    Text("Diperbaharui: \(formatDate(updated))")
                         .font(AppFont.caption)
+                        .fontWeight(.thin)
                         .foregroundStyle(AppColor.Text.secondary)
                 }
                 Spacer()
@@ -60,7 +61,7 @@ struct CattleCard: View {
         .frame(maxWidth: .infinity)
         .background(AppColor.Card.background)
         .cornerRadius(AppSpacing.Card.compact)
-        .shadow(radius: 10, x: 0, y: 2)
+        .shadow(radius: 5, x: 0, y: 2)
     }
 }
 

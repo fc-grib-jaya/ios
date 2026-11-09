@@ -13,6 +13,7 @@ struct HomeView: View {
     private let onExamplePickerTap: () -> Void
     private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
+    private let onAddCattleTap: () -> Void
 
     init(
         viewModel: HomeViewModel,
@@ -20,7 +21,8 @@ struct HomeView: View {
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
         onScanTap: @escaping () -> Void,
-        onCardTap: @escaping (String) -> Void
+        onCardTap: @escaping (String) -> Void,
+        onAddCattleTap: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
@@ -28,55 +30,147 @@ struct HomeView: View {
         self.onExamplePickerTap = onExamplePickerTap
         self.onScanTap = onScanTap
         self.onCardTap = onCardTap
+        self.onAddCattleTap = onAddCattleTap
     }
+    
+    
 
-    @State var tambahSapi: Bool = false
-    @State var filterSapi: Bool = false
-
-    @State private var selectedBreed: Set<String> = []
-    @State private var selectedGender: Set<String> = []
-    @State private var selectedAgeRange: Set<String> = []
-    @State private var sortAscending = false
+    @State private var isFilterPresented = false
 
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
-                .ignoresSafeArea()
-            VStack(alignment: .leading) {
-                Text("Halo, Bapak Tono!")
-                    .font(AppFont.largeTitle)
+            GeometryReader { geometry in
+                LinearGradient(
+                    colors: [
+                        AppColor.Primitive.Secondary.shade100,
+                        AppColor.Surface.canvas
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: geometry.size.height * 0.3)
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
+            .background(AppColor.Surface.canvas)
+            .ignoresSafeArea()
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading) {
+                    VStack(spacing: AppSpacing.xs) {
+                        HStack(alignment: .bottom) {
+                            Text(
+                                """
+                                \(Calendar.current.component(.hour, from: Date()) < 11
+                                    ? "Pagi"
+                                    : Calendar.current.component(.hour, from: Date()) < 15
+                                        ? "Siang"
+                                        : Calendar.current.component(.hour, from: Date()) < 19
+                                            ? "Sore"
+                                            : "Malam"),\nBapak Tono!
+                                """
+                            )
+                            .font(AppFont.title)
+                            .foregroundStyle(AppColor.Primitive.Secondary.shade900)
+                            
+                            Spacer()
+                            
+                            cattlesViewModel.listSubtitle
+                                .font(AppFont.body)
+                                .multilineTextAlignment(.trailing)
+                        }
+                        .padding(.top, AppSpacing.md)
+                        .padding(.horizontal, AppSpacing.md)
+                        
+                        AddCattleButton(onTap: onAddCattleTap)
+                            .padding(.vertical, AppSpacing.md)
+                    }
+                    .background(AppColor.Card.background)
+                    .cornerRadius(AppSpacing.Card.compact)
+//                    .shadow(radius: 10, x: 0, y: 2)
                     .padding(.horizontal, AppSpacing.md)
-                    .padding(.top, AppSpacing.md)
-                    .padding(.bottom, AppSpacing.sm)
-                let filteredCattles = cattlesViewModel.filteredItems(
-                    selectedBreed: selectedBreed,
-                    selectedGender: selectedGender,
-                    selectedAgeRange: selectedAgeRange,
-                    sortAscending: sortAscending
-                )
+                    .padding(.vertical, AppSpacing.md)
+                    
+                    HStack {
+                        Text("Sapi Sapi Bapak")
+                            .font(AppFont.mediumBody)
+                            .foregroundStyle(AppColor.Primitive.Secondary.shade900)
+                        
+                        Spacer()
+                        
+                        Menu {
+                            Section {
+                                Button {
+                                    cattlesViewModel.sortAscending = true
+                                } label: {
+                                    if cattlesViewModel.sortAscending {
+                                        Label("Ascending", systemImage: "checkmark")
+                                    } else {
+                                        Text("Ascending")
+                                    }
+                                }
 
-                Text(
-                    cattlesViewModel.items.isEmpty || filteredCattles.count == 0
-                        ? "Kamu belum menambahkan sapi. Tambahkan untuk hitung bobot dan rancangan pakan."
-                        : "Kamu memiliki \(filteredCattles.count) sapi terdaftar."
-                )
-                .font(AppFont.body)
-                .padding(.horizontal, AppSpacing.md)
-                
-                ScrollView(.vertical, showsIndicators: false) {
-                    if cattlesViewModel.items.isEmpty || filteredCattles.count == 0 {
-                        NoCattleCard(tambahSapi: $tambahSapi)
-                            .padding()
+                                Button {
+                                    cattlesViewModel.sortAscending = false
+                                } label: {
+                                    if !cattlesViewModel.sortAscending {
+                                        Label("Descending", systemImage: "checkmark")
+                                    } else {
+                                        Text("Descending")
+                                    }
+                                }
+                            }
+
+                            Section {
+                                Button {
+                                    cattlesViewModel.selectSort(.name)
+                                } label: {
+                                    if cattlesViewModel.sortOption == .name {
+                                        Label("Nama", systemImage: "checkmark")
+                                    } else {
+                                        Text("Nama")
+                                    }
+                                }
+
+                                Button {
+                                    cattlesViewModel.selectSort(.weight)
+                                } label: {
+                                    if cattlesViewModel.sortOption == .weight {
+                                        Label("Bobot", systemImage: "checkmark")
+                                    } else {
+                                        Text("Bobot")
+                                    }
+                                }
+
+                                Button {
+                                    cattlesViewModel.selectSort(.age)
+                                } label: {
+                                    if cattlesViewModel.sortOption == .age {
+                                        Label("Umur", systemImage: "checkmark")
+                                    } else {
+                                        Text("Umur")
+                                    }
+                                }
+                            }
+                        } label: {
+                            HStack(spacing: AppSpacing.xxxs) {
+                                Text("Sort")
+                                Image(systemName: "arrow.up.arrow.down")
+                            }
+                            .font(AppFont.body)
+                            .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                        }
+                        .accessibilityLabel("Urutkan")
+                    }
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.bottom, AppSpacing.sm)
+
+                    
+                    if cattlesViewModel.hasNoVisibleCattle || cattlesViewModel.filteredItems.isEmpty {
+                        NoCattleCard(onAddTap: onAddCattleTap)
+                            .padding(AppSpacing.md)
                         Spacer()
                     } else {
-                        AddCattleButton(tambahSapi: $tambahSapi)
-                            .padding(.vertical, AppSpacing.xs)
                         CattlesView(
                             viewModel: cattlesViewModel,
-                            selectedBreed: selectedBreed,
-                            selectedGender: selectedGender,
-                            selectedAgeRange: selectedAgeRange,
-                            sortAscending: sortAscending,
                             onCardTap: onCardTap
                         )
                     }
@@ -84,68 +178,65 @@ struct HomeView: View {
             }
         }
         .task { await cattlesViewModel.load() }
-        .navigationTitle(viewModel.title)
-        .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    sortAscending.toggle()
-                } label: {
-                    Image(systemName: "arrow.up.arrow.down")
-                        .scaleEffect(y: sortAscending ? 1 : -1)
+            ToolbarItem(placement: .topBarLeading) {
+                HStack(alignment: .bottom, spacing: 2) {
+                    Text("Lemb")
+                        .font(.system(size: 28, weight: .regular))
+                        .foregroundStyle(AppColor.Text.primary)
+                        .fixedSize()
+
+                    HStack(spacing: 3) {
+                        Ellipse()
+                            .fill(AppColor.Primitive.Primary.shade400)
+                            .frame(width: 13, height: 15)
+
+                        Ellipse()
+                            .fill(AppColor.Primitive.Primary.shade400)
+                            .frame(width: 13, height: 15)
+                    }
+                    .padding(.bottom, 6)
                 }
-                .accessibilityLabel(
-                    sortAscending
-                        ? "Urutkan tanggal terbaru ke terlama"
-                        : "Urutkan tanggal terlama ke terbaru"
-                )
+                .fixedSize()
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Lemboo")
             }
+            .sharedBackgroundVisibility(.hidden)
 
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    filterSapi = true
+                    isFilterPresented = true
                 } label: {
-                    Label("Menu", systemImage: "line.3.horizontal.decrease")
+                    Image(systemName: "line.3.horizontal.decrease")
+                        .foregroundStyle(
+                            cattlesViewModel.hasActiveFilter
+                                ? AppColor.Primitive.Base.white
+                                : Color.black
+                        )
+                        .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(
+                                    cattlesViewModel.hasActiveFilter
+                                        ? AppColor.Primitive.Primary.shade400
+                                        : Color.clear
+                                )
+                        }
+                        .glassEffect()
                 }
+                .buttonStyle(.plain)
                 .accessibilityLabel("Filter sapi")
             }
+            .sharedBackgroundVisibility(.hidden)
         }
-        .navigationDestination(isPresented: $tambahSapi) {
-            SapiFormView {
-                name,
-                date,
-                breed,
-                gender,
-                recordedAge,
-                bodyWeight,
-                cattleImage,
-                notes in
-                try cattlesViewModel.add(
-                    name: name,
-                    dateAcquired: date,
-                    breed: breed,
-                    gender: gender,
-                    recordedAge: recordedAge,
-                    chestGirth: nil,
-                    bodyLength: nil,
-                    bodyWeight: bodyWeight,
-                    cattleImage: cattleImage?.jpegData(
-                        compressionQuality: 0.85
-                    ),
-                    notes: notes
-                )
-
-                await cattlesViewModel.load()
-            }
-        }
-        .sheet(isPresented: $filterSapi) {
+        .sheet(isPresented: $isFilterPresented) {
             NavigationStack {
+                @Bindable var cattlesViewModel = cattlesViewModel
                 CattlesFilterView(
-                    selectedBreed: $selectedBreed,
-                    selectedGender: $selectedGender,
-                    selectedAgeRange: $selectedAgeRange
+                    selectedBreed: $cattlesViewModel.selectedBreeds,
+                    selectedGender: $cattlesViewModel.selectedGenders,
+                    selectedAgeRange: $cattlesViewModel.selectedAgeRanges
                 )
             }
         }
@@ -163,7 +254,8 @@ struct HomeView: View {
             onProfileTap: {},
             onExamplePickerTap: {},
             onScanTap: {},
-            onCardTap: { _ in }
+            onCardTap: { _ in },
+            onAddCattleTap: {}
         )
     }
 }

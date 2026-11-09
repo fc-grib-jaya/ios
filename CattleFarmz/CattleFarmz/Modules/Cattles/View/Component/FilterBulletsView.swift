@@ -20,14 +20,14 @@ struct FilterBulletsView: View {
                     Text(option)
                         .font(isSelected ? AppFont.mediumBody : AppFont.body)
                         .foregroundStyle(
-                            isSelected ? AppColor.Text.primary : AppColor.Text.secondary
+                            isSelected ? AppColor.Primitive.Base.white : AppColor.Primitive.Primary.shade500
                         )
-                        .padding(.horizontal, AppSpacing.md)
-                        .padding(.vertical, AppSpacing.xs)
+                        .padding(.horizontal, AppSpacing.xl)
+                        .padding(.vertical, AppSpacing.sm)
                         .background(
                             isSelected
-                            ? AppColor.Button.Primary.background.opacity(0.4)
-                            : AppColor.Button.Secondary.background.opacity(0.1)
+                            ? AppColor.Primitive.Primary.shade400
+                            : AppColor.Primitive.Primary.shade500.opacity(0.1)
                         )
                         .clipShape(Capsule())
                         .glassEffect()

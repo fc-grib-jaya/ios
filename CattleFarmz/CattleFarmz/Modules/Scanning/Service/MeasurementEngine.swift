@@ -202,7 +202,9 @@ nonisolated enum MeasurementEngine {
     ) throws -> MeasurementResult {
         let length = try distance(shoulder, pin, in: depth)
         let profile = try chestProfile(top: top, bottom: bottom, depth: depth)
-        return .init(lengthCM: length, girth: nil, weightKG: nil,
+        let girth = try? girth(top: top, bottom: bottom, in: depth)
+        let weight = girth.flatMap { winter(lengthCM: length, girthCM: $0.centimeters) }
+        return .init(lengthCM: length, girth: girth, weightKG: weight,
                      warning: profile.lengthCM == nil ? "Profil dada: belum ada pasangan piksel tersambung." : nil,
                      formulaVersion: "raw-depth-profile-v1", profile: profile)
     }

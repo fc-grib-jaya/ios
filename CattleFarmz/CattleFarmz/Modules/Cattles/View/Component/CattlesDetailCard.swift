@@ -38,7 +38,7 @@ struct CattlesDetailCard: View {
                 HStack(spacing: AppSpacing.xs) {
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
                         Text("Lingkar Dada")
-                            .font(AppFont.mediumBody)
+                            .font(AppFont.body)
                             .foregroundStyle(AppColor.Text.primary)
 
                         Text(
@@ -46,7 +46,7 @@ struct CattlesDetailCard: View {
                             ? "Belum diukur"
                             : String(format: "%.2f cm", chestGirth!)
                         )
-                            .font(AppFont.body)
+                            .font(AppFont.mediumBody)
                             .foregroundStyle(AppColor.Text.primary)
                     }
                     
@@ -57,7 +57,7 @@ struct CattlesDetailCard: View {
                     
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
                         Text("Panjang Badan")
-                            .font(AppFont.mediumBody)
+                            .font(AppFont.body)
                             .foregroundStyle(AppColor.Text.primary)
 
                         Text(
@@ -65,7 +65,7 @@ struct CattlesDetailCard: View {
                             ? "Belum diukur"
                             : String(format: "%.2f cm", bodyLength!)
                         )
-                            .font(AppFont.body)
+                            .font(AppFont.mediumBody)
                             .foregroundStyle(AppColor.Text.primary)
                     }
                     
@@ -104,7 +104,7 @@ struct CattlesDetailCard: View {
         .frame(maxWidth: .infinity)
         .background(AppColor.Card.background)
         .cornerRadius(AppSpacing.Card.compact)
-        .shadow(radius: 10, x: 0, y: 2)
+        .shadow(radius: 5, x: 0, y: 2)
     }
 }
 

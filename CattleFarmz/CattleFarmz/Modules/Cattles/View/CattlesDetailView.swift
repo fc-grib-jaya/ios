@@ -143,7 +143,7 @@ struct CattlesDetailView: View {
 #Preview {
     NavigationStack {
         CattlesDetailView(
-            cattleID: Cattle.samples[2].id.uuidString,
+            cattleID: Cattle.samples[1].id.uuidString,
             viewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
                 calculation: WeightCalculator()

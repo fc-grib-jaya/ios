@@ -18,7 +18,7 @@ struct WeightDetailCard: View {
                 HStack {
                     Text("Estimasi Bobot")
                         .font(AppFont.headline)
-                        .foregroundStyle(AppColor.Primitive.Neutral.shade50)
+                        .foregroundStyle(AppColor.Text.primary)
                     
                     Spacer()
                     
@@ -26,32 +26,40 @@ struct WeightDetailCard: View {
                         // Ke Detail Bobot
                     } label: {
                         Text("Detail Bobot \(Image(systemName: "chevron.right"))")
-                            .font(AppFont.body)
-                            .foregroundStyle(AppColor.Primitive.Base.white)
+                            .font(AppFont.caption)
+                            .foregroundStyle(AppColor.Primitive.Secondary.shade900)
                             .padding(.horizontal, AppSpacing.sm)
                             .padding(.vertical, AppSpacing.xs)
                     }
                     .buttonStyle(.plain)
-                    .glassEffect(.regular.tint(AppColor.Primitive.Secondary.shade800))
+                    .glassEffect(.regular.tint(AppColor.Primitive.Secondary.shade200))
                 }
                 
-                Text(
-                    weight == nil
-                    ? "Belum diukur"
-                    : String(format: "%.2f kg", weight!)
-                )
-                .font(AppFont.largeTitle)
-                .foregroundStyle(AppColor.Primitive.Neutral.shade50)
+                HStack {
+                    Image(systemName: "scalemass.fill")
+                        .resizable()
+                        .frame(width: AppSpacing.xxl, height: AppSpacing.xxl)
+                        .foregroundStyle(AppColor.Primitive.Secondary.shade900)
+
+                    Text(
+                        weight == nil
+                        ? "Belum diukur"
+                        : String(format: "%.2f kg", weight!)
+                    )
+                    .font(AppFont.largeTitle)
+                    .foregroundStyle(AppColor.Primitive.Secondary.shade900)
+                }
                 
-                Text("Update: \(formatDate(updated))")
+                Text("Diperbaharui: \(formatDate(updated))")
                     .font(AppFont.caption)
-                    .foregroundStyle(AppColor.Primitive.Neutral.shade300)
+                    .foregroundStyle(AppColor.Primitive.Neutral.shade500)
             }
             Spacer()
         }
-        .padding(AppSpacing.md)
+        .padding(.vertical, AppSpacing.lg)
+        .padding(.horizontal, AppSpacing.sm)
         .frame(maxWidth: .infinity)
-        .background(AppColor.Primitive.Secondary.shade600)
+        .background(AppColor.Primitive.Secondary.shade50)
         .cornerRadius(AppSpacing.lg)
     }
 }

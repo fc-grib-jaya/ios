@@ -57,15 +57,8 @@ struct CattlesFilterView: View {
                         filter()
                     } label: {
                         Text("Terapkan Filter")
-                            .font(AppFont.body)
-                            .foregroundStyle(AppColor.Text.primary)
-                            .padding(.vertical, AppSpacing.xs)
-                            .frame(maxWidth: .infinity)
-                            .glassEffect(
-                                .regular
-                                    .tint(AppColor.Primitive.Primary.shade500)
-                            )
                     }
+                    .AppButtonStyle(.primary)
                     
                     Button {
                         selectedBreed.removeAll()
@@ -73,12 +66,8 @@ struct CattlesFilterView: View {
                         selectedAgeRange.removeAll()
                     } label: {
                         Text("Bersihkan Seluruhnya")
-                            .font(AppFont.body)
-                            .foregroundStyle(AppColor.Text.primary)
-                            .padding(.vertical, AppSpacing.xs)
-                            .frame(maxWidth: .infinity)
-                            .glassEffect(.regular.tint(AppColor.Surface.canvas))
                     }
+                    .AppButtonStyle(.text)
                 }
             }
             .padding(AppSpacing.md)

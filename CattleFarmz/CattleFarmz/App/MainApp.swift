@@ -39,7 +39,6 @@ struct MainApp: App {
                     hasCompletedOnboarding: diContainer.hasCompletedOnboarding()
                 )
             )
-            container = DIContainer.live(modelContext: mc.mainContext)
             
             UISegmentedControl.appearance().selectedSegmentTintColor =
                 UIColor(AppColor.Primitive.Primary.shade500)

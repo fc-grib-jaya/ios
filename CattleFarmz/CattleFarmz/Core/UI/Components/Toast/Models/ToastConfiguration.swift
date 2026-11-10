@@ -28,7 +28,7 @@ struct ToastConfiguration {
     var iconSize: CGFloat = 14
 
     /// Distance the toast travels down from above the screen.
-    var dropDuration: TimeInterval = 0.35
+    var dropDuration: TimeInterval = 0.6
     /// Amplitude the circle passes below its resting position after the drop.
     var overshootBelow: CGFloat = 14
     /// Amplitude the circle passes above its resting position on the way back.
@@ -40,7 +40,7 @@ struct ToastConfiguration {
     /// Blur radius of the motion trail.
     var trailBlurRadius: CGFloat = 8
     /// Duration of the material reveal.
-    var materialDuration: TimeInterval = 0.2
+    var materialDuration: TimeInterval = 0.3
     /// Duration of the horizontal expansion.
     var expandDuration: TimeInterval = 0.3
     /// Duration of the icon and text fade-in.

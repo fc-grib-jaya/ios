@@ -158,11 +158,13 @@ struct CattleFormView: View {
                     VStack (alignment: .leading){
                         
                         VStack (alignment: .leading){
-                            Picker("weight Entry Mode", selection: $weightEntryMode){
-                                Text("Isi Bobot").tag(WeightEntryMode.manual)
-                                Text("Estimasi Bobot").tag(WeightEntryMode.camera)
+                            AppSegmentedControl(
+                                "Cara mengisi bobot",
+                                options: [WeightEntryMode.manual, .camera],
+                                selection: $weightEntryMode
+                            ) { mode in
+                                Text(mode == .manual ? "Isi Bobot" : "Estimasi Bobot")
                             }
-                            .pickerStyle(.segmented)
                             
                             if (weightEntryMode == .manual) {
                                 Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")

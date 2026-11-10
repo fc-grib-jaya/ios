@@ -21,7 +21,7 @@ struct AddCattleButton: View {
                 .frame(maxWidth: .infinity)
                 .glassEffect(.regular.tint(AppColor.Primitive.Primary.shade500))
         }
-        .AppButtonStyle(.primary)
+//        .AppButtonStyle(.primary)
         .padding(.horizontal, AppSpacing.md)
     }
 }

@@ -1,13 +1,13 @@
 //
-//  WeightDetailCard.swift
+//  WeightDetailCardDylan.swift
 //  CattleFarmz
 //
-//  Created by Dylan Amadeus on 07/11/26.
+//  Created by Dylan Amadeus on 10/11/26.
 //
 
 import SwiftUI
 
-struct WeightDetailCard: View {
+struct WeightDetailCardDylan: View {
     let weight: Double?
     let updated: Date
     
@@ -65,7 +65,7 @@ struct WeightDetailCard: View {
 }
 
 #Preview {
-    WeightDetailCard(
+    WeightDetailCardDylan(
         weight: 900, updated: .now
     )
 }

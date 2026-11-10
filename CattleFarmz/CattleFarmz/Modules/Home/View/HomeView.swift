@@ -9,6 +9,7 @@ import SwiftUI
 struct HomeView: View {
     @State private var viewModel: HomeViewModel
     @State private var cattlesViewModel: CattlesViewModel
+    private let farmerName: String
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
     private let onScanTap: () -> Void
@@ -19,6 +20,7 @@ struct HomeView: View {
     init(
         viewModel: HomeViewModel,
         cattlesViewModel: CattlesViewModel,
+        farmerName: String,
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
         onScanTap: @escaping () -> Void,
@@ -28,6 +30,7 @@ struct HomeView: View {
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
+        self.farmerName = farmerName
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
         self.onScanTap = onScanTap
@@ -57,13 +60,13 @@ struct HomeView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading) {
                     HomeCard(
-                        Farmer: "Joni",
+                        Farmer: farmerName,
                         Subtitle: cattlesViewModel.listSubtitle,
                         onAddCattleTap: onAddCattleTap
                     )
 
                     HStack {
-                        Text("Sapi Sapi Bapak")
+                        Text("Sapi-Sapi Anda")
                             .font(AppFont.mediumBody)
                             .foregroundStyle(
                                 AppColor.Primitive.Secondary.shade900
@@ -145,12 +148,8 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.bottom, AppSpacing.sm)
-                    
+
                     if cattlesViewModel.hasNoVisibleCattle
-                        || cattlesViewModel.filteredItems.isEmpty
-                    {
-                        NoCattleCard()
-                            .padding(AppSpacing.md)
                         || cattlesViewModel.filteredItems.isEmpty
                     {
                         NoCattleCard()
@@ -240,6 +239,7 @@ struct HomeView: View {
                 repository: MockCattleRepository(),
                 calculation: WeightCalculator()
             ),
+            farmerName: "Dylan",
             onProfileTap: {},
             onExamplePickerTap: {},
             onScanTap: {},

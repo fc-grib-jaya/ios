@@ -29,7 +29,7 @@ struct WeightPercentageCard: View {
                 }
                 
                 HStack(alignment: .bottom, spacing: AppSpacing.xxs) {
-                    Text(String(carcassPercent))
+                    Text(String(format: "%.1f", carcassPercent))
                         .font(AppFont.largeTitle)
                     
                     Text("%")
@@ -58,7 +58,7 @@ struct WeightPercentageCard: View {
                 }
                 
                 HStack(alignment: .bottom, spacing: AppSpacing.xxs) {
-                    Text(String(nonCarcassPercent))
+                    Text(String(format: "%.1f", nonCarcassPercent))
                         .font(AppFont.largeTitle)
                     
                     Text("%")

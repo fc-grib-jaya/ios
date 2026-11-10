@@ -23,13 +23,14 @@ struct HomeCard: View {
             HStack(alignment: .bottom) {
                 Text(
                     """
+                    Selamat 
                     \(Calendar.current.component(.hour, from: Date()) < 11
                         ? "Pagi"
                         : Calendar.current.component(.hour, from: Date()) < 15
                             ? "Siang"
                             : Calendar.current.component(.hour, from: Date()) < 19
                                 ? "Sore"
-                                : "Malam"),\nBapak Tono!
+                                : "Malam") \(Farmer)!
                     """
                 )
                 .font(AppFont.title)
@@ -43,6 +44,8 @@ struct HomeCard: View {
             }
             .padding(.top, AppSpacing.md)
             .padding(.horizontal, AppSpacing.md)
+            
+//            AppButtons("+ Tambah Sapi", variant: .primary, action: onAddCattleTap)
             
             AddCattleButton(onTap: onAddCattleTap)
                 .padding(.vertical, AppSpacing.md)

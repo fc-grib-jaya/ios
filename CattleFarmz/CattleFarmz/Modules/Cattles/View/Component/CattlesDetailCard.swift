@@ -31,7 +31,7 @@ struct CattlesDetailCard: View {
             .padding(.bottom, AppSpacing.xs)
 
             VStack(spacing: AppSpacing.xs) {
-                WeightDetailCard(weight: weight, updated: updatedDate)
+                WeightDetailCardDylan(weight: weight, updated: updatedDate)
                     .padding(.bottom, AppSpacing.sm)
                 
 

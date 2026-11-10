@@ -441,11 +441,11 @@ struct CattleFormView: View {
     }
 }
 
-//#Preview {
-//    NavigationStack {
-//        CattleFormView(
-//            onScanSession: { _ in },
-//            viewModel: CattleFormViewModel(calculation: WeightCalculator())
-//        ) { _, _, _, _, _, _, _, _ in }
-//    }
-//}
+#Preview {
+    NavigationStack {
+        CattleFormView(
+            onScanSession: { _ in },
+            viewModel: CattleFormViewModel(calculation: WeightCalculator())
+        ) { _, _, _, _, _, _, _, _ in }
+    }
+}

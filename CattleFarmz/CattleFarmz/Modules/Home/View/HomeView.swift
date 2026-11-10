@@ -32,8 +32,6 @@ struct HomeView: View {
         self.onCardTap = onCardTap
         self.onAddCattleTap = onAddCattleTap
     }
-    
-    
 
     @State private var isFilterPresented = false
 
@@ -43,7 +41,7 @@ struct HomeView: View {
                 LinearGradient(
                     colors: [
                         AppColor.Primitive.Secondary.shade100,
-                        AppColor.Surface.canvas
+                        AppColor.Surface.canvas,
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -55,54 +53,31 @@ struct HomeView: View {
             .ignoresSafeArea()
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading) {
-                    VStack(spacing: AppSpacing.xs) {
-                        HStack(alignment: .bottom) {
-                            Text(
-                                """
-                                \(Calendar.current.component(.hour, from: Date()) < 11
-                                    ? "Pagi"
-                                    : Calendar.current.component(.hour, from: Date()) < 15
-                                        ? "Siang"
-                                        : Calendar.current.component(.hour, from: Date()) < 19
-                                            ? "Sore"
-                                            : "Malam"),\nBapak Tono!
-                                """
-                            )
-                            .font(AppFont.title)
-                            .foregroundStyle(AppColor.Primitive.Secondary.shade900)
-                            
-                            Spacer()
-                            
-                            cattlesViewModel.listSubtitle
-                                .font(AppFont.body)
-                                .multilineTextAlignment(.trailing)
-                        }
-                        .padding(.top, AppSpacing.md)
-                        .padding(.horizontal, AppSpacing.md)
-                        
-                        AddCattleButton(onTap: onAddCattleTap)
-                            .padding(.vertical, AppSpacing.md)
-                    }
-                    .background(AppColor.Card.background)
-                    .cornerRadius(AppSpacing.Card.compact)
-//                    .shadow(radius: 10, x: 0, y: 2)
-                    .padding(.horizontal, AppSpacing.md)
-                    .padding(.vertical, AppSpacing.md)
-                    
+                    HomeCard(
+                        Farmer: "Joni",
+                        Subtitle: cattlesViewModel.listSubtitle,
+                        onAddCattleTap: onAddCattleTap
+                    )
+
                     HStack {
                         Text("Sapi Sapi Bapak")
                             .font(AppFont.mediumBody)
-                            .foregroundStyle(AppColor.Primitive.Secondary.shade900)
-                        
+                            .foregroundStyle(
+                                AppColor.Primitive.Secondary.shade900
+                            )
+
                         Spacer()
-                        
+
                         Menu {
                             Section {
                                 Button {
                                     cattlesViewModel.sortAscending = true
                                 } label: {
                                     if cattlesViewModel.sortAscending {
-                                        Label("Ascending", systemImage: "checkmark")
+                                        Label(
+                                            "Ascending",
+                                            systemImage: "checkmark"
+                                        )
                                     } else {
                                         Text("Ascending")
                                     }
@@ -112,7 +87,10 @@ struct HomeView: View {
                                     cattlesViewModel.sortAscending = false
                                 } label: {
                                     if !cattlesViewModel.sortAscending {
-                                        Label("Descending", systemImage: "checkmark")
+                                        Label(
+                                            "Descending",
+                                            systemImage: "checkmark"
+                                        )
                                     } else {
                                         Text("Descending")
                                     }
@@ -156,16 +134,19 @@ struct HomeView: View {
                                 Image(systemName: "arrow.up.arrow.down")
                             }
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                            .foregroundStyle(
+                                AppColor.Primitive.Primary.shade500
+                            )
                         }
                         .accessibilityLabel("Urutkan")
                     }
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.bottom, AppSpacing.sm)
 
-                    
-                    if cattlesViewModel.hasNoVisibleCattle || cattlesViewModel.filteredItems.isEmpty {
-                        NoCattleCard(onAddTap: onAddCattleTap)
+                    if cattlesViewModel.hasNoVisibleCattle
+                        || cattlesViewModel.filteredItems.isEmpty
+                    {
+                        NoCattleCard()
                             .padding(AppSpacing.md)
                         Spacer()
                     } else {
@@ -181,7 +162,7 @@ struct HomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HStack(alignment: .bottom, spacing: 2) {
-                    Text("Lemb")
+                    Text("Lem")
                         .font(.system(size: 28, weight: .regular))
                         .foregroundStyle(AppColor.Text.primary)
                         .fixedSize()
@@ -199,11 +180,10 @@ struct HomeView: View {
                 }
                 .fixedSize()
                 .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Lemboo")
+                .accessibilityLabel("Lemu")
             }
             .sharedBackgroundVisibility(.hidden)
 
-            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     isFilterPresented = true

@@ -7,10 +7,7 @@
 
 import SwiftUI
 
-// f/23 ya
 struct NoCattleCard: View {
-    let onAddTap: () -> Void
-    
     var body: some View {
         VStack {
             Image(.cattle)
@@ -23,8 +20,6 @@ struct NoCattleCard: View {
                     .font(AppFont.body)
             }
             .padding(.bottom, AppSpacing.md)
-            
-//            AddCattleButton(onTap: onAddTap)
         }
         .padding(AppSpacing.md)
         .frame(maxWidth: .infinity)
@@ -35,5 +30,5 @@ struct NoCattleCard: View {
 }
 
 #Preview {
-    NoCattleCard(onAddTap: {})
+    NoCattleCard()
 }

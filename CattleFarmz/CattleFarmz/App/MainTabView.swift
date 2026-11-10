@@ -54,7 +54,7 @@ struct MainTabView: View {
                         CattlesDetailView(
                             cattleID: id,
                             viewModel: cattlesViewModel,
-                            onEditTap: coordinator.showEditCattleSheet
+                            onEditTap: coordinator.showEditCattleSheet,
                         )
                     case .addCattle:
                         CattleFormView(

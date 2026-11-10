@@ -26,6 +26,7 @@ import SwiftUI
 public struct HorizontalSankeyChart: View {
     public let data: [SankeyItem]
     public let showLabel: Bool
+    public let valueSuffix: String
     public let levelSpacing: CGFloat
     public let minimumLeafThickness: CGFloat
     public let nodeGap: CGFloat
@@ -41,6 +42,7 @@ public struct HorizontalSankeyChart: View {
     public init(
         data: [SankeyItem],
         showLabel: Bool = true,
+        valueSuffix: String = "",
         levelSpacing: CGFloat = 140,
         minimumLeafThickness: CGFloat = 14,
         nodeGap: CGFloat = 12,
@@ -52,6 +54,7 @@ public struct HorizontalSankeyChart: View {
     ) {
         self.data = data
         self.showLabel = showLabel
+        self.valueSuffix = valueSuffix
         self.levelSpacing = max(44, levelSpacing)
         self.minimumLeafThickness = max(1, minimumLeafThickness)
         self.nodeGap = max(0, nodeGap)
@@ -94,6 +97,7 @@ public struct HorizontalSankeyChart: View {
                     draw(
                         result.layout,
                         lastLevel: lastLevel,
+                        valueSuffix: valueSuffix,
                         context: &context
                     )
                 }
@@ -558,7 +562,7 @@ public struct HorizontalSankeyChart: View {
         )
 
         let value = measure(
-            item.value.formatted(),
+            item.value.formatted(.number.precision(.fractionLength(2))),
             pointSize: valuePointSize,
             traits: []
         )
@@ -582,7 +586,7 @@ public struct HorizontalSankeyChart: View {
         )
 
         let value = measure(
-            item.value.formatted(),
+            item.value.formatted(.number.precision(.fractionLength(2))),
             pointSize: valuePointSize,
             traits: []
         )
@@ -707,17 +711,23 @@ public struct HorizontalSankeyChart: View {
             .foregroundStyle(.primary)
     }
 
-    private static func valueText(_ value: Double) -> Text {
-        Text(value.formatted())
+    private static func valueText(
+        _ value: Double,
+        suffix: String
+    ) -> Text {
+        Text("\(value.formatted(.number.precision(.fractionLength(2))))\(suffix)")
             .font(.system(size: valuePointSize, weight: .medium))
             .foregroundStyle(.secondary)
     }
 
     /// One-line "Title value" label for the last level.
-    private static func sideLabel(for item: SankeyItem) -> Text {
+    private static func sideLabel(
+        for item: SankeyItem,
+        suffix: String
+    ) -> Text {
         titleText(item.title)
-            + Text(" ")
-            + valueText(item.value)
+            + Text("\n")
+            + valueText(item.value, suffix: suffix)
     }
 
     /// Height of the stacked label block.
@@ -731,7 +741,7 @@ public struct HorizontalSankeyChart: View {
                 traits: .traitBold
             ).height,
             value: measure(
-                item.value.formatted(),
+                item.value.formatted(.number.precision(.fractionLength(2))),
                 pointSize: valuePointSize,
                 traits: []
             ).height
@@ -743,6 +753,7 @@ public struct HorizontalSankeyChart: View {
     private func draw(
         _ layout: Layout,
         lastLevel: Int,
+        valueSuffix: String,
         context: inout GraphicsContext
     ) {
         // Draw ribbons first.
@@ -787,7 +798,7 @@ public struct HorizontalSankeyChart: View {
                 // Last level: the bar is the separation line, so its
                 // single-line label sits beside it, vertically centred.
                 context.draw(
-                    Self.sideLabel(for: node.item),
+                    Self.sideLabel(for: node.item, suffix: valueSuffix),
                     at: CGPoint(
                         x: node.bar.maxX + labelInset,
                         y: node.bar.midY
@@ -808,7 +819,7 @@ public struct HorizontalSankeyChart: View {
                 )
 
                 context.draw(
-                    Self.valueText(node.item.value),
+                    Self.valueText(node.item.value, suffix: valueSuffix),
                     at: CGPoint(x: x, y: bottom),
                     anchor: .bottom
                 )

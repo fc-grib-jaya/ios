@@ -49,6 +49,7 @@ struct RootView: View {
                     .transition(.opacity)
             }
         }
+        .preferredColorScheme(.light)
     }
 }
 

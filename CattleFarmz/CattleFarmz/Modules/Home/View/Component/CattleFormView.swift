@@ -40,6 +40,42 @@ struct CattleFormView: View {
     @State private var weightEntryMode: WeightEntryMode = .manual
     @State private var isShowingCamera = false
     
+    init(
+        onScanSession: @escaping (@escaping (ScanResult?) -> Void) -> Void,
+        viewModel: CattleFormViewModel,
+        onSave: @escaping (
+            String,
+            Date,
+            CattleBreed,
+            CattleGender,
+            Int,
+            Double?,
+            UIImage?,
+            String?
+        ) async throws -> Void
+    ) {
+        self.onScanSession = onScanSession
+        self.viewModel = viewModel
+        self.onSave = onSave
+
+        let primary = UIColor(AppColor.Primitive.Primary.shade400)
+        let white = UIColor(AppColor.Primitive.Base.white)
+        let segmented = UISegmentedControl.appearance()
+        let font = UIFont.systemFont(ofSize: 15, weight: .regular)
+
+        segmented.selectedSegmentTintColor = primary
+        segmented.backgroundColor = primary.withAlphaComponent(0.12)
+
+        segmented.setTitleTextAttributes(
+            [.foregroundColor: primary, .font: font],
+            for: .normal
+        )
+        segmented.setTitleTextAttributes(
+            [.foregroundColor: white, .font: font],
+            for: .selected
+        )
+    }
+    
     var body: some View {
         ZStack {
             AppColor.Primitive.Base.white
@@ -47,25 +83,6 @@ struct CattleFormView: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 VStack (alignment: .leading, spacing: AppSpacing.md){
-                    VStack (alignment: .leading){
-                        HStack (spacing: 1){
-                            Text("Nama Sapi")
-                                .foregroundStyle(AppColor.Text.primary)
-                            Text("*")
-                                .foregroundStyle(Color.red)
-                        }
-                        .font(AppFont.body)
-                        
-                        TextField("Tuliskan Nama Sapi", text: $namaCattle)
-                            .font(AppFont.body)
-                            .autocorrectionDisabled()
-                            .padding(AppSpacing.md)
-                            .background(
-                                RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.Input.background)
-                            )
-                    }
-                    
                     VStack (alignment: .leading){
                         HStack(spacing: 1) {
                             Text("Jenis Sapi")
@@ -94,7 +111,7 @@ struct CattleFormView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(
                             RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.Surface.canvas)
+                                .fill(AppColor.Primitive.Neutral.shade100)
                         )
                     }
                     
@@ -133,7 +150,7 @@ struct CattleFormView: View {
                                                 isSelected ? AppColor.Button.Primary.background
                                                     .opacity(
                                                         0.2
-                                                    ) : AppColor.Surface.canvas
+                                                    ) : AppColor.Primitive.Neutral.shade100
                                             )
                                             .stroke(
                                                 isSelected ? AppColor.Border.subtle
@@ -146,39 +163,7 @@ struct CattleFormView: View {
                         }
                     }
                     
-                    VStack (alignment: .leading){
-                        HStack (spacing: 1) {
-                            Text("Usia Sapi (Bulan)")
-                                .foregroundStyle(AppColor.Text.primary)
-                            Text("*")
-                                .foregroundStyle(Color.red)
-                        }
-                        .font(AppFont.body)
-                        
-                        TextField(
-                            value: $umurCattle,
-                            format: .number,
-                            prompt: Text("e.g. \"12\"").italic()
-                        ) {
-                            Text("Usia Sapi (Bulan)")
-                        }
-                        .keyboardType(.numberPad)
-                        .font(AppFont.body)
-                        .onChange(of: umurCattle) { _, value in
-                            guard let value else { return }
-                            
-                            if value > 99 {
-                                umurCattle = 99
-                            } else if value < 0 {
-                                umurCattle = 0
-                            }
-                        }
-                        .padding(AppSpacing.md)
-                        .background(
-                            RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.Surface.canvas)
-                        )
-                    }
+                    
                     
                     Text("Bobot dan Foto Sapi")
                         .foregroundStyle(AppColor.Text.primary)
@@ -191,11 +176,12 @@ struct CattleFormView: View {
                                 Text("Estimasi Bobot").tag(WeightEntryMode.camera)
                             }
                             .pickerStyle(.segmented)
+                            .controlSize(.large)
                             
                             if (weightEntryMode == .manual) {
                                 Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")
                                     .font(AppFont.caption)
-                                    .padding(.bottom, AppSpacing.sm)
+                                    .padding(.vertical, AppSpacing.sm)
                                 
                                 HStack (spacing: 1) {
                                     Text("Bobot")
@@ -215,13 +201,13 @@ struct CattleFormView: View {
                                     }
                                     .keyboardType(.decimalPad)
                                     
-                                    Text("kg")
+                                    Text("kg   ")
                                         .foregroundStyle(AppColor.Text.primary)
                                 }
-                                .padding(AppSpacing.xs)
+                                .padding(AppSpacing.md)
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.Surface.canvas)
+                                        .fill(AppColor.Primitive.Neutral.shade100)
                                 )
                                 
                                 //Capture session
@@ -251,7 +237,7 @@ struct CattleFormView: View {
                                     .frame(maxWidth: .infinity)
                                     .background(
                                         RoundedRectangle(cornerRadius: 23)
-                                            .fill(AppColor.Surface.canvas)
+                                            .fill(AppColor.Primitive.Neutral.shade100)
                                             .stroke(AppColor.Text.secondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
                                     )
                                 }
@@ -259,7 +245,7 @@ struct CattleFormView: View {
                             } else {
                                 Text("Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi.")
                                     .font(AppFont.caption)
-                                    .padding(.bottom, AppSpacing.sm)
+                                    .padding(.vertical, AppSpacing.sm)
                                 
                                 HStack {
                                     Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
@@ -269,7 +255,7 @@ struct CattleFormView: View {
                                 .padding(AppSpacing.xs)
                                 .background(
                                     RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.Surface.canvas)
+                                        .fill(AppColor.Primitive.Neutral.shade100)
                                 )
                                 
                                 if (viewModel.scanResult == nil){
@@ -294,7 +280,7 @@ struct CattleFormView: View {
                                         .frame(maxWidth: .infinity)
                                         .background(
                                             RoundedRectangle(cornerRadius: 23)
-                                                .fill(AppColor.Surface.canvas)
+                                                .fill(AppColor.Primitive.Neutral.shade100)
                                                 .stroke(
                                                     AppColor.Text.secondary,
                                                     style: StrokeStyle(
@@ -337,6 +323,59 @@ struct CattleFormView: View {
                     )
                     
                     VStack (alignment: .leading){
+                        HStack (spacing: 1){
+                            Text("Nama Sapi")
+                                .foregroundStyle(AppColor.Text.primary)
+                            Text("*")
+                                .foregroundStyle(Color.red)
+                        }
+                        .font(AppFont.body)
+                        
+                        TextField("Tuliskan Nama Sapi", text: $namaCattle)
+                            .font(AppFont.body)
+                            .autocorrectionDisabled()
+                            .padding(AppSpacing.md)
+                            .background(
+                                RoundedRectangle(cornerRadius: 23)
+                                    .fill(AppColor.Primitive.Neutral.shade100)
+                            )
+                    }
+                    
+                    VStack (alignment: .leading){
+                        HStack (spacing: 1) {
+                            Text("Usia Sapi (Bulan)")
+                                .foregroundStyle(AppColor.Text.primary)
+                            Text("*")
+                                .foregroundStyle(Color.red)
+                        }
+                        .font(AppFont.body)
+                        
+                        TextField(
+                            value: $umurCattle,
+                            format: .number,
+                            prompt: Text("e.g. \"12\"").italic()
+                        ) {
+                            Text("Usia Sapi (Bulan)")
+                        }
+                        .keyboardType(.numberPad)
+                        .font(AppFont.body)
+                        .onChange(of: umurCattle) { _, value in
+                            guard let value else { return }
+                            
+                            if value > 99 {
+                                umurCattle = 99
+                            } else if value < 0 {
+                                umurCattle = 0
+                            }
+                        }
+                        .padding(AppSpacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: 23)
+                                .fill(AppColor.Primitive.Neutral.shade100)
+                        )
+                    }
+                    
+                    VStack (alignment: .leading){
                         Text("Catatan")
                             .font(AppFont.body)
                             .foregroundStyle(AppColor.Text.primary)
@@ -352,7 +391,7 @@ struct CattleFormView: View {
                         .padding(AppSpacing.md)
                         .background(
                             RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.Surface.canvas)
+                                .fill(AppColor.Primitive.Neutral.shade100)
                         )
                     }
                     .padding(.bottom, AppSpacing.lg)

@@ -109,39 +109,11 @@ struct CattleFormView: View {
                         
                         HStack(spacing: AppSpacing.md) {
                             ForEach(CattleGender.allCases, id: \.self) { gender in
-                                let isSelected = genderCattle == gender
-                                
-                                Button {
-                                    genderCattle = gender
-                                } label: {
-                                    HStack(spacing: AppSpacing.sm) {
-                                        Image(systemName: isSelected
-                                              ? "largecircle.fill.circle"
-                                              : "circle")
-                                        Text(gender.rawValue)
-                                        Spacer()
-                                    }
-                                    .font(AppFont.body)
-                                    .foregroundStyle(
-                                        AppColor.Button.Primary.background
-                                    )
-                                    .frame(maxWidth: .infinity)
-                                    .padding(AppSpacing.sm)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 30)
-                                            .fill(
-                                                isSelected ? AppColor.Button.Primary.background
-                                                    .opacity(
-                                                        0.2
-                                                    ) : AppColor.Surface.canvas
-                                            )
-                                            .stroke(
-                                                isSelected ? AppColor.Border.subtle
-                                                    .opacity(0.2) : AppColor.Border.focus.opacity(0.2)
-                                            )
-                                    )
-                                }
-                                .buttonStyle(.plain)
+                                AppRadioButton(
+                                    LocalizedStringKey(gender.rawValue),
+                                    value: gender,
+                                    selection: $genderCattle
+                                )
                             }
                         }
                     }
@@ -186,11 +158,13 @@ struct CattleFormView: View {
                     VStack (alignment: .leading){
                         
                         VStack (alignment: .leading){
-                            Picker("weight Entry Mode", selection: $weightEntryMode){
-                                Text("Isi Bobot").tag(WeightEntryMode.manual)
-                                Text("Estimasi Bobot").tag(WeightEntryMode.camera)
+                            AppSegmentedControl(
+                                "Cara mengisi bobot",
+                                options: [WeightEntryMode.manual, .camera],
+                                selection: $weightEntryMode
+                            ) { mode in
+                                Text(mode == .manual ? "Isi Bobot" : "Estimasi Bobot")
                             }
-                            .pickerStyle(.segmented)
                             
                             if (weightEntryMode == .manual) {
                                 Text("Masukkan bobot secara manual, lalu ambil foto untuk profil sapi.")
@@ -277,6 +251,7 @@ struct CattleFormView: View {
                                         // Lidar
                                         onScanSession { result in
                                             viewModel.storeScanResult(result)
+                                            gambarCattle = result?.cattleImage
                                             syncEstimatedWeight()
                                             print(result)
                                         }
@@ -317,6 +292,7 @@ struct CattleFormView: View {
                                         ) {
                                             onScanSession { result in
                                                 viewModel.storeScanResult(result)
+                                                gambarCattle = result?.cattleImage
                                                 syncEstimatedWeight()
                                                 print(result)
                                             }
@@ -376,7 +352,7 @@ struct CattleFormView: View {
                     } label: {
                         Text("Simpan Data")
                     }
-                    .AppButtonStyle(.primary)
+                    .appButtonStyle(.primary)
                     .disabled(isSaveDisabled)
                 }
                 .padding(AppSpacing.md)

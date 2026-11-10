@@ -39,9 +39,10 @@ struct OnboardingView: View {
                 // lets them render without a background pill.
                 .indexViewStyle(.page(backgroundDisplayMode: .never))
 
-                OnboardingActionButton(viewModel.buttonTitle) {
+                Button(viewModel.buttonTitle) {
                     viewModel.primaryTapped()
                 }
+                .appButtonStyle(.primary)
                 .padding(.horizontal, AppSpacing.md)
             }
             .padding(.top, AppSpacing.massive)

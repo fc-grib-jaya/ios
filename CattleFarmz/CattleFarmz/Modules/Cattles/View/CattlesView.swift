@@ -34,7 +34,7 @@ struct CattlesView: View {
                         gender: cattle.gender,
                         age: cattle.currentAge,
                         weight: bodyWeight,
-                        updated: .now
+                        updated: cattle.dateAcquired
                     )
                 }
                 .buttonStyle(.plain)
@@ -42,7 +42,7 @@ struct CattlesView: View {
         }
         .font(AppFont.body)
         .foregroundStyle(AppColor.Text.primary)
-        .padding(AppSpacing.md)
+        .padding(.horizontal, AppSpacing.md)
         .task { await viewModel.load() }
     }
 }

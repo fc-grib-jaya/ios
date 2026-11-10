@@ -313,15 +313,15 @@ private struct ToastDropTrail: View {
 
 #Preview {
     ZStack {
-        AppColor.Surface.canvas
+        AppColor.Primitive.Neutral.shade600
             .ignoresSafeArea()
 
         VStack {
             ToastView(
                 item: ToastItem(
                     message: "Your changes have been saved",
-                    icon: "checkmark",
-                    accentColor: .green
+                    icon: "info",
+                    accentColor: .blue
                 ),
                 configuration: ToastConfiguration(),
                 availableWidth: 393,

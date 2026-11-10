@@ -12,10 +12,13 @@ struct MainTabView: View {
     @State private var cattlesViewModel: CattlesViewModel
 
     init(container: DIContainer, coordinator: AppCoordinator) {
+        print("Homeview init")
         self.container = container
         _coordinator = Bindable(wrappedValue: coordinator)
         // One shared instance so the home list and the add-cattle form stay in sync.
-        _cattlesViewModel = State(initialValue: container.makeCattlesViewModel())
+        _cattlesViewModel = State(
+            initialValue: container.makeCattlesViewModel()
+        )
     }
 
     var body: some View {
@@ -24,6 +27,7 @@ struct MainTabView: View {
                 HomeView(
                     viewModel: container.makeHomeViewModel(),
                     cattlesViewModel: cattlesViewModel,
+                    farmerName: container.farmerName(),
                     onProfileTap: { coordinator.showProfile() },
                     onExamplePickerTap: {
                         coordinator.showExamplePickerSheet(
@@ -42,9 +46,13 @@ struct MainTabView: View {
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
-                    onAddCattleTap: { coordinator.showAddCattle() },
+                    onAddCattleTap: {
+                       print("on add cattle tap")
+                        coordinator.showAddCattle() },
                     onToastTap: {
-                        container.toastManager.show("Your changes have been saved")
+                        container.toastManager.show(
+                            "Your changes have been saved"
+                        )
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
@@ -52,9 +60,12 @@ struct MainTabView: View {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
                     case .cattleDetail(let id):
+                        // Shares the list instance: editing from the detail
+                        // screen mutates the same data the home list shows.
                         CattlesDetailView(
                             cattleID: id,
-                            viewModel: container.makeCattlesViewModel()
+                            viewModel: cattlesViewModel,
+                            onEditTap: coordinator.showEditCattleSheet,
                         )
                     case .addCattle:
                         CattleFormView(
@@ -74,13 +85,14 @@ struct MainTabView: View {
                                 notes: notes
                             )
                         }
+                    default: EmptyView()
                     }
                 }
             }
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-            
+
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
@@ -91,7 +103,7 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-            
+
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
@@ -99,7 +111,23 @@ struct MainTabView: View {
         }
         .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
-            AppSheetView(sheet: sheet, container: container)
+            switch sheet {
+            case .examplePickerSheet(let current, let onSelect):
+                ExamplePickerSheetView(
+                    viewModel: container.makeExamplePickerSheetViewModel(
+                        current: current,
+                        onSelect: onSelect
+                    )
+                )
+            case .editCattle(let cattle, let onSave):
+                NavigationStack {
+                    CattlesEditForm(cattle: cattle, onSave: onSave)
+                }
+            case .guestLoginSheet(let onDone):
+                GuestLoginSheetView(
+                    viewModel: container.makeGuestLoginSheetViewModel(onDone: onDone)
+                )
+            }
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)

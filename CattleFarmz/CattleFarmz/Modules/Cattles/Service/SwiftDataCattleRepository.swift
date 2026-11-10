@@ -56,6 +56,40 @@ final class SwiftDataCattleRepository: CattleRepository {
         try context.save()
     }
     
+    func update(
+        for cattleID: UUID,
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
+        bodyWeight: Double?,
+        notes: String?
+    ) throws {
+        guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              recordedAge >= 0,
+              chestGirth == nil || (chestGirth?.isFinite == true && chestGirth! > 0),
+              bodyLength == nil || (bodyLength?.isFinite == true && bodyLength! > 0),
+              bodyWeight == nil || (bodyWeight?.isFinite == true && bodyWeight! > 0)
+        else {
+            throw CattleRepositoryError.invalidMeasurement
+        }
+
+        let cattle = try findCattle(for: cattleID)
+        cattle.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        cattle.dateAcquired = dateAcquired
+        cattle.breed = breed
+        cattle.gender = gender
+        cattle.recordedAge = recordedAge
+        cattle.chestGirth = chestGirth
+        cattle.bodyLength = bodyLength
+        cattle.bodyWeight = bodyWeight
+        cattle.notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
+        try context.save()
+    }
+
     private func findCattle(for cattleID: UUID) throws -> Cattle {
         var descriptor = FetchDescriptor<Cattle>(
             predicate: #Predicate<Cattle> { cattle in

@@ -23,6 +23,10 @@ struct AppSheetView: View {
             GuestLoginSheetView(
                 viewModel: container.makeGuestLoginSheetViewModel(onDone: onDone)
             )
+        case .editCattle(let cattle, let onSave):
+            NavigationStack {
+                CattlesEditForm(cattle: cattle, onSave: onSave)
+            }
         }
     }
 }

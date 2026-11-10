@@ -50,6 +50,39 @@ final class MockCattleRepository: CattleRepository {
         items.removeAll { $0.id == cattle.id }
     }
 
+    func update(
+        for cattleID: UUID,
+        name: String,
+        dateAcquired: Date,
+        breed: CattleBreed,
+        gender: CattleGender,
+        recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
+        bodyWeight: Double?,
+        notes: String?
+    ) throws {
+        guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              recordedAge >= 0,
+              chestGirth == nil || (chestGirth?.isFinite == true && chestGirth! > 0),
+              bodyLength == nil || (bodyLength?.isFinite == true && bodyLength! > 0),
+              bodyWeight == nil || (bodyWeight?.isFinite == true && bodyWeight! > 0),
+              let cattle = items.first(where: { $0.id == cattleID })
+        else {
+            throw CattleRepositoryError.invalidMeasurement
+        }
+
+        cattle.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        cattle.dateAcquired = dateAcquired
+        cattle.breed = breed
+        cattle.gender = gender
+        cattle.recordedAge = recordedAge
+        cattle.chestGirth = chestGirth
+        cattle.bodyLength = bodyLength
+        cattle.bodyWeight = bodyWeight
+        cattle.notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     func updateMeasurement(
         for cattleID: UUID,
         chestGirth: Double,

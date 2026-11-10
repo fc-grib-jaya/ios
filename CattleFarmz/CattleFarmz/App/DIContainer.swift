@@ -124,6 +124,11 @@ final class DIContainer {
     func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(haptics: haptics)
     }
+
+    /// Returns the stored farmer name for screens that greet the user.
+    func farmerName() -> String {
+        (try? userProfileRepository.profile())?.name ?? "Bapak"
+    }
     
     /// Creates the profile screen view model.
     func makeProfileViewModel() -> ProfileViewModel {

@@ -42,7 +42,7 @@ struct CattleFormView: View {
     
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
+            AppColor.Primitive.Base.white
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
@@ -309,7 +309,7 @@ struct CattleFormView: View {
                     .padding(AppSpacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: 23)
-                            .fill(AppColor.Surface.canvas.opacity(0.5))
+                            .fill(AppColor.Input.background.opacity(0.8))
                     )
                     
                     VStack (alignment: .leading){
@@ -355,7 +355,7 @@ struct CattleFormView: View {
                     .appButtonStyle(.primary)
                     .disabled(isSaveDisabled)
                 }
-                .padding()
+                .padding(AppSpacing.md)
             }
         }
         .fullScreenCover(isPresented: $isShowingCamera) {
@@ -380,6 +380,32 @@ struct CattleFormView: View {
     /// selected; recalculated whenever either field changes.
     private func syncEstimatedWeight() {
         bobotCattle = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
+    }
+    
+    private func weightModeButton(
+        _ title: String,
+        mode: WeightEntryMode
+    ) -> some View {
+        let isSelected = weightEntryMode == mode
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                weightEntryMode = mode
+            }
+        } label: {
+            Text(title)
+                .font(AppFont.body)
+                .foregroundStyle(isSelected ? AppColor.Button.Primary.foreground : AppColor.Button.Primary.background)
+                .padding(.vertical, AppSpacing.xs)
+                .frame(maxWidth: .infinity)
+                .glassEffect(
+                    .regular
+                        .tint(
+                            isSelected ? AppColor.Primitive.Primary.shade400 : AppColor.Primitive.Neutral.shade300
+                        )
+                )
+        }
+        .buttonStyle(.plain)
     }
     
     private var isSaveDisabled: Bool {

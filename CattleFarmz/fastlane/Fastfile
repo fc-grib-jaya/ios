@@ -1,0 +1,191 @@
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+lane :sync_certs do
+        app_store_connect_api_key( key_id: "49HJ924HSG",
+          issuer_id: "c12cad5d-903a-4151-a441-fd33f87b6271",
+          key_filepath: "./fastlane/AuthKey_49HJ924HSG.p8",
+          duration: 1200,
+          in_house: false
+        )
+
+app_identifiers = [
+    "com.gribjaya.lembu",
+  ]
+
+  app_identifiers.each do |identifier|
+    match(
+      type: "development",
+      app_identifier: identifier)
+end
+end
+
+default_platform(:ios)
+
+platform :ios do
+  before_all do
+    setup_ci if ENV["CI"]
+    sh("git config user.name 'CI Bot'")
+    sh("git config user.email 'ci-bot@gribjaya.com'")
+  end
+
+  desc "Auth to App Store Connect"
+  private_lane :asc_api_key do
+    app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER_ID"],
+      key_filepath: "asc_api_key.p8",
+      in_house: false
+    )
+  end
+
+  private_lane :setup_signing do |options|
+    match(
+      type: "appstore",
+      app_identifier: [
+        "com.gribjaya.lembu",
+      ],
+      api_key: options[:api_key]
+    )
+  end
+
+  desc "Push to dev branch -> patch bump + TestFlight"
+  lane :dev_patch_release do
+    api_key = asc_api_key
+    setup_signing(api_key: api_key)
+
+    current = get_version_number(target: "SampaiTitik")
+    major, minor, patch = current.split(".").map(&:to_i)
+    new_version = "#{major}.#{minor}.#{patch + 1}"
+    increment_version_number(version_number: new_version)
+    increment_build_number(build_number: ENV["GITHUB_RUN_NUMBER"])
+
+    build_app(
+      scheme: "SampaiTitik",
+      clean: true,
+      export_method: "app-store",
+      output_directory: "./build",
+      export_team_id: "CWXJ4ZG5J4",
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        provisioningProfiles: {
+            "com.gribjaya.lembu" => ENV["sigh_com.gribjaya.lembu_appstore_profile-name"],
+        }
+      }
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+
+    # Github pre-release
+    ipa_path = File.join(Dir.pwd, "build", "SampaiTitik.ipa")
+    tag_name = "v#{new_version}-beta"
+
+    set_github_release(
+        repository_name: ENV["GITHUB_REPOSITORY"],
+        api_token: ENV["GITHUB_TOKEN"],
+        tag_name: tag_name,
+        name: tag_name,
+        description: "Prerelease build #{tag_name}\n\nIPA: `SampaiTitik.ipa` attached below.",
+        commitish: "dev",
+        is_prerelease: true,
+        upload_assets: [ipa_path]
+      )
+
+    git_commit(
+      path: ["*.xcodeproj/project.pbxproj"],
+      message: "chore(ci): bump version to #{new_version} (#{ENV['GITHUB_RUN_NUMBER']}) [skip ci]"
+    )
+    push_to_git_remote(remote_branch: "dev")
+  end
+
+    desc "Push to dev without bump patch version"
+    lane :dev_build_release do
+      api_key = asc_api_key
+      setup_signing(api_key: api_key)
+    
+      update_code_signing_settings(
+        use_automatic_signing: false,
+        path: "Lembu.xcodeproj",
+        code_sign_identity: "Apple Distribution",
+        profile_name: ENV["sigh_com.gribjaya.lembu_appstore_profile-name"],
+        targets: ["SampaiTitik"]
+      )
+    
+      increment_build_number(build_number: ENV["GITHUB_RUN_NUMBER"])
+    
+      build_app(
+        scheme: "SampaiTitik",
+        clean: true,
+        export_method: "app-store",
+        output_directory: "./build",
+        export_team_id: "CWXJ4ZG5J4",
+        export_options: {
+          method: "app-store",
+          signingStyle: "manual",
+          provisioningProfiles: {
+            "com.gribjaya.lembu" => ENV["sigh_com.gribjaya.lembu_appstore_profile-name"],
+          }
+        }
+      )
+    
+      upload_to_testflight(
+        api_key: api_key,
+        skip_waiting_for_build_processing: true
+      )
+    
+      git_commit(
+        path: ["*.xcodeproj/project.pbxproj"],
+        message: "chore(ci): bump build version to (#{ENV['GITHUB_RUN_NUMBER']}) [skip ci]"
+      )
+      push_to_git_remote(remote_branch: "dev")
+    end
+
+    desc "GitHub Release published in main -> set version from tag + TestFlight"
+    lane :release do
+      api_key = asc_api_key
+      setup_signing(api_key: api_key)
+    
+      update_code_signing_settings(
+        use_automatic_signing: false,
+        path: "SampaiTitik.xcodeproj",
+        code_sign_identity: "Apple Distribution",
+        profile_name: ENV["sigh_com.gribjaya.lembu_appstore_profile-name"],
+        targets: ["SampaiTitik"]
+      )
+    
+      version = ENV["RELEASE_TAG"].sub(/^v/, "")
+      increment_version_number(version_number: version)
+      increment_build_number(build_number: ENV["GITHUB_RUN_NUMBER"])
+    
+      build_app(
+        scheme: "SampaiTitik",
+        clean: true,
+        export_method: "app-store",
+        output_directory: "./build",
+        export_team_id: "CWXJ4ZG5J4",
+        export_options: {
+          method: "app-store",
+          signingStyle: "manual",
+          provisioningProfiles: {
+            "com.gribjaya.lembu" => ENV["sigh_com.gribjaya.lembu_appstore_profile-name"],
+          }
+        }
+      )
+    
+      upload_to_testflight(
+        api_key: api_key,
+        skip_waiting_for_build_processing: true
+      )
+    
+      git_commit(
+        path: ["*.xcodeproj/project.pbxproj"],
+        message: "chore(release): version #{version} (#{ENV['GITHUB_RUN_NUMBER']}) [skip ci]"
+      )
+      push_to_git_remote(remote_branch: "main")
+    end
+
+end

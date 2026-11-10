@@ -13,6 +13,8 @@ struct HomeView: View {
     private let onExamplePickerTap: () -> Void
     private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
+    private let onAddCattleTap: () -> Void
+    private let onToastTap: () -> Void
 
     init(
         viewModel: HomeViewModel,
@@ -20,7 +22,9 @@ struct HomeView: View {
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
         onScanTap: @escaping () -> Void,
-        onCardTap: @escaping (String) -> Void
+        onCardTap: @escaping (String) -> Void,
+        onAddCattleTap: @escaping () -> Void,
+        onToastTap: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
@@ -28,15 +32,11 @@ struct HomeView: View {
         self.onExamplePickerTap = onExamplePickerTap
         self.onScanTap = onScanTap
         self.onCardTap = onCardTap
+        self.onAddCattleTap = onAddCattleTap
+        self.onToastTap = onToastTap
     }
 
-    @State var tambahSapi: Bool = false
-    @State var filterSapi: Bool = false
-
-    @State private var selectedBreed: Set<String> = []
-    @State private var selectedGender: Set<String> = []
-    @State private var selectedAgeRange: Set<String> = []
-    @State private var sortAscending = false
+    @State private var isFilterPresented = false
 
     var body: some View {
         ZStack {
@@ -48,35 +48,25 @@ struct HomeView: View {
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.md)
                     .padding(.bottom, AppSpacing.sm)
-                let filteredCattles = cattlesViewModel.filteredItems(
-                    selectedBreed: selectedBreed,
-                    selectedGender: selectedGender,
-                    selectedAgeRange: selectedAgeRange,
-                    sortAscending: sortAscending
-                )
 
-                Text(
-                    cattlesViewModel.items.isEmpty || filteredCattles.count == 0
-                        ? "Kamu belum menambahkan sapi. Tambahkan untuk hitung bobot dan rancangan pakan."
-                        : "Kamu memiliki \(filteredCattles.count) sapi terdaftar."
-                )
-                .font(AppFont.body)
-                .padding(.horizontal, AppSpacing.md)
-                
+                Text(cattlesViewModel.listSubtitle)
+                    .font(AppFont.body)
+                    .padding(.horizontal, AppSpacing.md)
+
+                AppButton("Show toast", variant: .secondary, action: onToastTap)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.xs)
+
                 ScrollView(.vertical, showsIndicators: false) {
-                    if cattlesViewModel.items.isEmpty || filteredCattles.count == 0 {
-                        NoCattleCard(tambahSapi: $tambahSapi)
+                    if cattlesViewModel.hasNoVisibleCattle {
+                        NoCattleCard(onAddTap: onAddCattleTap)
                             .padding()
                         Spacer()
                     } else {
-                        AddCattleButton(tambahSapi: $tambahSapi)
+                        AddCattleButton(onTap: onAddCattleTap)
                             .padding(.vertical, AppSpacing.xs)
                         CattlesView(
                             viewModel: cattlesViewModel,
-                            selectedBreed: selectedBreed,
-                            selectedGender: selectedGender,
-                            selectedAgeRange: selectedAgeRange,
-                            sortAscending: sortAscending,
                             onCardTap: onCardTap
                         )
                     }
@@ -89,13 +79,13 @@ struct HomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    sortAscending.toggle()
+                    cattlesViewModel.toggleSort()
                 } label: {
                     Image(systemName: "arrow.up.arrow.down")
-                        .scaleEffect(y: sortAscending ? 1 : -1)
+                        .scaleEffect(y: cattlesViewModel.sortAscending ? 1 : -1)
                 }
                 .accessibilityLabel(
-                    sortAscending
+                    cattlesViewModel.sortAscending
                         ? "Urutkan tanggal terbaru ke terlama"
                         : "Urutkan tanggal terlama ke terbaru"
                 )
@@ -105,47 +95,20 @@ struct HomeView: View {
 
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
-                    filterSapi = true
+                    isFilterPresented = true
                 } label: {
                     Label("Menu", systemImage: "line.3.horizontal.decrease")
                 }
                 .accessibilityLabel("Filter sapi")
             }
         }
-        .navigationDestination(isPresented: $tambahSapi) {
-            SapiFormView {
-                name,
-                date,
-                breed,
-                gender,
-                recordedAge,
-                bodyWeight,
-                cattleImage,
-                notes in
-                try cattlesViewModel.add(
-                    name: name,
-                    dateAcquired: date,
-                    breed: breed,
-                    gender: gender,
-                    recordedAge: recordedAge,
-                    chestGirth: nil,
-                    bodyLength: nil,
-                    bodyWeight: bodyWeight,
-                    cattleImage: cattleImage?.jpegData(
-                        compressionQuality: 0.85
-                    ),
-                    notes: notes
-                )
-
-                await cattlesViewModel.load()
-            }
-        }
-        .sheet(isPresented: $filterSapi) {
+        .sheet(isPresented: $isFilterPresented) {
             NavigationStack {
+                @Bindable var cattlesViewModel = cattlesViewModel
                 CattlesFilterView(
-                    selectedBreed: $selectedBreed,
-                    selectedGender: $selectedGender,
-                    selectedAgeRange: $selectedAgeRange
+                    selectedBreed: $cattlesViewModel.selectedBreeds,
+                    selectedGender: $cattlesViewModel.selectedGenders,
+                    selectedAgeRange: $cattlesViewModel.selectedAgeRanges
                 )
             }
         }
@@ -153,6 +116,8 @@ struct HomeView: View {
 }
 
 #Preview {
+    @Previewable @State var toastManager = ToastManager()
+
     NavigationStack {
         HomeView(
             viewModel: HomeViewModel(haptics: NoopHaptics()),
@@ -163,7 +128,10 @@ struct HomeView: View {
             onProfileTap: {},
             onExamplePickerTap: {},
             onScanTap: {},
-            onCardTap: { _ in }
+            onCardTap: { _ in },
+            onAddCattleTap: {},
+            onToastTap: { toastManager.show("Your changes have been saved") }
         )
+        .toast(manager: toastManager)
     }
 }

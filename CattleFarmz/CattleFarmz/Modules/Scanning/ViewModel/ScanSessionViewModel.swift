@@ -48,8 +48,7 @@ final class ScanSessionViewModel {
         onFinish(
             ScanResult(
                 lengthCM: result.lengthCM,
-                girthCM: result.girth?.centimeters,
-                weightKG: result.weightKG
+                girth: result.girth
             )
         )
     }

@@ -23,6 +23,12 @@ struct ManualRationCalculator: RationCalculating {
         items: [RationItem]
     ) throws -> RationCalculationResult {
         try validate(profile: profile)
+        
+        guard !profile.usesMilkProduction
+                || (profile.dailyMilkProductionLiters * 90).isFinite
+        else {
+            throw RationCalculationError.numericOverflow
+        }
 
         guard items.allSatisfy({
             isNonNegativeFinite($0.kilogramsPerAnimalPerDay)
@@ -121,18 +127,45 @@ struct ManualRationCalculator: RationCalculating {
             )
         }
 
+        let intakeFactor: Double
+        let referenceForagePercent: Double
+
+        switch profile.productionType {
+        case .beef:
+            intakeFactor = 0.022
+            referenceForagePercent = 60
+
+        case .dairy:
+            intakeFactor = 0.025
+            referenceForagePercent = 40
+        }
+
+        let estimatedDryMatter =
+            profile.bodyWeightKilograms * intakeFactor
+        
+        let recommendations = RationGuidance.make(
+            profile: profile,
+            date: Date()
+        )
+        
         let result = RationCalculationResult(
             profile: profile,
             items: activeItems,
             nutrients: nutrients,
             requirements: requirements,
-            warnings: warnings
+            warnings: warnings,
+            estimatedDryMatterKilogramsPerAnimalPerDay:
+                estimatedDryMatter,
+            referenceForagePercent: referenceForagePercent,
+            recommendations: recommendations
         )
 
         guard result.proteinKilogramsPerAnimalPerDay.isFinite,
               result.tdnKilogramsPerAnimalPerDay.isFinite,
               nutrients.crudeProteinPercent.isFinite,
-              nutrients.totalDigestibleNutrientsPercent.isFinite
+              nutrients.totalDigestibleNutrientsPercent.isFinite,
+              result.estimatedDryMatterKilogramsPerAnimalPerDay.isFinite,
+              result.estimatedDryMatterKilogramsPerHerdPerDay.isFinite
         else {
             throw RationCalculationError.numericOverflow
         }

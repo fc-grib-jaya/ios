@@ -9,13 +9,21 @@ import SwiftUI
 struct MainTabView: View {
     let container: DIContainer
     @Bindable var coordinator: AppCoordinator
+    @State private var cattlesViewModel: CattlesViewModel
+
+    init(container: DIContainer, coordinator: AppCoordinator) {
+        self.container = container
+        _coordinator = Bindable(wrappedValue: coordinator)
+        // One shared instance so the home list and the add-cattle form stay in sync.
+        _cattlesViewModel = State(initialValue: container.makeCattlesViewModel())
+    }
 
     var body: some View {
         TabView {
             NavigationStack(path: $coordinator.path) {
                 HomeView(
                     viewModel: container.makeHomeViewModel(),
-                    cattlesViewModel: container.makeCattlesViewModel(),
+                    cattlesViewModel: cattlesViewModel,
                     onProfileTap: { coordinator.showProfile() },
                     onExamplePickerTap: {
                         coordinator.showExamplePickerSheet(
@@ -28,29 +36,51 @@ struct MainTabView: View {
                     },
                     onScanTap: {
                         coordinator.showScanSession(onFinish: { scanResult in
-                            print(scanResult?.girthCM)
+                            print(scanResult?.girth?.centimeters)
                         })
                     },
                     onCardTap: { cattleID in
-                        coordinator.goToSapiDetail(cattleID: cattleID)
+                        coordinator.goToCattleDetail(cattleID: cattleID)
+                    },
+                    onAddCattleTap: { coordinator.showAddCattle() },
+                    onToastTap: {
+                        container.toastManager.show("Your changes have been saved")
                     }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
-                    case .sapiDetail(let id):
+                    case .cattleDetail(let id):
                         CattlesDetailView(
                             cattleID: id,
                             viewModel: container.makeCattlesViewModel()
                         )
+                    case .addCattle:
+                        CattleFormView(
+                            onScanSession: { onFinish in
+                                coordinator.showScanSession(onFinish: onFinish)
+                            },
+                            viewModel: container.makeCattleFormViewModel()
+                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                            try cattlesViewModel.addCattle(
+                                name: name,
+                                dateAcquired: date,
+                                breed: breed,
+                                gender: gender,
+                                recordedAge: recordedAge,
+                                bodyWeight: bodyWeight,
+                                cattleImage: cattleImage,
+                                notes: notes
+                            )
+                        }
                     }
                 }
             }
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-
+            
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
@@ -61,22 +91,15 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-
+            
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }
         }
+        .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
-            switch sheet {
-            case .examplePickerSheet(let current, let onSelect):
-                ExamplePickerSheetView(
-                    viewModel: container.makeExamplePickerSheetViewModel(
-                        current: current,
-                        onSelect: onSelect
-                    )
-                )
-            }
+            AppSheetView(sheet: sheet, container: container)
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)

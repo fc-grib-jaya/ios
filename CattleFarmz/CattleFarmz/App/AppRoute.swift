@@ -10,15 +10,19 @@
 enum AppRoute: Hashable {
     /// Profile screen.
     case profile
-    case sapiDetail(id: String)
+    case cattleDetail(id: String)
+    /// Add-cattle form screen.
+    case addCattle
 }
 
 enum AppSheet: Identifiable {
     case examplePickerSheet(current: String, onSelect: ([String]) -> Void )
-    
+    case guestLoginSheet(onDone: () -> Void)
+
     var id: String {
         switch self {
         case .examplePickerSheet: "examplePicker"
+        case .guestLoginSheet: "guestLogin"
         }
     }
 }

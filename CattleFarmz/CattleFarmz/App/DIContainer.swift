@@ -14,7 +14,9 @@ import SwiftData
 @MainActor
 final class DIContainer {
     let haptics: any HapticProviding
+    let sounds: any SoundPlaying
     private let cattleRepository: any CattleRepository
+    private let userProfileRepository: any UserProfileRepository
     private let weightCalculation: any WeightCalculation
 
     /// LiDAR capture service shared by every scan session.
@@ -22,6 +24,9 @@ final class DIContainer {
     /// Created on first use, so launching the app never allocates an AR
     /// session or asks for camera permission.
     private(set) lazy var scanCapture: any ScanCapturing = CaptureService()
+
+    /// Toast queue shared by every screen. Attached once in `MainTabView`.
+    let toastManager: ToastManager
 
     
     private let feedProvider: () throws ->[FeedIngredient]
@@ -31,14 +36,19 @@ final class DIContainer {
     
     init(
         haptics: any HapticProviding,
+        sounds: any SoundPlaying,
         cattleRepository: any CattleRepository,
+        userProfileRepository: any UserProfileRepository,
         weightCalculation: any WeightCalculation,
         feedProvider: @escaping () throws -> [FeedIngredient],
         rationCalculator: any RationCalculating,
         prepareCatalog: @escaping () throws -> Void = {}
     ) {
         self.haptics = haptics
+        self.sounds = sounds
+        self.toastManager = ToastManager(haptics: haptics, sounds: sounds)
         self.cattleRepository = cattleRepository
+        self.userProfileRepository = userProfileRepository
         self.weightCalculation = weightCalculation
         self.feedProvider = feedProvider
         self.rationCalculator = rationCalculator
@@ -60,7 +70,11 @@ final class DIContainer {
         
         return DIContainer(
             haptics: CoreHapticsService(),
+            sounds: BundleSoundPlayer(),
             cattleRepository: SwiftDataCattleRepository(context: modelContext),
+            userProfileRepository: SwiftDataUserProfileRepository(
+                context: modelContext
+            ),
             weightCalculation: WeightCalculator(),
             feedProvider: {
                 try feedRepository.ingredients()
@@ -77,7 +91,9 @@ final class DIContainer {
     static var preview: DIContainer {
         DIContainer(
             haptics: NoopHaptics(),
+            sounds: NoopSoundPlayer(),
             cattleRepository: MockCattleRepository(),
+            userProfileRepository: MockUserProfileRepository(),
             weightCalculation: WeightCalculator(),
             feedProvider: {
                 let text = try BundledFeedCSVReader().read()
@@ -111,15 +127,19 @@ final class DIContainer {
     
     /// Creates the profile screen view model.
     func makeProfileViewModel() -> ProfileViewModel {
-        // ProfileViewModel(arService: arService)
-        ProfileViewModel()
+        ProfileViewModel(repository: userProfileRepository)
     }
     
     /// Creates the cattles screen view model.
     func makeCattlesViewModel() -> CattlesViewModel {
         CattlesViewModel(repository: cattleRepository, calculation: weightCalculation)
     }
-    
+
+    /// Creates the add-cattle form view model.
+    func makeCattleFormViewModel() -> CattleFormViewModel {
+        CattleFormViewModel(calculation: weightCalculation)
+    }
+
     /// Creates the example picker sheet view model.
     func makeExamplePickerSheetViewModel(
         current: String,
@@ -129,6 +149,28 @@ final class DIContainer {
             current: current,
             options: ["Sapi 1", "Sapi 2", "Sapi 3"],
             onSelect: onSelect
+        )
+    }
+
+    /// Reads onboarding state once at launch; cheap single-row fetch.
+    func hasCompletedOnboarding() -> Bool {
+        (try? userProfileRepository.profile())?.isOnboarded ?? false
+    }
+
+    /// Creates the onboarding view model.
+    func makeOnboardingViewModel(
+        navigation: OnboardingNavigation
+    ) -> OnboardingViewModel {
+        OnboardingViewModel(navigation: navigation)
+    }
+
+    /// Creates the guest login sheet view model.
+    func makeGuestLoginSheetViewModel(
+        onDone: @escaping () -> Void
+    ) -> GuestLoginSheetViewModel {
+        GuestLoginSheetViewModel(
+            repository: userProfileRepository,
+            onDone: onDone
         )
     }
 

@@ -7,20 +7,14 @@ import Foundation
 import Observation
 
 /// Backing model for the profile screen.
-///
-/// Holds placeholder data: authentication and real user data are out of scope.
 @Observable
 @MainActor
 final class ProfileViewModel {
-    /// Profile currently displayed.
-    let profile: UserProfile
+    /// Name captured during onboarding.
+    private(set) var name: String
 
-    init(
-        profile: UserProfile = UserProfile(
-            name: "Jane Doe",
-            email: "jane.doe@example.com"
-        ),
-    ) {
-        self.profile = profile
+    /// Reads the stored name once; the profile screen is rebuilt per appearance.
+    init(repository: any UserProfileRepository) {
+        name = (try? repository.profile())?.name ?? "Tamu"
     }
 }

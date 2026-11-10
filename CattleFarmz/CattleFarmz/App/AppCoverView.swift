@@ -15,8 +15,8 @@ struct AppCoverView: View {
 
     var body: some View {
         switch cover {
-        case .scanLoading:
-            LoadingView()
+        case .scanLoading(let onFinished):
+            LoadingView(onFinished: onFinished)
         case .scanSession(let onFinish):
             ScanSessionView(
                 viewModel: container.makeScanSessionViewModel(onFinish: onFinish)

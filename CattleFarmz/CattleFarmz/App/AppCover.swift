@@ -11,7 +11,7 @@
 enum AppCover: Identifiable {
     /// One complete scan flow: camera, capture, then measurement.
     /// `onFinish` receives the measurement, or `nil` when the user cancelled.
-    case scanLoading(onFinish: (ScanResult?) -> Void)
+    case scanLoading(onFinished: () -> Void)
     case scanSession(onFinish: (ScanResult?) -> Void)
 
     var id: String {

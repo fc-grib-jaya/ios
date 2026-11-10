@@ -132,6 +132,21 @@ struct MainTabView: View {
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)
         }
+        .alert(
+            "LiDAR Tidak Tersedia",
+            isPresented: Binding(
+                get: { coordinator.scanErrorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        coordinator.scanErrorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button("Kembali", role: .cancel) {}
+        } message: {
+            Text(coordinator.scanErrorMessage ?? "Perangkat ini tidak mendukung pemindaian LiDAR.")
+        }
     }
 }
 

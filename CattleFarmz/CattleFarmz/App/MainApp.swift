@@ -13,7 +13,7 @@ import SwiftData
 @main
 struct MainApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var coordinator: AppCoordinator
+    @State private var coordinator = AppCoordinator()
 
     // Model types come from modules; only the App layer may know them.
     let modelContainer: ModelContainer
@@ -25,24 +25,14 @@ struct MainApp: App {
                 for: [
                     Cattle.self,
                     StoredFeedIngredient.self,
-                    FeedCatalogSeedState.self,
-                    UserProfileConfiguration.self
+                    FeedCatalogSeedState.self
                 ]
             )
-            let diContainer = DIContainer.live(modelContext: mc.mainContext)
-
             modelContainer = mc
-            container = diContainer
-            // Read the persisted onboarding state once, before any screen exists.
-            _coordinator = State(
-                initialValue: AppCoordinator(
-                    hasCompletedOnboarding: diContainer.hasCompletedOnboarding()
-                )
-            )
             container = DIContainer.live(modelContext: mc.mainContext)
             
             UISegmentedControl.appearance().selectedSegmentTintColor =
-                UIColor(AppColor.Primitive.Primary.shade500)
+            UIColor(AppColor.Primitive.Primary.shade500)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
@@ -52,10 +42,7 @@ struct MainApp: App {
         WindowGroup {
             RootView(container: container, coordinator: coordinator)
                 .modelContainer(modelContainer)
-                .task {
-                    container.haptics.prepare()
-                    container.sounds.prepare()
-                }
+                .task { container.haptics.prepare() }
         }
     }
 }

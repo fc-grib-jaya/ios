@@ -39,7 +39,7 @@ struct CattleFormView: View {
     }
     @State private var weightEntryMode: WeightEntryMode = .manual
     @State private var isShowingCamera = false
-
+    
     var body: some View {
         ZStack {
             AppColor.Surface.canvas
@@ -110,7 +110,7 @@ struct CattleFormView: View {
                         HStack(spacing: AppSpacing.md) {
                             ForEach(CattleGender.allCases, id: \.self) { gender in
                                 let isSelected = genderCattle == gender
-
+                                
                                 Button {
                                     genderCattle = gender
                                 } label: {
@@ -166,7 +166,7 @@ struct CattleFormView: View {
                         .font(AppFont.body)
                         .onChange(of: umurCattle) { _, value in
                             guard let value else { return }
-
+                            
                             if value > 99 {
                                 umurCattle = 99
                             } else if value < 0 {
@@ -202,131 +202,12 @@ struct CattleFormView: View {
                                         .foregroundStyle(AppColor.Text.primary)
                                     Text("*")
                                         .foregroundStyle(Color.red)
-                            HStack {
-                                TextField(
-                                    value: $bobotCattle,
-                                    format: .number,
-                                    prompt: Text("e.g. \"604,19\"").italic()
-                                ) {
-                                    Text("Bobot Sapi (kg)")
-                                }
-                                .keyboardType(.decimalPad)
-                                
-                                Text("kg")
-                                    .foregroundStyle(AppColor.Text.primary)
-                            }
-                            .padding(AppSpacing.xs)
-                            .background(
-                                RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.Surface.canvas)
-                            )
-                            
-                            //Capture session
-                            Button {
-                                isShowingCamera = true
-                            } label: {
-                                VStack(spacing: AppSpacing.md) {
-                                    if let gambarCattle {
-                                        Image(uiImage: gambarCattle)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .aspectRatio(1, contentMode: .fit)
-                                            .frame(maxWidth: .infinity)
-                                            .clipShape(RoundedRectangle(cornerRadius: 23))
-                                    } else {
-                                        VStack {
-                                            Image(systemName: "camera.fill")
-                                                .font(AppFont.largeTitle)
-                                            Text("Ambil foto sapi")
-                                                .italic()
-                                        }
-                                            .padding(.vertical, AppSpacing.xl)
-                                    }
-                                }
-                                .font(AppFont.body)
-                                .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
-                                .frame(maxWidth: .infinity)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.Surface.canvas)
-                                        .stroke(AppColor.Text.secondary, style: StrokeStyle(lineWidth: 1, dash: [2, 3]))
-                                )
-                            }
-                            .buttonStyle(.plain)
-                        } else {
-                            Text("Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi.")
-                                .font(AppFont.caption)
-                                .padding(.bottom, AppSpacing.sm)
-                            
-                            HStack {
-                                Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
-                                    .font(AppFont.caption)
-                                Spacer()
-                            }
-                            .padding(AppSpacing.xs)
-                            .background(
-                                RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.Surface.canvas)
-                            )
-                            
-                            if(viewModel.scanResult == nil){
-                                Button {
-                                    // Lidar
-                                    onScanSession { result in
-                                        viewModel.storeScanResult(result)
-                                        syncEstimatedWeight()
-                                        print(result)
-                                    }
-                                } label: {
-                                    VStack {
-                                        Image(systemName: "camera.on.rectangle.fill")
-                                            .font(AppFont.largeTitle)
-                                        Text("Estimasi bobot dan foto sapi")
-                                            .italic()
-                                            .lineLimit(1)
-                                    }
-                                    .font(AppFont.body)
-                                    .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
-                                    .padding(.vertical, AppSpacing.xl)
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 23)
-                                            .fill(AppColor.Surface.canvas)
-                                            .stroke(
-                                                AppColor.Text.secondary,
-                                                style: StrokeStyle(
-                                                    lineWidth: 1,
-                                                    dash: [2, 3]
-                                                )
-                                            )
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            } else if let scan = viewModel.scanResult {
-                                if let girth = scan.girth,
-                                   let weight = bobotCattle {
-                                    WeightDetailCard(
-                                        cattleImage: scan.cattleImage,
-                                        bodyWeight: weight,
-                                        chestGirth: girth,
-                                        bodyLength: scan.lengthCM,
-                                        dateAcquired: Date()
-                                    ) {
-                                        onScanSession { result in
-                                            viewModel.storeScanResult(result)
-                                            syncEstimatedWeight()
-                                            print(result)
-                                        }
-                                    }
-                                } else {
-                                    Text("Panjang badan: \(scan.lengthCM.formatted()) cm")
-                                    Text("Lingkar dada: \(scan.girth) cm")
                                 }
                                 .font(AppFont.body)
                                 
                                 HStack {
                                     TextField(
-                                        value: $bobotSapi,
+                                        value: $bobotCattle,
                                         format: .number,
                                         prompt: Text("e.g. \"604,19\"").italic()
                                     ) {
@@ -343,13 +224,13 @@ struct CattleFormView: View {
                                         .fill(AppColor.Surface.canvas)
                                 )
                                 
-                                //Camera
+                                //Capture session
                                 Button {
                                     isShowingCamera = true
                                 } label: {
                                     VStack(spacing: AppSpacing.md) {
-                                        if let gambarSapi {
-                                            Image(uiImage: gambarSapi)
+                                        if let gambarCattle {
+                                            Image(uiImage: gambarCattle)
                                                 .resizable()
                                                 .scaledToFill()
                                                 .aspectRatio(1, contentMode: .fit)
@@ -362,7 +243,7 @@ struct CattleFormView: View {
                                                 Text("Ambil foto sapi")
                                                     .italic()
                                             }
-                                                .padding(.vertical, AppSpacing.xl)
+                                            .padding(.vertical, AppSpacing.xl)
                                         }
                                     }
                                     .font(AppFont.body)
@@ -391,33 +272,60 @@ struct CattleFormView: View {
                                         .fill(AppColor.Surface.canvas)
                                 )
                                 
-                                Button {
-                                    // Lidar
-                                } label: {
-                                    VStack {
-                                        Image(systemName: "camera.on.rectangle.fill")
-                                            .font(AppFont.largeTitle)
-                                        Text("Estimasi bobot dan foto sapi")
-                                            .italic()
-                                            .lineLimit(1)
-                                    }
-                                    .font(AppFont.body)
-                                    .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
-                                    .padding(.vertical, AppSpacing.xl)
-                                    .frame(maxWidth: .infinity)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 23)
-                                            .fill(AppColor.Surface.canvas)
-                                            .stroke(
-                                                AppColor.Text.secondary,
-                                                style: StrokeStyle(
-                                                    lineWidth: 1,
-                                                    dash: [2, 3]
+                                if (viewModel.scanResult == nil){
+                                    Button {
+                                        // Lidar
+                                        onScanSession { result in
+                                            viewModel.storeScanResult(result)
+                                            syncEstimatedWeight()
+                                            print(result)
+                                        }
+                                    } label: {
+                                        VStack {
+                                            Image(systemName: "camera.on.rectangle.fill")
+                                                .font(AppFont.largeTitle)
+                                            Text("Estimasi bobot dan foto sapi")
+                                                .italic()
+                                                .lineLimit(1)
+                                        }
+                                        .font(AppFont.body)
+                                        .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
+                                        .padding(.vertical, AppSpacing.xl)
+                                        .frame(maxWidth: .infinity)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 23)
+                                                .fill(AppColor.Surface.canvas)
+                                                .stroke(
+                                                    AppColor.Text.secondary,
+                                                    style: StrokeStyle(
+                                                        lineWidth: 1,
+                                                        dash: [2, 3]
+                                                    )
                                                 )
-                                            )
-                                    )
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                } else if let scan = viewModel.scanResult {
+                                    if let girth = scan.girth,
+                                       let weight = bobotCattle {
+                                        WeightDetailCard(
+                                            cattleImage: scan.cattleImage,
+                                            bodyWeight: weight,
+                                            chestGirth: girth,
+                                            bodyLength: scan.lengthCM,
+                                            dateAcquired: Date()
+                                        ) {
+                                            onScanSession { result in
+                                                viewModel.storeScanResult(result)
+                                                syncEstimatedWeight()
+                                                print(result)
+                                            }
+                                        }
+                                    } else {
+                                        Text("Panjang badan: \(scan.lengthCM.formatted()) cm")
+                                        Text("Lingkar dada: \(scan.girth) cm")
+                                    }
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
@@ -439,13 +347,13 @@ struct CattleFormView: View {
                         ) {
                             Text("Catatan")
                         }
-                            .font(AppFont.body)
-                            .autocorrectionDisabled()
-                            .padding(AppSpacing.md)
-                            .background(
-                                RoundedRectangle(cornerRadius: 23)
-                                    .fill(AppColor.Surface.canvas)
-                            )
+                        .font(AppFont.body)
+                        .autocorrectionDisabled()
+                        .padding(AppSpacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: 23)
+                                .fill(AppColor.Surface.canvas)
+                        )
                     }
                     .padding(.bottom, AppSpacing.lg)
                     
@@ -454,9 +362,9 @@ struct CattleFormView: View {
                               let gender = genderCattle else {
                             return
                         }
-
+                        
                         guard let umurCattle else { return }
-
+                        
                         Task {
                             do {
                                 try await onSave(namaCattle, .now, breed, gender, umurCattle, bobotCattle, gambarCattle, catatan)
@@ -475,12 +383,12 @@ struct CattleFormView: View {
             }
         }
         .fullScreenCover(isPresented: $isShowingCamera) {
-                    CameraPicker(
-                        image: $gambarCattle,
-                        isPresented: $isShowingCamera
-                    )
-                    .ignoresSafeArea()
-                }
+            CameraPicker(
+                image: $gambarCattle,
+                isPresented: $isShowingCamera
+            )
+            .ignoresSafeArea()
+        }
         .navigationTitle("Tambah Sapi")
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: jenisCattle) { _, _ in
@@ -490,7 +398,8 @@ struct CattleFormView: View {
             syncEstimatedWeight()
         }
     }
-
+    
+    
     /// Fills `bobotCattle` from the stored scan once breed and gender are both
     /// selected; recalculated whenever either field changes.
     private func syncEstimatedWeight() {

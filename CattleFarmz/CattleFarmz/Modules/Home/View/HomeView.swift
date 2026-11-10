@@ -53,7 +53,7 @@ struct HomeView: View {
                     .font(AppFont.body)
                     .padding(.horizontal, AppSpacing.md)
 
-                AppButton("Show toast", variant: .secondary, action: onToastTap)
+                AppButtons("Show toast", variant: .secondary, action: onToastTap)
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.xs)
 

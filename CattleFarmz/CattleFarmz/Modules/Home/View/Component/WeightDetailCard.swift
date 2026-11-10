@@ -13,6 +13,7 @@ struct WeightDetailCard: View {
     var chestGirth: Double
     var bodyLength: Double
     var dateAcquired: Date
+    var action: () -> Void
     
     var formattedDateAcquired: String {
         let formatter = DateFormatter()
@@ -20,7 +21,6 @@ struct WeightDetailCard: View {
         formatter.timeZone = TimeZone(identifier: "Asia/Jakarta")
         formatter.dateFormat = "d MMMM yyyy, HH.mm"
         
-        // Menggabungkan hasil format dengan teks "WIB"
         return "\(formatter.string(from: dateAcquired)) WIB"
     }
     
@@ -35,16 +35,27 @@ struct WeightDetailCard: View {
             VStack (spacing: AppSpacing.md){
                 VStack (alignment: .leading, spacing: 8){
                     Text("Estimasi Bobot")
-                        .font(AppFont.caption)
-                        .foregroundStyle(AppColor.Text.primary)
+                        .font(AppFont.mediumBody)
+                        .foregroundStyle(AppColor.Primitive.Neutral.shade950)
                     
                     Text("\(bodyWeight.formatted(.number.precision(.fractionLength(1)))) kg")
                         .font(AppFont.largeTitle)
-                        .foregroundStyle(AppColor.Text.primary)
+                        .foregroundStyle(AppColor.Primitive.Secondary.shade900)
                 }
                 .padding(AppSpacing.md)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(AppColor.Primitive.Secondary.shade600)
+                .background(AppColor.Primitive.Secondary.shade50)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                                .stroke(
+                                    LinearGradient(
+                                        gradient: Gradient(colors: [AppColor.Primitive.Secondary.shade500, AppColor.Primitive.Secondary.shade50]),
+                                        startPoint: .topTrailing,
+                                        endPoint: .bottomLeading
+                                    ),
+                                    lineWidth: 2
+                                )
+                )
                 .cornerRadius(18)
                 
                 VStack (spacing: AppSpacing.xs){
@@ -75,7 +86,7 @@ struct WeightDetailCard: View {
                         .foregroundStyle(AppColor.Primitive.Neutral.shade400)
                     
                     Button {
-                        
+                        action()
                     } label: {
                         Text("Ambil Ulang")
                             .font(AppFont.body)
@@ -110,7 +121,8 @@ struct WeightDetailCard: View {
             bodyWeight: 573.4,
             chestGirth: 174,
             bodyLength: 200,
-            dateAcquired: Date()
+            dateAcquired: Date(),
+            action: {}
         )
     }
 }

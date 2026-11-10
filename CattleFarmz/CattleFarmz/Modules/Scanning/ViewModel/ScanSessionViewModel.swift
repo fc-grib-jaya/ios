@@ -5,6 +5,7 @@
 
 import Foundation
 import Observation
+import SwiftUI
 
 /// Drives one full-screen scan session: camera first, then measurement.
 ///
@@ -45,10 +46,17 @@ final class ScanSessionViewModel {
             onFinish(nil)
             return
         }
+        
+        guard let profile = measurement?.result?.profile else {
+            onFinish(nil)
+            return
+        }
         onFinish(
             ScanResult(
                 lengthCM: result.lengthCM,
-                girth: result.girth
+//                girth: result.girth,
+                girth: profile.lengthCM,
+                cattleImage: UIImage(cgImage: measurement!.capture.image)
             )
         )
     }

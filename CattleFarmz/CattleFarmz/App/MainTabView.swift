@@ -36,7 +36,7 @@ struct MainTabView: View {
                     },
                     onScanTap: {
                         coordinator.showScanSession(onFinish: { scanResult in
-                            print(scanResult?.girth?.centimeters)
+                            print(scanResult?.girth)
                         })
                     },
                     onCardTap: { cattleID in

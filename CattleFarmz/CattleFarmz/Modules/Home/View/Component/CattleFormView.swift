@@ -38,6 +38,7 @@ struct CattleFormView: View {
         case camera
     }
     @State private var weightEntryMode: WeightEntryMode = .manual
+    @State private var isShowingCamera = false
 
     var body: some View {
         ZStack {
@@ -222,13 +223,9 @@ struct CattleFormView: View {
                                     .fill(AppColor.Surface.canvas)
                             )
                             
-                            //Scan session
+                            //Capture session
                             Button {
-                                onScanSession { result in
-                                    print(result)
-                                    viewModel.storeScanResult(result)
-                                    syncEstimatedWeight()
-                                }
+                                isShowingCamera = true
                             } label: {
                                 VStack(spacing: AppSpacing.md) {
                                     if let gambarCattle {
@@ -274,47 +271,60 @@ struct CattleFormView: View {
                                     .fill(AppColor.Surface.canvas)
                             )
                             
-                            Button {
-                                // Lidar
-                                onScanSession { result in
-                                    viewModel.storeScanResult(result)
-                                    syncEstimatedWeight()
-                                    print(result)
-                                }
-                            } label: {
-                                VStack {
-                                    Image(systemName: "camera.on.rectangle.fill")
-                                        .font(AppFont.largeTitle)
-                                    Text("Estimasi bobot dan foto sapi")
-                                        .italic()
-                                        .lineLimit(1)
-                                }
-                                .font(AppFont.body)
-                                .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
-                                .padding(.vertical, AppSpacing.xl)
-                                .frame(maxWidth: .infinity)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 23)
-                                        .fill(AppColor.Surface.canvas)
-                                        .stroke(
-                                            AppColor.Text.secondary,
-                                            style: StrokeStyle(
-                                                lineWidth: 1,
-                                                dash: [2, 3]
+                            if(viewModel.scanResult == nil){
+                                Button {
+                                    // Lidar
+                                    onScanSession { result in
+                                        viewModel.storeScanResult(result)
+                                        syncEstimatedWeight()
+                                        print(result)
+                                    }
+                                } label: {
+                                    VStack {
+                                        Image(systemName: "camera.on.rectangle.fill")
+                                            .font(AppFont.largeTitle)
+                                        Text("Estimasi bobot dan foto sapi")
+                                            .italic()
+                                            .lineLimit(1)
+                                    }
+                                    .font(AppFont.body)
+                                    .foregroundStyle(AppColor.Text.secondary.opacity(0.5))
+                                    .padding(.vertical, AppSpacing.xl)
+                                    .frame(maxWidth: .infinity)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 23)
+                                            .fill(AppColor.Surface.canvas)
+                                            .stroke(
+                                                AppColor.Text.secondary,
+                                                style: StrokeStyle(
+                                                    lineWidth: 1,
+                                                    dash: [2, 3]
+                                                )
                                             )
-                                        )
-                                )
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            } else if let scan = viewModel.scanResult {
+                                if let girth = scan.girth,
+                                   let weight = bobotCattle {
+                                    WeightDetailCard(
+                                        cattleImage: scan.cattleImage,
+                                        bodyWeight: weight,
+                                        chestGirth: girth,
+                                        bodyLength: scan.lengthCM,
+                                        dateAcquired: Date()
+                                    ) {
+                                        onScanSession { result in
+                                            viewModel.storeScanResult(result)
+                                            syncEstimatedWeight()
+                                            print(result)
+                                        }
+                                    }
+                                } else {
+                                    Text("Panjang badan: \(scan.lengthCM.formatted()) cm")
+                                    Text("Lingkar dada: \(scan.girth) cm")
+                                }
                             }
-                            .buttonStyle(.plain)
-                            
-                            WeightDetailCard(
-                                cattleImage: UIImage(named: "CattlePlaceholder")!,
-                                bodyWeight: 573.4,
-                                chestGirth: 174,
-                                bodyLength: 200,
-                                dateAcquired: Date()
-                            )
-
                         }
                         
                     }
@@ -381,6 +391,13 @@ struct CattleFormView: View {
                 .padding()
             }
         }
+        .fullScreenCover(isPresented: $isShowingCamera) {
+                    CameraPicker(
+                        image: $gambarCattle,
+                        isPresented: $isShowingCamera
+                    )
+                    .ignoresSafeArea()
+                }
         .navigationTitle("Tambah Sapi")
         .navigationBarTitleDisplayMode(.inline)
         .onChange(of: jenisCattle) { _, _ in

@@ -21,9 +21,22 @@
 		92B84B6B309AE93600A09384 /* CattleFarmzTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CattleFarmzTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		2599EFC630A34FB3005F5F76 /* Exceptions for "CattleFarmz" folder in "CattleFarmz" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 3D9EF80A3097104800923953 /* CattleFarmz */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3D9EF80D3097104800923953 /* CattleFarmz */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2599EFC630A34FB3005F5F76 /* Exceptions for "CattleFarmz" folder in "CattleFarmz" target */,
+			);
 			path = CattleFarmz;
 			sourceTree = "<group>";
 		};
@@ -326,7 +339,9 @@
 				DEVELOPMENT_TEAM = 79796NA26H;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CattleFarmz/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Lemboo;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "CattleFarmz membutuhkan akses kamera untuk mengambil foto sapi.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -364,7 +379,9 @@
 				DEVELOPMENT_TEAM = 79796NA26H;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CattleFarmz/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Lemboo;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_NSCameraUsageDescription = "CattleFarmz membutuhkan akses kamera untuk mengambil foto sapi.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

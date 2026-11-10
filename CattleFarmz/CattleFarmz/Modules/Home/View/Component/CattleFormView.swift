@@ -260,7 +260,6 @@ struct CattleFormView: View {
                                 
                                 if (viewModel.scanResult == nil){
                                     Button {
-                                        // Lidar
                                         onScanSession { result in
                                             viewModel.storeScanResult(result)
                                             syncEstimatedWeight()
@@ -420,6 +419,7 @@ struct CattleFormView: View {
                 }
                 .padding(AppSpacing.md)
             }
+
         }
         .fullScreenCover(isPresented: $isShowingCamera) {
             CameraPicker(

@@ -128,12 +128,12 @@ struct SplashView: View {
         try? await Task.sleep(for: .milliseconds(600))
         guard !Task.isCancelled else { return }
         
-        withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
+        withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
             stage = 2
             isStanding = true
         }
         
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(200))
         guard !Task.isCancelled else { return }
         
         withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
@@ -144,20 +144,20 @@ struct SplashView: View {
         try? await Task.sleep(for: .milliseconds(400))
         guard !Task.isCancelled else { return }
 
-        for _ in 0..<2 {
-            withAnimation(.spring(response: 2, dampingFraction: 0.55)) {
-                loadingRotation += 390
-            }
-
-            try? await Task.sleep(for: .milliseconds(1100))
-            guard !Task.isCancelled else { return }
-
-            try? await Task.sleep(for: .milliseconds(300))
-            guard !Task.isCancelled else { return }
-        }
+//        for _ in 0..<1 {
+//            withAnimation(.spring(response: 2, dampingFraction: 0.55)) {
+//                loadingRotation += 390
+//            }
+//
+//            try? await Task.sleep(for: .milliseconds(1100))
+//            guard !Task.isCancelled else { return }
+//
+//            try? await Task.sleep(for: .milliseconds(300))
+//            guard !Task.isCancelled else { return }
+//        }
         
         withAnimation(.spring(response: 1.2, dampingFraction: 0.6)) {
-            loadingRotation += 165
+            loadingRotation += 225
         }
         
         try? await Task.sleep(for: .milliseconds(1500))

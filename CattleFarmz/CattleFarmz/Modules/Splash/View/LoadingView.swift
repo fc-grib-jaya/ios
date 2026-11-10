@@ -29,22 +29,22 @@ struct LoadingView: View {
             ZStack {
                 if stage >= 1 {
                     ZStack {
-                        circleDot
+                        circleDot()
                             .offset(
                                 x: isConverged
                                     ? 0
                                     : (showTwoDots ? -AppSpacing.lg : 0)
                             )
 
-                        circleDot
+                        circleDot()
                             .scaleEffect(showTwoDots ? 1 : 0)
                             .offset(x: isConverged ? 0 : AppSpacing.lg)
                         
-                        circleDot
+                        circleDot()
                             .scaleEffect(showTwoDots ? 1 : 0)
                             .offset(x:0,y: isConverged ? 0 : -AppSpacing.lg)
 
-                        circleDot
+                        circleDot()
                             .scaleEffect(showTwoDots ? 1 : 0)
                             .offset(x:0,y: isConverged ? 0 : AppSpacing.lg)
                     }
@@ -55,12 +55,20 @@ struct LoadingView: View {
             .opacity(isHidden ? 0 : 1)
         }
         .task {
-            await runAnimation()
+            while !Task.isCancelled {
+                await runAnimation()
+            }
         }
     }
 
     private func runAnimation() async {
-        
+        stage = 0
+        showTwoDots = false
+        formationRotation = 0
+        loadingRotation = 0
+        isConverged = false
+        isHidden = false
+
         try? await Task.sleep(for: .milliseconds(300))
         guard !Task.isCancelled else { return }
 //        withAnimation(.easeIn(duration: 0.35)) {
@@ -119,12 +127,6 @@ struct LoadingView: View {
         guard !Task.isCancelled else { return }
 
         onFinished()
-    }
-
-    private var circleDot: some View {
-        Circle()
-            .fill(AppColor.Primitive.Primary.shade500)
-            .frame(width: 20, height: 20)
     }
 }
 

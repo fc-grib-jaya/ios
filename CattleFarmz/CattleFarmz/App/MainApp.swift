@@ -13,7 +13,7 @@ import SwiftData
 @main
 struct MainApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var coordinator = AppCoordinator()
+    @State private var coordinator: AppCoordinator
 
     // Model types come from modules; only the App layer may know them.
     let modelContainer: ModelContainer
@@ -25,11 +25,22 @@ struct MainApp: App {
                 for: [
                     Cattle.self,
                     StoredFeedIngredient.self,
-                    FeedCatalogSeedState.self
+                    FeedCatalogSeedState.self,
+                    UserProfileConfiguration.self
                 ]
             )
             modelContainer = mc
             container = DIContainer.live(modelContext: mc.mainContext)
+
+            let hasCompletedOnboarding =
+                (try? mc.mainContext.fetch(
+                    FetchDescriptor<UserProfileConfiguration>()
+                ).first?.isOnboarded) ?? false
+            _coordinator = State(
+                initialValue: AppCoordinator(
+                    hasCompletedOnboarding: hasCompletedOnboarding
+                )
+            )
             
             UISegmentedControl.appearance().selectedSegmentTintColor =
             UIColor(AppColor.Primitive.Primary.shade500)

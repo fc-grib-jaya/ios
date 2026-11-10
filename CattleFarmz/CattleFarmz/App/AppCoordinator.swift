@@ -108,6 +108,7 @@ final class AppCoordinator {
         guard cover == nil, !isPreparingScanSession else { return }
         isPreparingScanSession = true
         coverEpoch &+= 1
+        cover = .scanLoading(onFinish: onFinish)
 
         // Rotate first, then present only after the window reports landscape
         // geometry. Presenting during the rotation builds the cover in

@@ -25,6 +25,10 @@ final class WeightCalculator: WeightCalculation {
         return (pow(chestGirth,2)*bodyLength)/11900
     }
     
+    func weightDjagra(chestGirth: Double, bodyLength: Double) -> Double {
+        return (pow(chestGirth,2)*bodyLength)/11045
+    }
+    
     func cattleWeight(
         chestGirth: Double,
         bodyLength: Double?,
@@ -67,6 +71,13 @@ final class WeightCalculator: WeightCalculation {
         case .lambourne:
             guard let bodyLength else { return nil }
             weight = weightLambourne(
+                chestGirth: chestGirth,
+                bodyLength: bodyLength
+            )
+        
+        case .djagra:
+            guard let bodyLength else { return nil }
+            weight = weightDjagra(
                 chestGirth: chestGirth,
                 bodyLength: bodyLength
             )

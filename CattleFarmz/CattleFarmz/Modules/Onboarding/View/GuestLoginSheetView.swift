@@ -45,9 +45,10 @@ struct GuestLoginSheetView: View {
 
                 Spacer(minLength: 0)
 
-                OnboardingActionButton("Login sebagai tamu") {
+                Button("Login sebagai tamu"){
                     viewModel.submit()
                 }
+                .appButtonStyle(.primary)
             }
             .padding(AppSpacing.md)
             .navigationTitle(viewModel.title)

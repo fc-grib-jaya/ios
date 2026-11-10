@@ -1,12 +1,12 @@
 //
-//  AppButton.swift
+//  ButtonTokenGallery.swift
 //  CattleFarmz
 //
 
 import SwiftUI
 
 /// A solid button using the design system's color and spacing tokens.
-struct AppButtons: View {
+private struct ButtonTokenSample: View {
     enum Variant {
         case primary
         case secondary
@@ -42,12 +42,12 @@ struct AppButtons: View {
 
     var body: some View {
         Button(title, action: action)
-            .buttonStyle(AppButtonStyles(variant: variant))
+            .buttonStyle(ButtonTokenSampleStyle(variant: variant))
     }
 }
 
-private struct AppButtonStyles: ButtonStyle {
-    let variant: AppButtons.Variant
+private struct ButtonTokenSampleStyle: ButtonStyle {
+    let variant: ButtonTokenSample.Variant
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -65,7 +65,7 @@ private struct AppButtonStyles: ButtonStyle {
 }
 
 /// Interactive token gallery for the Xcode canvas.
-private struct AppButtonTokenPreview: View {
+private struct ButtonTokenGallery: View {
     @State private var tapCount = 0
 
     private let spacingScale: [(name: String, value: CGFloat)] = [
@@ -135,11 +135,11 @@ private struct AppButtonTokenPreview: View {
 
     @ViewBuilder
     private var buttons: some View {
-        AppButtons("Primary") { tapCount += 1 }
-        AppButtons("Secondary", variant: .secondary) { tapCount += 1 }
+        ButtonTokenSample("Primary") { tapCount += 1 }
+        ButtonTokenSample("Secondary", variant: .secondary) { tapCount += 1 }
     }
 
-    private func pressedSample(_ title: String, variant: AppButtons.Variant) -> some View {
+    private func pressedSample(_ title: String, variant: ButtonTokenSample.Variant) -> some View {
         Text(title)
             .font(AppFont.headline)
             .padding(.horizontal, AppSpacing.Button.horizontal)
@@ -150,11 +150,11 @@ private struct AppButtonTokenPreview: View {
 }
 
 #Preview("Button Tokens · Light") {
-    AppButtonTokenPreview()
+    ButtonTokenGallery()
         .preferredColorScheme(.light)
 }
 
 #Preview("Button Tokens · Dark") {
-    AppButtonTokenPreview()
+    ButtonTokenGallery()
         .preferredColorScheme(.dark)
 }

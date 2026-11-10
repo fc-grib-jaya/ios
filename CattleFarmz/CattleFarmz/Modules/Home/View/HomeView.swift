@@ -124,28 +124,8 @@ struct HomeView: View {
                                     }
                                 }
 
-                                Button {
-                                    cattlesViewModel.selectSort(.age)
-                                } label: {
-                                    if cattlesViewModel.sortOption == .age {
-                                        Label("Umur", systemImage: "checkmark")
-                                    } else {
-                                        Text("Umur")
-                                    }
-                                }
-                            }
-                        } label: {
-                            HStack(spacing: AppSpacing.xxxs) {
-                                Text("Sort")
-                                Image(systemName: "arrow.up.arrow.down")
-                            }
-                            .font(AppFont.body)
-                            .foregroundStyle(
-                                AppColor.Primitive.Primary.shade500
-                            )
-                        }
-                        .accessibilityLabel("Urutkan")
-                    }
+                Button("Show toast", action: onToastTap)
+                    .appButtonStyle(.secondary)
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.bottom, AppSpacing.sm)
 

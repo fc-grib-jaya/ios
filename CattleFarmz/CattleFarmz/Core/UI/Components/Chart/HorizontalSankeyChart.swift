@@ -286,7 +286,7 @@ public struct HorizontalSankeyChart: View {
             max(containerSize.height, comfortableHeight)
         )
 
-        var effectiveMinimum = height >= comfortableHeight
+        let effectiveMinimum = height >= comfortableHeight
             ? minimumLeafThickness
             : max(
                 1,

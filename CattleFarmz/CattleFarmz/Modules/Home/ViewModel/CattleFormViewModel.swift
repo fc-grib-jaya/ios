@@ -29,7 +29,7 @@ final class CattleFormViewModel {
     /// breed, or gender is still missing.
     func estimatedWeight(breed: CattleBreed?, gender: CattleGender?) -> Double? {
         guard let scanResult,
-              let girth = scanResult.girth?.centimeters,
+              let girth = scanResult.girth,
               let breed,
               let gender else {
             return nil

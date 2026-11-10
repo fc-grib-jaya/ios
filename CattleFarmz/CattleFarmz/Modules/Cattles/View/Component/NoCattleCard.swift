@@ -28,7 +28,7 @@ struct NoCattleCard: View {
         }
         .padding(AppSpacing.md)
         .frame(maxWidth: .infinity)
-        .background(AppColor.Primitive.Primary.shade500)
+//        .background(AppColor.Primitive.Primary.shade500)
         .cornerRadius(16)
         .shadow(radius: 10, x: 0, y: 2)
     }

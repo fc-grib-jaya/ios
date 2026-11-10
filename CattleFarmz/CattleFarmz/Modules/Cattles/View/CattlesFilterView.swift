@@ -58,7 +58,7 @@ struct CattlesFilterView: View {
                     } label: {
                         Text("Terapkan Filter")
                     }
-                    .AppButtonStyle(.primary)
+                    .appButtonStyle(.primary)
                     
                     Button {
                         selectedBreed.removeAll()
@@ -67,7 +67,7 @@ struct CattlesFilterView: View {
                     } label: {
                         Text("Bersihkan Seluruhnya")
                     }
-                    .AppButtonStyle(.text)
+                    .appButtonStyle(.text)
                 }
             }
             .padding(AppSpacing.md)

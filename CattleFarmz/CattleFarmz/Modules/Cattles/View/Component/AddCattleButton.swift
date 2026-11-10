@@ -16,7 +16,7 @@ struct AddCattleButton: View {
         } label: {
             Text("+ Tambah Sapi")
         }
-        .AppButtonStyle(.primary)
+        .appButtonStyle(.primary)
         .padding(.horizontal, AppSpacing.md)
     }
 }

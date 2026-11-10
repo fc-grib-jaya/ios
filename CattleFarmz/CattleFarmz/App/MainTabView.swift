@@ -27,6 +27,7 @@ struct MainTabView: View {
                 HomeView(
                     viewModel: container.makeHomeViewModel(),
                     cattlesViewModel: cattlesViewModel,
+                    farmerName: container.farmerName(),
                     onProfileTap: { coordinator.showProfile() },
                     onExamplePickerTap: {
                         coordinator.showExamplePickerSheet(
@@ -59,28 +60,31 @@ struct MainTabView: View {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
                     case .cattleDetail(let id):
+                        // Shares the list instance: editing from the detail
+                        // screen mutates the same data the home list shows.
                         CattlesDetailView(
                             cattleID: id,
-                            viewModel: container.makeCattlesViewModel()
+                            viewModel: cattlesViewModel,
+                            onEditTap: coordinator.showEditCattleSheet,
                         )
-                    //                    case .addCattle:
-                    //                        CattleFormView(
-                    //                            onScanSession: { onFinish in
-                    //                                coordinator.showScanSession(onFinish: onFinish)
-                    //                            },
-                    //                            viewModel: container.makeCattleFormViewModel()
-                    //                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
-                    //                            try cattlesViewModel.addCattle(
-                    //                                name: name,
-                    //                                dateAcquired: date,
-                    //                                breed: breed,
-                    //                                gender: gender,
-                    //                                recordedAge: recordedAge,
-                    //                                bodyWeight: bodyWeight,
-                    //                                cattleImage: cattleImage,
-                    //                                notes: notes
-                    //                            )
-                    //                        }
+                    case .addCattle:
+                        CattleFormView(
+                            onScanSession: { onFinish in
+                                coordinator.showScanSession(onFinish: onFinish)
+                            },
+                            viewModel: container.makeCattleFormViewModel()
+                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                            try cattlesViewModel.addCattle(
+                                name: name,
+                                dateAcquired: date,
+                                breed: breed,
+                                gender: gender,
+                                recordedAge: recordedAge,
+                                bodyWeight: bodyWeight,
+                                cattleImage: cattleImage,
+                                notes: notes
+                            )
+                        }
                     default: EmptyView()
                     }
                 }
@@ -107,7 +111,23 @@ struct MainTabView: View {
         }
         .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
-            AppSheetView(sheet: sheet, container: container)
+            switch sheet {
+            case .examplePickerSheet(let current, let onSelect):
+                ExamplePickerSheetView(
+                    viewModel: container.makeExamplePickerSheetViewModel(
+                        current: current,
+                        onSelect: onSelect
+                    )
+                )
+            case .editCattle(let cattle, let onSave):
+                NavigationStack {
+                    CattlesEditForm(cattle: cattle, onSave: onSave)
+                }
+            case .guestLoginSheet(let onDone):
+                GuestLoginSheetView(
+                    viewModel: container.makeGuestLoginSheetViewModel(onDone: onDone)
+                )
+            }
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)

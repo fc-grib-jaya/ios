@@ -42,7 +42,7 @@ struct CattleFormView: View {
     
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
+            AppColor.Primitive.Base.white
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
@@ -123,21 +123,21 @@ struct CattleFormView: View {
                                     }
                                     .font(AppFont.body)
                                     .foregroundStyle(
-                                        isSelected ? AppColor.Button.Primary.background : AppColor.Button.Secondary.foreground
+                                        AppColor.Button.Primary.background
                                     )
                                     .frame(maxWidth: .infinity)
-                                    .padding(AppSpacing.xs)
+                                    .padding(AppSpacing.sm)
                                     .background(
                                         RoundedRectangle(cornerRadius: 30)
                                             .fill(
-                                                isSelected ? AppColor.Card.background
+                                                isSelected ? AppColor.Button.Primary.background
                                                     .opacity(
                                                         0.2
                                                     ) : AppColor.Surface.canvas
                                             )
                                             .stroke(
-                                                isSelected ? AppColor.Border.focus : AppColor.Border.subtle
-                                                    .opacity(0.2)
+                                                isSelected ? AppColor.Border.subtle
+                                                    .opacity(0.2) : AppColor.Border.focus.opacity(0.2)
                                             )
                                     )
                                 }
@@ -333,7 +333,7 @@ struct CattleFormView: View {
                     .padding(AppSpacing.md)
                     .background(
                         RoundedRectangle(cornerRadius: 23)
-                            .fill(AppColor.Surface.canvas.opacity(0.5))
+                            .fill(AppColor.Input.background.opacity(0.8))
                     )
                     
                     VStack (alignment: .leading){
@@ -379,7 +379,7 @@ struct CattleFormView: View {
                     .AppButtonStyle(.primary)
                     .disabled(isSaveDisabled)
                 }
-                .padding()
+                .padding(AppSpacing.md)
             }
         }
         .fullScreenCover(isPresented: $isShowingCamera) {
@@ -406,6 +406,32 @@ struct CattleFormView: View {
         bobotCattle = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
     }
     
+    private func weightModeButton(
+        _ title: String,
+        mode: WeightEntryMode
+    ) -> some View {
+        let isSelected = weightEntryMode == mode
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                weightEntryMode = mode
+            }
+        } label: {
+            Text(title)
+                .font(AppFont.body)
+                .foregroundStyle(isSelected ? AppColor.Button.Primary.foreground : AppColor.Button.Primary.background)
+                .padding(.vertical, AppSpacing.xs)
+                .frame(maxWidth: .infinity)
+                .glassEffect(
+                    .regular
+                        .tint(
+                            isSelected ? AppColor.Primitive.Primary.shade400 : AppColor.Primitive.Neutral.shade300
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+    }
+    
     private var isSaveDisabled: Bool {
         namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         || jenisCattle == nil
@@ -415,11 +441,11 @@ struct CattleFormView: View {
     }
 }
 
-//#Preview {
-//    NavigationStack {
-//        CattleFormView(
-//            onScanSession: { _ in },
-//            viewModel: CattleFormViewModel(calculation: WeightCalculator())
-//        ) { _, _, _, _, _, _, _, _ in }
-//    }
-//}
+#Preview {
+    NavigationStack {
+        CattleFormView(
+            onScanSession: { _ in },
+            viewModel: CattleFormViewModel(calculation: WeightCalculator())
+        ) { _, _, _, _, _, _, _, _ in }
+    }
+}

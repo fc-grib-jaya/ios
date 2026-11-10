@@ -7,14 +7,11 @@
 
 import SwiftUI
 
-// f/23 ya
 struct NoCattleCard: View {
-    let onAddTap: () -> Void
-    
     var body: some View {
         VStack {
             Image(.cattle)
-                .padding(.bottom, AppSpacing.lg)
+                .padding(.vertical, AppSpacing.lg)
             
             VStack (spacing: AppSpacing.sm){
                 Text("Belum ada sapi")
@@ -23,17 +20,15 @@ struct NoCattleCard: View {
                     .font(AppFont.body)
             }
             .padding(.bottom, AppSpacing.md)
-            
-            AddCattleButton(onTap: onAddTap)
         }
         .padding(AppSpacing.md)
         .frame(maxWidth: .infinity)
-        .background(AppColor.Primitive.Primary.shade500)
+        .background(AppColor.Surface.canvas)
         .cornerRadius(16)
-        .shadow(radius: 10, x: 0, y: 2)
+        .shadow(radius: 5, x: 0, y: 2)
     }
 }
 
 #Preview {
-    NoCattleCard(onAddTap: {})
+    NoCattleCard()
 }

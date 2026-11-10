@@ -15,8 +15,13 @@ struct AddCattleButton: View {
             onTap()
         } label: {
             Text("+ Tambah Sapi")
+                .font(AppFont.body)
+                .foregroundStyle(AppColor.Button.Primary.foreground)
+                .padding(.vertical, AppSpacing.xs)
+                .frame(maxWidth: .infinity)
+                .glassEffect(.regular.tint(AppColor.Primitive.Primary.shade500))
         }
-        .AppButtonStyle(.primary)
+//        .AppButtonStyle(.primary)
         .padding(.horizontal, AppSpacing.md)
     }
 }

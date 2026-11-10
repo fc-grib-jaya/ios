@@ -191,7 +191,7 @@ final class MeasurementViewModel {
     }
 }
 
-#if DEBUG
+//#if DEBUG
 extension MeasurementViewModel {
     /// Builds a view model driven by the synthetic capture, advanced through
     /// the real flow so previews show each stage without a camera.
@@ -221,4 +221,4 @@ extension MeasurementViewModel {
         return model
     }
 }
-#endif
+//#endif

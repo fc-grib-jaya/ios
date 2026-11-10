@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// Measurements returned by a finished LiDAR scan session.
 ///
@@ -13,5 +14,9 @@ struct ScanResult: Sendable {
     /// Body length between the shoulder and pin landmarks, in centimeters.
     let lengthCM: Double
     /// Chest girth estimate, present when the depth fit succeeded.
-    let girth: GirthEstimate?
+//    let girth: GirthEstimate?
+    ///
+    let girth: Double?
+    /// Cattle image that captured when scanning using LiDAR
+    let cattleImage: UIImage
 }

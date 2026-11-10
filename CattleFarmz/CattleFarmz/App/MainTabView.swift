@@ -12,10 +12,13 @@ struct MainTabView: View {
     @State private var cattlesViewModel: CattlesViewModel
 
     init(container: DIContainer, coordinator: AppCoordinator) {
+        print("Homeview init")
         self.container = container
         _coordinator = Bindable(wrappedValue: coordinator)
         // One shared instance so the home list and the add-cattle form stay in sync.
-        _cattlesViewModel = State(initialValue: container.makeCattlesViewModel())
+        _cattlesViewModel = State(
+            initialValue: container.makeCattlesViewModel()
+        )
     }
 
     var body: some View {
@@ -36,13 +39,20 @@ struct MainTabView: View {
                     },
                     onScanTap: {
                         coordinator.showScanSession(onFinish: { scanResult in
-                            print(scanResult?.girth?.centimeters)
+                            print(scanResult?.girth)
                         })
                     },
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
-                    onAddCattleTap: { coordinator.showAddCattle() }
+                    onAddCattleTap: {
+                       print("on add cattle tap")
+                        coordinator.showAddCattle() },
+                    onToastTap: {
+                        container.toastManager.show(
+                            "Your changes have been saved"
+                        )
+                    }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -56,31 +66,32 @@ struct MainTabView: View {
                             viewModel: cattlesViewModel,
                             onEditTap: coordinator.showEditCattleSheet,
                         )
-                    case .addCattle:
-                        CattleFormView(
-                            onScanSession: { onFinish in
-                                coordinator.showScanSession(onFinish: onFinish)
-                            },
-                            viewModel: container.makeCattleFormViewModel()
-                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
-                            try cattlesViewModel.addCattle(
-                                name: name,
-                                dateAcquired: date,
-                                breed: breed,
-                                gender: gender,
-                                recordedAge: recordedAge,
-                                bodyWeight: bodyWeight,
-                                cattleImage: cattleImage,
-                                notes: notes
-                            )
-                        }
+                    //                    case .addCattle:
+                    //                        CattleFormView(
+                    //                            onScanSession: { onFinish in
+                    //                                coordinator.showScanSession(onFinish: onFinish)
+                    //                            },
+                    //                            viewModel: container.makeCattleFormViewModel()
+                    //                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                    //                            try cattlesViewModel.addCattle(
+                    //                                name: name,
+                    //                                dateAcquired: date,
+                    //                                breed: breed,
+                    //                                gender: gender,
+                    //                                recordedAge: recordedAge,
+                    //                                bodyWeight: bodyWeight,
+                    //                                cattleImage: cattleImage,
+                    //                                notes: notes
+                    //                            )
+                    //                        }
+                    default: EmptyView()
                     }
                 }
             }
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-            
+
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
@@ -91,12 +102,13 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-            
+
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }
         }
+        .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
             switch sheet {
             case .examplePickerSheet(let current, let onSelect):

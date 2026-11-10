@@ -6,7 +6,7 @@
 import SwiftUI
 
 /// A solid button using the design system's color and spacing tokens.
-struct AppButton: View {
+struct AppButtons: View {
     enum Variant {
         case primary
         case secondary
@@ -42,12 +42,12 @@ struct AppButton: View {
 
     var body: some View {
         Button(title, action: action)
-            .buttonStyle(AppButtonStyle(variant: variant))
+            .buttonStyle(AppButtonStyles(variant: variant))
     }
 }
 
-private struct AppButtonStyle: ButtonStyle {
-    let variant: AppButton.Variant
+private struct AppButtonStyles: ButtonStyle {
+    let variant: AppButtons.Variant
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -135,11 +135,11 @@ private struct AppButtonTokenPreview: View {
 
     @ViewBuilder
     private var buttons: some View {
-        AppButton("Primary") { tapCount += 1 }
-        AppButton("Secondary", variant: .secondary) { tapCount += 1 }
+        AppButtons("Primary") { tapCount += 1 }
+        AppButtons("Secondary", variant: .secondary) { tapCount += 1 }
     }
 
-    private func pressedSample(_ title: String, variant: AppButton.Variant) -> some View {
+    private func pressedSample(_ title: String, variant: AppButtons.Variant) -> some View {
         Text(title)
             .font(AppFont.headline)
             .padding(.horizontal, AppSpacing.Button.horizontal)

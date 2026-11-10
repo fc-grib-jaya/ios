@@ -42,7 +42,10 @@ struct MainTabView: View {
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
-                    onAddCattleTap: { coordinator.showAddCattle() }
+                    onAddCattleTap: { coordinator.showAddCattle() },
+                    onToastTap: {
+                        container.toastManager.show("Your changes have been saved")
+                    }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -77,7 +80,7 @@ struct MainTabView: View {
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-
+            
             RationPlanningView(
                 viewModel: container.makeRationPlanningViewModel()
             )
@@ -88,22 +91,15 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-
+            
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }
         }
+        .toast(manager: container.toastManager)
         .sheet(item: $coordinator.sheet) { sheet in
-            switch sheet {
-            case .examplePickerSheet(let current, let onSelect):
-                ExamplePickerSheetView(
-                    viewModel: container.makeExamplePickerSheetViewModel(
-                        current: current,
-                        onSelect: onSelect
-                    )
-                )
-            }
+            AppSheetView(sheet: sheet, container: container)
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)

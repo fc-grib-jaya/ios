@@ -17,10 +17,12 @@ enum AppRoute: Hashable {
 
 enum AppSheet: Identifiable {
     case examplePickerSheet(current: String, onSelect: ([String]) -> Void )
-    
+    case guestLoginSheet(onDone: () -> Void)
+
     var id: String {
         switch self {
         case .examplePickerSheet: "examplePicker"
+        case .guestLoginSheet: "guestLogin"
         }
     }
 }

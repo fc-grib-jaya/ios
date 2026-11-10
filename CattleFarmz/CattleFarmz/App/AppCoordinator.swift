@@ -6,10 +6,12 @@
 import Observation
 import UIKit
 
-/// The two top-level states the app can be in.
+/// The top-level states the app can be in.
 enum AppPhase {
     /// Startup screen shown before the main interface.
     case splash
+    /// First-launch intro, shown until the user completes onboarding.
+    case onboarding
     /// Main tab interface.
     case main
 }
@@ -26,9 +28,16 @@ final class AppCoordinator {
     var sheet: AppSheet?
     var cover: AppCover?
 
-    /// Leaves the splash screen and reveals the main tab interface.
+    /// Launch-time snapshot of the persisted onboarding state.
+    private(set) var hasCompletedOnboarding: Bool
+
+    init(hasCompletedOnboarding: Bool = false) {
+        self.hasCompletedOnboarding = hasCompletedOnboarding
+    }
+
+    /// Leaves the splash screen for onboarding or the main interface.
     func finishSplash() {
-        phase = .main
+        phase = hasCompletedOnboarding ? .main : .onboarding
     }
 
     /// Navigation path of the Home tab, expressed as `AppRoute` values.
@@ -61,6 +70,21 @@ final class AppCoordinator {
 
     func dismissSheet() {
         sheet = nil
+    }
+
+    /// Opens the guest login sheet and dismisses it once `onDone` runs.
+    func showGuestLoginSheet(onDone: @escaping () -> Void) {
+        sheet = .guestLoginSheet { [weak self] in
+            onDone()
+            self?.dismissSheet()
+        }
+    }
+
+    /// Marks onboarding complete and reveals the main tab interface.
+    func finishOnboarding() {
+        hasCompletedOnboarding = true
+        sheet = nil
+        phase = .main
     }
 
     /// App Cover handling

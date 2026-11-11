@@ -71,9 +71,9 @@ struct HomeView: View {
                             .foregroundStyle(
                                 AppColor.Primitive.Secondary.shade900
                             )
-
+                        
                         Spacer()
-
+                        
                         Menu {
                             Section {
                                 Button {
@@ -88,7 +88,7 @@ struct HomeView: View {
                                         Text("Ascending")
                                     }
                                 }
-
+                                
                                 Button {
                                     cattlesViewModel.sortAscending = false
                                 } label: {
@@ -102,7 +102,7 @@ struct HomeView: View {
                                     }
                                 }
                             }
-
+                            
                             Section {
                                 Button {
                                     cattlesViewModel.selectSort(.name)
@@ -113,7 +113,7 @@ struct HomeView: View {
                                         Text("Nama")
                                     }
                                 }
-
+                                
                                 Button {
                                     cattlesViewModel.selectSort(.weight)
                                 } label: {
@@ -123,6 +123,14 @@ struct HomeView: View {
                                         Text("Bobot")
                                     }
                                 }
+                            }
+                        } label: {
+                            Label("Sort", systemImage: "arrow.up.arrow.down")
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                    }
+                    .padding(.horizontal, AppSpacing.md)
 
                 Button("Show toast", action: onToastTap)
                     .appButtonStyle(.secondary)

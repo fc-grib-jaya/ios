@@ -3,6 +3,7 @@
 //  CattleFarmz
 //
 
+import ARKit
 import Observation
 import UIKit
 
@@ -101,6 +102,7 @@ final class AppCoordinator {
 
     /// Invalidates a pending portrait restore when a new session starts.
     @ObservationIgnored private var coverEpoch = 0
+    var scanErrorMessage: String?
 
     /// Opens one scan session and dismisses the cover when the flow ends.
     /// `onFinish` receives the measurement, or `nil` when the user cancelled.
@@ -108,6 +110,14 @@ final class AppCoordinator {
         guard cover == nil, !isPreparingScanSession else { return }
         isPreparingScanSession = true
         coverEpoch &+= 1
+        scanErrorMessage = nil
+        cover = .scanLoading { [weak self] in
+            self?.failScanSession()
+        }
+
+        guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else {
+            return
+        }
 
         // Rotate first, then present only after the window reports landscape
         // geometry. Presenting during the rotation builds the cover in
@@ -126,6 +136,14 @@ final class AppCoordinator {
                 self?.dismissCover()
             }
         }
+    }
+
+    private func failScanSession() {
+        guard cover != nil else { return }
+
+        isPreparingScanSession = false
+        cover = nil
+        scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
     }
 
     func dismissCover() {

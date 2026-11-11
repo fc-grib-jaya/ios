@@ -2,126 +2,107 @@
 //  CaptureDisplayWheel.swift
 //  CattleFarmz
 //
-//  Created by Salman on 11/11/26.
-//
 
 import SwiftUI
 
+/// Native scrolling and snapping with a circular camera-control appearance.
 struct CaptureDisplayWheel: View {
     @Binding var selection: CaptureDisplay
-    @GestureState private var dragOffset: CGFloat = 0
+    @State private var centeredOption: CaptureDisplay?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    private let options = Array(CaptureDisplay.allCases)
-    private let itemSpacing: CGFloat = 80
+    private let itemHeight: CGFloat = 80
+    private let viewportHeight: CGFloat = 240
 
-    private var selectedIndex: Int {
-        options.firstIndex(of: selection) ?? 0
+    init(selection: Binding<CaptureDisplay>) {
+        self._selection = selection
+        self._centeredOption = State(initialValue: selection.wrappedValue)
     }
 
     var body: some View {
-        ZStack {
-            ForEach(options) { option in
-                optionButton(option)
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
+                ForEach(CaptureDisplay.allCases) { option in
+                    Button {
+                        select(option)
+                    } label: {
+                        Image(systemName: option.icon)
+                            .font(.system(size: 28, weight: .medium))
+                            .foregroundStyle(.white)
+                            .frame(width: 64, height: 64)
+                            .background(.ultraThinMaterial, in: Circle())
+                            .environment(\.colorScheme, .dark)
+                            // Keep the active circle at 64 pt and the others at 48 pt.
+                            // Selection is independent of scroll-content coordinate offsets.
+                            .scaleEffect(option == (centeredOption ?? selection) ? 1 : 0.75)
+                            .opacity(option == (centeredOption ?? selection) ? 1 : 0.65)
+                            .animation(
+                                reduceMotion ? nil : .smooth(duration: 0.2),
+                                value: centeredOption
+                            )
+                            .frame(width: 88, height: itemHeight)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .id(option)
+                }
             }
-
-            // Cincin selalu berada di tengah.
+            .scrollTargetLayout()
+        }
+        .contentMargins(.vertical, (viewportHeight - itemHeight) / 2, for: .scrollContent)
+        .scrollIndicators(.hidden)
+        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        .scrollPosition(id: $centeredOption, anchor: .center)
+        .frame(width: 88, height: viewportHeight)
+        .overlay {
             Circle()
-                .strokeBorder(.white, lineWidth: 3)
+                .strokeBorder(.white, lineWidth: 2.5)
                 .frame(width: 76, height: 76)
                 .allowsHitTesting(false)
                 .accessibilityHidden(true)
         }
-        .frame(width: 88, height: 240)
-        .contentShape(Rectangle())
-        .clipped()
-        .highPriorityGesture(dragGesture)
-        .animation(
-            .easeOut(duration: 0.2),
-            value: selection
-        )
-    }
-
-    private func optionButton(
-        _ option: CaptureDisplay
-    ) -> some View {
-        let index = options.firstIndex(of: option) ?? 0
-
-        let offset =
-            CGFloat(index - selectedIndex) * itemSpacing
-            + limitedDragOffset
-
-        // 1 di tengah, 0 ketika berjarak satu slot atau lebih.
-        let emphasis = max(
-            0,
-            1 - abs(offset) / itemSpacing
-        )
-
-        let diameter = 48 + 16 * emphasis
-        let iconSize = 22 + 6 * emphasis
-
-        return Button {
-            selection = option
-        } label: {
-            Image(systemName: option.icon)
-                .font(.system(
-                    size: iconSize,
-                    weight: .medium
-                ))
-                .foregroundStyle(.white)
-                .frame(
-                    width: diameter,
-                    height: diameter
-                )
-                .background {
-                    Circle()
-                        .fill(.gray.opacity(0.55))
-                }
-                // Area sentuh tetap, walaupun lingkaran mengecil.
-                .frame(width: 76, height: 76)
-                .contentShape(Circle())
+        // Change the photo/depth layer once scrolling settles, avoiding work
+        // on the measurement canvas for every intermediate scroll position.
+        .onScrollPhaseChange { _, phase in
+            if phase == .idle, let centeredOption {
+                selection = centeredOption
+            }
         }
-        .buttonStyle(.plain)
-        .offset(y: offset)
-        .accessibilityLabel(option.rawValue)
-        .accessibilityValue(
-            selection == option ? "Dipilih" : "Tidak dipilih"
-        )
-        .accessibilityHidden(abs(offset) > itemSpacing)
+        .onChange(of: selection) { _, option in
+            withAnimation(reduceMotion ? nil : .smooth(duration: 0.3)) {
+                centeredOption = option
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Tampilan capture")
+        .accessibilityValue(selection.rawValue)
+        .accessibilityAdjustableAction { direction in
+            let options = CaptureDisplay.allCases
+            guard let index = options.firstIndex(of: selection) else { return }
+            switch direction {
+            case .increment:
+                select(options[min(index + 1, options.count - 1)])
+            case .decrement:
+                select(options[max(index - 1, 0)])
+            @unknown default:
+                break
+            }
+        }
     }
 
-    private var limitedDragOffset: CGFloat {
-        // Batasi gerakan agar tidak melewati pilihan pertama/terakhir.
-        let minimum =
-            -CGFloat(options.count - 1 - selectedIndex) * itemSpacing
-
-        let maximum =
-            CGFloat(selectedIndex) * itemSpacing
-
-        return min(max(dragOffset, minimum), maximum)
+    private func select(_ option: CaptureDisplay) {
+        selection = option
+        // Also handles tapping the selected option during an unfinished drag.
+        withAnimation(reduceMotion ? nil : .smooth(duration: 0.3)) {
+            centeredOption = option
+        }
     }
+}
 
-    private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 8)
-            .updating($dragOffset) { value, state, _ in
-                state = value.translation.height
-            }
-            .onEnded { value in
-                let movement = value.predictedEndTranslation.height
-                var nextIndex = selectedIndex
-
-                // Geser ke atas: pilihan berikutnya naik ke tengah.
-                if movement < -itemSpacing / 2 {
-                    nextIndex += 1
-                } else if movement > itemSpacing / 2 {
-                    nextIndex -= 1
-                }
-
-                nextIndex = min(
-                    max(nextIndex, 0),
-                    options.count - 1
-                )
-
-                selection = options[nextIndex]
-            }
+#Preview {
+    @Previewable @State var selection: CaptureDisplay = .photo
+    ZStack {
+        Color.black.ignoresSafeArea()
+        CaptureDisplayWheel(selection: $selection)
     }
 }

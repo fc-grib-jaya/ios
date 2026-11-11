@@ -442,7 +442,16 @@ extension CameraViewController: AVCapturePhotoCaptureDelegate {
         }
 
         DispatchQueue.main.async { [weak self] in
-            self?.showCapturedImage(image)
+            guard let image = image.normalized()
+                .squareCropped()?
+                .resized(maxDimension: 1024) else {
+                self?.onFinish?(nil)
+                return
+            }
+
+            // Isi Bobot uses the same one-tap flow as LiDAR: capture, process,
+            // and return the normalized image without an intermediate preview.
+            self?.onFinish?(image)
         }
     }
 }
@@ -465,6 +474,21 @@ private extension UIImage {
         }
 
         return UIImage(cgImage: croppedImage, scale: normalizedImage.scale, orientation: .up)
+    }
+
+    func resized(maxDimension: CGFloat) -> UIImage {
+        let longestSide = max(size.width, size.height)
+        guard longestSide > maxDimension, maxDimension > 0 else { return self }
+
+        let scale = maxDimension / longestSide
+        let targetSize = CGSize(
+            width: size.width * scale,
+            height: size.height * scale
+        )
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        return renderer.image { _ in
+            draw(in: CGRect(origin: .zero, size: targetSize))
+        }
     }
 
     func normalized() -> UIImage {

@@ -10,6 +10,7 @@ enum WeightFormula {
     case winter
     case denmark
     case lambourne
+    case djagra
 }
 
 struct CattleWeightFactors {
@@ -30,7 +31,7 @@ struct CattleWeightFactors {
     static func factors(for breed: CattleBreed) -> CattleWeightFactors {
         switch breed {
         case .bali:
-            return .init(formula: .schoorl, weightFactor: 1.0, maleFactor: 1.1, femaleFactor: 0.9)
+            return .init(formula: .djagra, weightFactor: 1, maleFactor: 1, femaleFactor: 0.98)
         case .madura:
             return .init(formula: .schoorl, weightFactor: 0.95, maleFactor: 1.15, femaleFactor: 0.92)
         case .limousin:

@@ -100,13 +100,16 @@ final class CattlesViewModel {
 
     private let repository: any CattleRepository
     private let calculation: any WeightCalculation
+    private let toast: ToastManager
 
     init(
         repository: any CattleRepository,
-        calculation: any WeightCalculation
+        calculation: any WeightCalculation,
+        toast: ToastManager
     ) {
         self.repository = repository
         self.calculation = calculation
+        self.toast = toast
     }
 
     func add(
@@ -295,6 +298,7 @@ final class CattlesViewModel {
                 bodyWeight: values.bodyWeight,
                 notes: values.notes
             )
+            toast.show("Perubahan berhasil disimpan")
             return nil
         } catch {
             return "Periksa kembali data yang dimasukkan."
@@ -330,6 +334,7 @@ final class CattlesViewModel {
             cattleImage: imageData,
             notes: notes
         )
+        toast.show("Sapi berhasil ditambahkan")
     }
 
     private func ageRange(for ageInMonths: Int) -> String {

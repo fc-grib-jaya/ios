@@ -38,22 +38,12 @@ struct MainTabView: View {
                             }
                         )
                     },
-                    onScanTap: {
-                        coordinator.showScanSession(onFinish: { scanResult in
-                            print(scanResult?.girth)
-                        })
-                    },
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
                     onAddCattleTap: {
                        print("on add cattle tap")
-                        coordinator.showAddCattle() },
-                    onToastTap: {
-                        container.toastManager.show(
-                            "Your changes have been saved"
-                        )
-                    }
+                        coordinator.showAddCattle() }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -85,7 +75,6 @@ struct MainTabView: View {
                                 notes: notes
                             )
                         }
-                    default: EmptyView()
                     }
                 }
             }
@@ -131,6 +120,21 @@ struct MainTabView: View {
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)
+        }
+        .alert(
+            "LiDAR Tidak Tersedia",
+            isPresented: Binding(
+                get: { coordinator.scanErrorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        coordinator.scanErrorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button("Kembali", role: .cancel) {}
+        } message: {
+            Text(coordinator.scanErrorMessage ?? "Perangkat ini tidak mendukung pemindaian LiDAR.")
         }
     }
 }

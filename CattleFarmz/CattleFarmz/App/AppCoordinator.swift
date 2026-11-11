@@ -3,7 +3,9 @@
 //  CattleFarmz
 //
 
+import ARKit
 import Observation
+import SwiftUI
 import UIKit
 
 /// The top-level states the app can be in.
@@ -88,10 +90,19 @@ final class AppCoordinator {
     }
 
     /// Marks onboarding complete and reveals the main tab interface.
+    ///
+    /// The guest login sheet is closed first; the phase swap waits until the
+    /// dismissal animation has finished so the main interface never appears
+    /// underneath a still-dismissing sheet.
     func finishOnboarding() {
         hasCompletedOnboarding = true
         sheet = nil
-        phase = .main
+        Task {
+            try? await Task.sleep(for: .seconds(0.6))
+            withAnimation {
+                phase = .main
+            }
+        }
     }
 
     /// App Cover handling
@@ -101,6 +112,7 @@ final class AppCoordinator {
 
     /// Invalidates a pending portrait restore when a new session starts.
     @ObservationIgnored private var coverEpoch = 0
+    var scanErrorMessage: String?
 
     /// Opens one scan session and dismisses the cover when the flow ends.
     /// `onFinish` receives the measurement, or `nil` when the user cancelled.
@@ -108,7 +120,20 @@ final class AppCoordinator {
         guard cover == nil, !isPreparingScanSession else { return }
         isPreparingScanSession = true
         coverEpoch &+= 1
+        scanErrorMessage = nil
+        cover = .scanLoading { [weak self] in
+            self?.prepareScanSession(onFinish: onFinish)
+        }
 
+        guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else {
+            isPreparingScanSession = false
+            cover = nil
+            scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
+            return
+        }
+    }
+
+    private func prepareScanSession(onFinish: @escaping (ScanResult?) -> Void) {
         // Rotate first, then present only after the window reports landscape
         // geometry. Presenting during the rotation builds the cover in
         // portrait, rebuilds it in landscape, and snapshots the AR view
@@ -120,12 +145,20 @@ final class AppCoordinator {
             )
             guard let self else { return }
             self.isPreparingScanSession = false
-            guard self.cover == nil else { return }
+            guard self.cover != nil else { return }
             self.cover = .scanSession { [weak self] result in
                 onFinish(result)
                 self?.dismissCover()
             }
         }
+    }
+
+    private func failScanSession() {
+        guard cover != nil else { return }
+
+        isPreparingScanSession = false
+        cover = nil
+        scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
     }
 
     func dismissCover() {

@@ -66,7 +66,6 @@ struct CattlesFilterView: View {
                                     .tint(AppColor.Primitive.Primary.shade500)
                             )
                     }
-                    .appButtonStyle(.primary)
                     
                     Button {
                         selectedBreed.removeAll()
@@ -80,7 +79,6 @@ struct CattlesFilterView: View {
                             .padding(.vertical, AppSpacing.xxs)
                             .frame(maxWidth: .infinity)
                     }
-                    .appButtonStyle(.text)
                 }
             }
             .padding(AppSpacing.md)

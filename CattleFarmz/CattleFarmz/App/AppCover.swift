@@ -11,11 +11,12 @@
 enum AppCover: Identifiable {
     /// One complete scan flow: camera, capture, then measurement.
     /// `onFinish` receives the measurement, or `nil` when the user cancelled.
+    case scanLoading(onFinished: () -> Void)
     case scanSession(onFinish: (ScanResult?) -> Void)
 
     var id: String {
-        switch self {
-        case .scanSession: "scanSession"
-        }
+        // Keep both phases in the same full-screen cover so SwiftUI replaces
+        // the loading content in place instead of dismissing back to the form.
+        "scanSession"
     }
 }

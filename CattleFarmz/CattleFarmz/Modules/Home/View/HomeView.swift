@@ -12,31 +12,25 @@ struct HomeView: View {
     private let farmerName: String
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
-    private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
     private let onAddCattleTap: () -> Void
-    private let onToastTap: () -> Void
-    
+
     init(
         viewModel: HomeViewModel,
         cattlesViewModel: CattlesViewModel,
         farmerName: String,
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
-        onScanTap: @escaping () -> Void,
         onCardTap: @escaping (String) -> Void,
-        onAddCattleTap: @escaping () -> Void,
-        onToastTap: @escaping () -> Void
+        onAddCattleTap: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
         self.farmerName = farmerName
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
-        self.onScanTap = onScanTap
         self.onCardTap = onCardTap
         self.onAddCattleTap = onAddCattleTap
-        self.onToastTap = onToastTap
     }
     
     @State private var isFilterPresented = false
@@ -126,17 +120,14 @@ struct HomeView: View {
                                 }
                             }
                         } label: {
-                            Label("Urutkan", systemImage: "arrow.up.arrow.down")
+                            Label("Sort", systemImage: "arrow.up.arrow.down")
                         }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(AppColor.Primitive.Primary.shade500)
                     }
                     .padding(.horizontal, AppSpacing.md)
-                    
-                    Button("Show toast", action: onToastTap)
-                        .appButtonStyle(.secondary)
-                        .padding(.horizontal, AppSpacing.md)
-                        .padding(.bottom, AppSpacing.sm)
-                    
-                    if cattlesViewModel.hasNoVisibleCattle
+
+                if cattlesViewModel.hasNoVisibleCattle
                         || cattlesViewModel.filteredItems.isEmpty
                     {
                         NoCattleCard()
@@ -224,16 +215,14 @@ struct HomeView: View {
             viewModel: HomeViewModel(haptics: NoopHaptics()),
             cattlesViewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
-                calculation: WeightCalculator()
+                calculation: WeightCalculator(),
+                toast: ToastManager()
             ),
             farmerName: "Dylan",
             onProfileTap: {},
             onExamplePickerTap: {},
-            onScanTap: {},
             onCardTap: { _ in },
-            onAddCattleTap: {},
-            onToastTap: { toastManager.show("Your changes have been saved") }
+            onAddCattleTap: {}
         )
-        .toast(manager: toastManager)
     }
 }

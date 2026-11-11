@@ -281,7 +281,7 @@ final class CattlesViewModel {
 
     /// Applies edit-form values to the given cattle, then refreshes the list.
     /// Returns an error message when the save fails, `nil` on success.
-    func editCattle(_ values: CattleEditValues, for cattle: Cattle) -> String? {
+    func editCattle(_ values: CattleFormValues, for cattle: Cattle) -> String? {
         do {
             try update(
                 for: cattle,
@@ -290,8 +290,8 @@ final class CattlesViewModel {
                 breed: values.breed,
                 gender: values.gender,
                 recordedAge: values.recordedAge,
-                chestGirth: values.chestGirth,
-                bodyLength: values.bodyLength,
+                chestGirth: cattle.chestGirth,
+                bodyLength: cattle.bodyLength,
                 bodyWeight: values.bodyWeight,
                 notes: values.notes
             )

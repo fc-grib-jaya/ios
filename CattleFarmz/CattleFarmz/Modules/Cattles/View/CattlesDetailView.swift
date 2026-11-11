@@ -10,12 +10,12 @@ struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
     @State private var detailView = 0
     private let cattleID: UUID?
-    private let onEditTap: (Cattle, @escaping (CattleEditValues) -> String?) -> Void
+    private let onEditTap: (Cattle) -> Void
 
     init(
         cattleID: String,
         viewModel: CattlesViewModel,
-        onEditTap: @escaping (Cattle, @escaping (CattleEditValues) -> String?) -> Void
+        onEditTap: @escaping (Cattle) -> Void
     ) {
         self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
@@ -57,7 +57,7 @@ struct CattlesDetailView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 180, alignment: .top)
+                            .frame(height: 180)
                             .clipped()
                             .cornerRadius(AppSpacing.Card.compact)
                     } else {
@@ -65,7 +65,7 @@ struct CattlesDetailView: View {
                             .resizable()
                             .scaledToFill()
                             .frame(maxWidth: .infinity)
-                            .frame(height: 180, alignment: .top)
+                            .frame(height: 180)
                             .clipped()
                             .cornerRadius(AppSpacing.Card.compact)
                     }
@@ -119,9 +119,7 @@ struct CattlesDetailView: View {
             if let cattle = currentCattle {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Edit") {
-                        onEditTap(cattle) { values in
-                            viewModel.editCattle(values, for: cattle)
-                        }
+                        onEditTap(cattle)
                     }
                 }
             }
@@ -140,7 +138,7 @@ struct CattlesDetailView: View {
                 repository: MockCattleRepository(),
                 calculation: WeightCalculator()
             ),
-            onEditTap: { _, _ in }
+            onEditTap: { _ in }
         )
     }
 }

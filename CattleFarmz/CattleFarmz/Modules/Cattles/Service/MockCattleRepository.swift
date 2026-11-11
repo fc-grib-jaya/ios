@@ -140,8 +140,6 @@ extension Cattle {
             breed: .friesianHolstein,
             gender: .female,
             recordedAge: 10,
-            chestGirth: 200,
-            bodyLength: 180,
             bodyWeight: 500
         ),
         Cattle(

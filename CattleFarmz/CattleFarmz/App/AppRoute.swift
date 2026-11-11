@@ -13,20 +13,17 @@ enum AppRoute: Hashable {
     case cattleDetail(id: String)
     /// Add-cattle form screen.
     case addCattle
+    /// Edit-cattle form screen.
+    case editCattle(id: String)
 }
 
 enum AppSheet: Identifiable {
     case examplePickerSheet(current: String, onSelect: ([String]) -> Void)
     case guestLoginSheet(onDone: () -> Void)
-    /// Edit form for an existing cattle. `onSave` returns an error message
-    /// on failure, or `nil` on success (the form stays open to show it).
-    case editCattle(cattle: Cattle, onSave: (CattleEditValues) -> String?)
-
     var id: String {
         switch self {
         case .examplePickerSheet: "examplePicker"
         case .guestLoginSheet: "guestLogin"
-        case .editCattle: "editCattle"
         }
     }
 }

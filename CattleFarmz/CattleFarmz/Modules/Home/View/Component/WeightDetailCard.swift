@@ -29,7 +29,7 @@ struct WeightDetailCard: View {
             Image(uiImage: cattleImage)
                 .resizable()
                 .scaledToFill()
-                .frame(width: .infinity, height: 198, alignment: .topLeading)
+                .frame(width: .infinity, height: 198)
                 .clipped()
             
             VStack (spacing: AppSpacing.md){

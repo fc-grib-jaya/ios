@@ -25,8 +25,6 @@ final class OnboardingViewModel {
 
     var isLastPage: Bool { index >= pages.count - 1 }
     var buttonTitle: String { isLastPage ? "Masuk sebagai tamu" : "Lanjut" }
-    /// Hidden on the first page and on the last page (whose CTA is already the exit).
-    var isSkipVisible: Bool { index > 0 && !isLastPage }
 
     /// Advances one page, or opens the guest login sheet on the last page.
     func primaryTapped() {
@@ -36,13 +34,6 @@ final class OnboardingViewModel {
             withAnimation(.easeInOut(duration: 0.2)) {
                 index += 1
             }
-        }
-    }
-
-    /// Jumps to the last page; the user can still read it before continuing.
-    func skipTapped() {
-        withAnimation(.easeInOut(duration: 0.2)) {
-            index = max(pages.count - 1, 0)
         }
     }
 }

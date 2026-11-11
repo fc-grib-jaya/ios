@@ -47,16 +47,6 @@ struct OnboardingView: View {
             }
             .padding(.top, AppSpacing.massive)
             .padding(.bottom, AppSpacing.xl)
-            .overlay(alignment: .topTrailing) {
-                if viewModel.isSkipVisible {
-                    Button("Lewati") {
-                        viewModel.skipTapped()
-                    }
-                    .buttonStyle(.glass)
-                    .padding(.top, AppSpacing.sm)
-                    .padding(.trailing, AppSpacing.md)
-                }
-            }
         }
     }
 }

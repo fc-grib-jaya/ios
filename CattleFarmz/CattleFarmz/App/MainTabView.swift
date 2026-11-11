@@ -38,11 +38,6 @@ struct MainTabView: View {
                             }
                         )
                     },
-                    onScanTap: {
-                        coordinator.showScanSession(onFinish: { scanResult in
-                            print(scanResult?.girth)
-                        })
-                    },
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
@@ -80,7 +75,6 @@ struct MainTabView: View {
                                 notes: notes
                             )
                         }
-                    default: EmptyView()
                     }
                 }
             }

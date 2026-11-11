@@ -12,7 +12,6 @@ struct HomeView: View {
     private let farmerName: String
     private let onProfileTap: () -> Void
     private let onExamplePickerTap: () -> Void
-    private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
     private let onAddCattleTap: () -> Void
 
@@ -22,7 +21,6 @@ struct HomeView: View {
         farmerName: String,
         onProfileTap: @escaping () -> Void,
         onExamplePickerTap: @escaping () -> Void,
-        onScanTap: @escaping () -> Void,
         onCardTap: @escaping (String) -> Void,
         onAddCattleTap: @escaping () -> Void
     ) {
@@ -31,7 +29,6 @@ struct HomeView: View {
         self.farmerName = farmerName
         self.onProfileTap = onProfileTap
         self.onExamplePickerTap = onExamplePickerTap
-        self.onScanTap = onScanTap
         self.onCardTap = onCardTap
         self.onAddCattleTap = onAddCattleTap
     }
@@ -221,7 +218,6 @@ struct HomeView: View {
             farmerName: "Dylan",
             onProfileTap: {},
             onExamplePickerTap: {},
-            onScanTap: {},
             onCardTap: { _ in },
             onAddCattleTap: {}
         )

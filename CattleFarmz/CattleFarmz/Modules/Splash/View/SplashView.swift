@@ -20,7 +20,7 @@ struct SplashView: View {
     @State private var stage = 0
     @State private var isFalling = false
     @State private var isStanding = false
-    @State private var showFirstDot = true
+    @State private var showFirstDot = false
     @State private var showSecondDot = false
     @State private var showTwoDots = false
     @State private var showMouth = false
@@ -110,6 +110,13 @@ struct SplashView: View {
         try? await Task.sleep(for: .milliseconds(500))
         guard !Task.isCancelled else { return }
         
+        withAnimation(.easeIn(duration: 0.2)) {
+            showFirstDot = true
+        }
+        
+        try? await Task.sleep(for: .milliseconds(100))
+        guard !Task.isCancelled else { return }
+        
         withAnimation(.interpolatingSpring(stiffness: 150, damping: 14)) {
             stage = 0
             isFalling = true
@@ -143,18 +150,6 @@ struct SplashView: View {
 
         try? await Task.sleep(for: .milliseconds(400))
         guard !Task.isCancelled else { return }
-
-//        for _ in 0..<1 {
-//            withAnimation(.spring(response: 2, dampingFraction: 0.55)) {
-//                loadingRotation += 390
-//            }
-//
-//            try? await Task.sleep(for: .milliseconds(1100))
-//            guard !Task.isCancelled else { return }
-//
-//            try? await Task.sleep(for: .milliseconds(300))
-//            guard !Task.isCancelled else { return }
-//        }
         
         withAnimation(.spring(response: 1.2, dampingFraction: 0.6)) {
             loadingRotation += 225

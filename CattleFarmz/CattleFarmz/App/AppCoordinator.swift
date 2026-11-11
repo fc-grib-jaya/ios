@@ -112,13 +112,18 @@ final class AppCoordinator {
         coverEpoch &+= 1
         scanErrorMessage = nil
         cover = .scanLoading { [weak self] in
-            self?.failScanSession()
+            self?.prepareScanSession(onFinish: onFinish)
         }
 
         guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else {
+            isPreparingScanSession = false
+            cover = nil
+            scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
             return
         }
+    }
 
+    private func prepareScanSession(onFinish: @escaping (ScanResult?) -> Void) {
         // Rotate first, then present only after the window reports landscape
         // geometry. Presenting during the rotation builds the cover in
         // portrait, rebuilds it in landscape, and snapshots the AR view
@@ -130,7 +135,7 @@ final class AppCoordinator {
             )
             guard let self else { return }
             self.isPreparingScanSession = false
-            guard self.cover == nil else { return }
+            guard self.cover != nil else { return }
             self.cover = .scanSession { [weak self] result in
                 onFinish(result)
                 self?.dismissCover()

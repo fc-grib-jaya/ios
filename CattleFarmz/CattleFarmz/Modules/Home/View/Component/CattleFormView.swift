@@ -300,6 +300,25 @@ struct CattleFormView: View {
                                     } else {
                                         Text("Panjang badan: \(scan.lengthCM.formatted()) cm")
                                         Text("Lingkar dada: \(scan.girth) cm")
+                                        
+                                        Button {
+                                            onScanSession { result in
+                                                viewModel.storeScanResult(result)
+                                                gambarCattle = result?.cattleImage
+                                                syncEstimatedWeight()
+                                                print(result)
+                                            }
+                                        } label: {
+                                            Text("Ambil Ulang")
+                                                .font(AppFont.body)
+                                                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                                                .padding(.vertical, AppSpacing.md)
+                                                .frame(maxWidth: .infinity)
+                                                .glassEffect(
+                                                    .regular
+                                                        .tint(AppColor.Button.Secondary.background)
+                                                )
+                                        }
                                     }
                                 }
                             }

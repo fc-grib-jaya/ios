@@ -316,25 +316,28 @@ struct MeasurementView: View {
                 LabeledContent("Lingkar bagian terbaca", value: profile.lengthCM.map {
                     $0.formatted(.number.precision(.fractionLength(1))) + " cm"
                 } ?? "Belum tersedia")
-                Text("\(profile.samples.filter { $0.point != nil }.count)/\(profile.samples.count) piksel terbaca · \(profile.segmentLengthsCM.count) segmen")
-                Text("Hijau: tersambung · merah: piksel ditolak · jingga: awal segmen/putus. Garis kuning hanya panduan penandaan.")
-                    .font(.caption)
-                Text("Raw depth · confidence ≥1 · 0,25–5 m · putus jika lonjakan ≥8 cm. Panjang ini belum merupakan lingkar dada.")
-                    .font(.caption)
-                ForEach(Array(profile.segmentLengthsCM.enumerated()), id: \.offset) { index, length in
-                    Text("Segmen \(index + 1): \(length.formatted(.number.precision(.fractionLength(1)))) cm")
-                }
-                DisclosureGroup("Piksel dan celah profil") {
-                    ForEach(Array(profile.samples.enumerated()), id: \.offset) { _, sample in
-                        VStack(alignment: .leading) {
-                            Text("(\(sample.x), \(sample.y)) · z \(sample.depth) m · confidence \(sample.confidence)")
-                            Text("\(sample.connectedToPrevious ? "Terhubung" : "Awal/putus") · \(sample.status)")
-                            if let p = sample.point {
-                                Text("XYZ: \(p.x), \(p.y), \(p.z) m")
-                            }
-                        }.font(.caption).frame(maxWidth: .infinity, alignment: .leading)
-                    }
-                }
+                LabeledContent("Lingkar Dada", value: profile.lengthCM.map {
+                    ($0*2).formatted(.number.precision(.fractionLength(1))) + " cm"
+                } ?? "Belum tersedia")
+//                Text("\(profile.samples.filter { $0.point != nil }.count)/\(profile.samples.count) piksel terbaca · \(profile.segmentLengthsCM.count) segmen")
+//                Text("Hijau: tersambung · merah: piksel ditolak · jingga: awal segmen/putus. Garis kuning hanya panduan penandaan.")
+//                    .font(.caption)
+//                Text("Raw depth · confidence ≥1 · 0,25–5 m · putus jika lonjakan ≥8 cm. Panjang ini belum merupakan lingkar dada.")
+//                    .font(.caption)
+//                ForEach(Array(profile.segmentLengthsCM.enumerated()), id: \.offset) { index, length in
+//                    Text("Segmen \(index + 1): \(length.formatted(.number.precision(.fractionLength(1)))) cm")
+//                }
+//                DisclosureGroup("Piksel dan celah profil") {
+//                    ForEach(Array(profile.samples.enumerated()), id: \.offset) { _, sample in
+//                        VStack(alignment: .leading) {
+//                            Text("(\(sample.x), \(sample.y)) · z \(sample.depth) m · confidence \(sample.confidence)")
+//                            Text("\(sample.connectedToPrevious ? "Terhubung" : "Awal/putus") · \(sample.status)")
+//                            if let p = sample.point {
+//                                Text("XYZ: \(p.x), \(p.y), \(p.z) m")
+//                            }
+//                        }.font(.caption).frame(maxWidth: .infinity, alignment: .leading)
+//                    }
+//                }
             }
             if let girth = result.girth {
                 LabeledContent(

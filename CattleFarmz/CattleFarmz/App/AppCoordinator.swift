@@ -3,13 +3,17 @@
 //  CattleFarmz
 //
 
+import ARKit
 import Observation
+import SwiftUI
 import UIKit
 
-/// The two top-level states the app can be in.
+/// The top-level states the app can be in.
 enum AppPhase {
     /// Startup screen shown before the main interface.
     case splash
+    /// First-launch intro, shown until the user completes onboarding.
+    case onboarding
     /// Main tab interface.
     case main
 }
@@ -26,9 +30,16 @@ final class AppCoordinator {
     var sheet: AppSheet?
     var cover: AppCover?
 
-    /// Leaves the splash screen and reveals the main tab interface.
+    /// Launch-time snapshot of the persisted onboarding state.
+    private(set) var hasCompletedOnboarding: Bool
+
+    init(hasCompletedOnboarding: Bool = false) {
+        self.hasCompletedOnboarding = hasCompletedOnboarding
+    }
+
+    /// Leaves the splash screen for onboarding or the main interface.
     func finishSplash() {
-        phase = .main
+        phase = hasCompletedOnboarding ? .main : .onboarding
     }
 
     /// Navigation path of the Home tab, expressed as `AppRoute` values.
@@ -62,8 +73,37 @@ final class AppCoordinator {
         sheet = .examplePickerSheet(current: current, onSelect: onSelect)
     }
 
+    /// Pushes the edit-cattle form onto the Home navigation stack.
+    func showEditCattle(cattleID: String) {
+        path.append(.editCattle(id: cattleID))
+    }
+
     func dismissSheet() {
         sheet = nil
+    }
+
+    /// Opens the guest login sheet and dismisses it once `onDone` runs.
+    func showGuestLoginSheet(onDone: @escaping () -> Void) {
+        sheet = .guestLoginSheet { [weak self] in
+            onDone()
+            self?.dismissSheet()
+        }
+    }
+
+    /// Marks onboarding complete and reveals the main tab interface.
+    ///
+    /// The guest login sheet is closed first; the phase swap waits until the
+    /// dismissal animation has finished so the main interface never appears
+    /// underneath a still-dismissing sheet.
+    func finishOnboarding() {
+        hasCompletedOnboarding = true
+        sheet = nil
+        Task {
+            try? await Task.sleep(for: .seconds(0.6))
+            withAnimation {
+                phase = .main
+            }
+        }
     }
 
     /// App Cover handling
@@ -73,6 +113,7 @@ final class AppCoordinator {
 
     /// Invalidates a pending portrait restore when a new session starts.
     @ObservationIgnored private var coverEpoch = 0
+    var scanErrorMessage: String?
 
     /// Opens one scan session and dismisses the cover when the flow ends.
     /// `onFinish` receives the measurement, or `nil` when the user cancelled.
@@ -80,7 +121,20 @@ final class AppCoordinator {
         guard cover == nil, !isPreparingScanSession else { return }
         isPreparingScanSession = true
         coverEpoch &+= 1
+        scanErrorMessage = nil
+        cover = .scanLoading { [weak self] in
+            self?.prepareScanSession(onFinish: onFinish)
+        }
 
+        guard ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth) else {
+            isPreparingScanSession = false
+            cover = nil
+            scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
+            return
+        }
+    }
+
+    private func prepareScanSession(onFinish: @escaping (ScanResult?) -> Void) {
         // Rotate first, then present only after the window reports landscape
         // geometry. Presenting during the rotation builds the cover in
         // portrait, rebuilds it in landscape, and snapshots the AR view
@@ -92,12 +146,20 @@ final class AppCoordinator {
             )
             guard let self else { return }
             self.isPreparingScanSession = false
-            guard self.cover == nil else { return }
+            guard self.cover != nil else { return }
             self.cover = .scanSession { [weak self] result in
                 onFinish(result)
                 self?.dismissCover()
             }
         }
+    }
+
+    private func failScanSession() {
+        guard cover != nil else { return }
+
+        isPreparingScanSession = false
+        cover = nil
+        scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
     }
 
     func dismissCover() {

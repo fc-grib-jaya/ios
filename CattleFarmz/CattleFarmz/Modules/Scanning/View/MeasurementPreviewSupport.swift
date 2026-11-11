@@ -1,7 +1,7 @@
 import CoreGraphics
 import Foundation
 
-#if DEBUG
+//#if DEBUG
 /// Camera-free fixtures for SwiftUI previews. All geometry lives in upright
 /// portrait coordinates so landmarks, the photo, and the depth map agree.
 enum MeasurementPreviewStage {
@@ -157,4 +157,4 @@ struct MockDepthRenderer: DepthRendering {
         completion(.success(PreviewCattle.depthPreview))
     }
 }
-#endif
+//#endif

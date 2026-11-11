@@ -3,7 +3,7 @@
 //  CattleFarmz
 //
 
-#if DEBUG
+//#if DEBUG
 import ARKit
 import CoreGraphics
 
@@ -28,4 +28,4 @@ final class MockScanCapturing: ScanCapturing {
         completion(.success(PreviewCattle.capture))
     }
 }
-#endif
+//#endif

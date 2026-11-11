@@ -1,0 +1,4 @@
+app_identifier("com.gribjaya.lembu") # The bundle identifier of your app
+apple_id("bomsiwor@hotmail.com") # Your Apple Developer Portal username
+itc_team_id("128872392") # App Store Connect Team ID
+team_id("CWXJ4ZG5J4") # Developer Portal Team ID

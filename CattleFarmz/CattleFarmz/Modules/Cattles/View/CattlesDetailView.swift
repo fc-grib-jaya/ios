@@ -8,73 +8,102 @@ import UIKit
 
 struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
+    @State private var detailView = 0
     private let cattleID: UUID?
-    @State private var cattle: Cattle?
+    private let onEditTap: (Cattle) -> Void
 
-    init(cattleID: String, viewModel: CattlesViewModel) {
+    init(
+        cattleID: String,
+        viewModel: CattlesViewModel,
+        onEditTap: @escaping (Cattle) -> Void
+    ) {
         self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
+        self.onEditTap = onEditTap
+        
+        let primary = UIColor(AppColor.Primitive.Primary.shade400)
+        let white = UIColor(AppColor.Primitive.Base.white)
+        let segmented = UISegmentedControl.appearance()
+        let font = UIFont.systemFont(ofSize: 15, weight: .regular)
+
+        segmented.selectedSegmentTintColor = primary
+        segmented.backgroundColor = primary.withAlphaComponent(0.12)
+
+        segmented.setTitleTextAttributes(
+            [.foregroundColor: primary, .font: font],
+            for: .normal
+        )
+        segmented.setTitleTextAttributes(
+            [.foregroundColor: white, .font: font],
+            for: .selected
+        )
+    }
+
+    /// Derived from the ViewModel so edits made through the shared instance
+    /// are reflected here without manual syncing.
+    private var currentCattle: Cattle? {
+        viewModel.items.first { $0.id == cattleID }
     }
 
     var body: some View {
         ScrollView {
-            if let cattle {
-                let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
-
-                LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
-                    Text(cattle.name)
-                    Text("\(cattle.currentAge) bulan")
-
+            if let cattle = currentCattle {
+                let breakdown = viewModel.weightBreakdown(for: cattle)
+                
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
                     if let imageData = cattle.cattleImage,
                        let image = UIImage(data: imageData) {
                         Image(uiImage: image)
                             .resizable()
-                            .scaledToFit()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 180)
+                            .clipped()
+                            .cornerRadius(AppSpacing.Card.compact)
                     } else {
                         Image("CattlePlaceholder")
                             .resizable()
                             .scaledToFill()
-                            .frame(width: 250, height: 250)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 180)
                             .clipped()
+                            .cornerRadius(AppSpacing.Card.compact)
                     }
-
-                    if let bodyWeight {
-                        Text("Berat Sapi: \(bodyWeight, specifier: "%.2f") kg")
-
-                        if let carcassWeight = viewModel.carcassWeight(
-                            for: cattle,
-                            bodyWeight: bodyWeight
-                        ) {
-                            Text("Berat Karkas: \(carcassWeight, specifier: "%.2f") kg")
-                        }
-
-                        if let meatWeight = viewModel.meatWeight(
-                            for: cattle,
-                            bodyWeight: bodyWeight
-                        ) {
-                            Text("Berat Daging Bersih: \(meatWeight, specifier: "%.2f") kg")
-                                .padding(.bottom, AppSpacing.sm)
-                        }
-
-                        ForEach(NonCarcassPart.allCases, id: \.self) { part in
-                            if let partWeight = viewModel.nonCarcassWeight(
-                                for: cattle,
-                                bodyWeight: bodyWeight,
-                                part: part
-                            ) {
-                                HStack {
-                                    Text(part.displayName)
-                                    Spacer()
-                                    Text("\(partWeight, specifier: "%.2f") kg")
-                                }
-                            }
-                        }
-                    } else {
-                        Text("Not Measured")
+                    
+                    CattlesDetailCard(
+                        name: cattle.name,
+                        breed: cattle.breed,
+                        gender: cattle.gender,
+                        age: cattle.recordedAge,
+                        weight: breakdown.bodyWeight,
+                        updatedDate: cattle.dateAcquired,
+                        chestGirth: cattle.chestGirth,
+                        bodyLength: cattle.bodyLength,
+                        notes: cattle.notes
+                    )
+                    
+                    Picker("Options", selection: $detailView) {
+                        Text("Karkas").tag(0)
+                        Text("Pakan").tag(1)
                     }
+                    .pickerStyle(.segmented)
+                    .controlSize(.large)
+                    .padding(.vertical, AppSpacing.xs)
+                    
+                    switch detailView {
+                    case 0:
+                        CarcassView(breakdown: breakdown)
+                    case 1:
+                        NoRationCard()
+                    default:
+                        EmptyView()
+                    }
+                    
+                    
+                    Text("Terakhir disimpan: \(formatDate(cattle.dateAcquired))")
+                        .font(AppFont.caption)
+                        .foregroundStyle(AppColor.Primitive.Neutral.shade500)
                 }
-                .font(AppFont.body)
-                .foregroundStyle(AppColor.Text.primary)
                 .padding(AppSpacing.md)
             } else {
                 ContentUnavailableView(
@@ -84,22 +113,33 @@ struct CattlesDetailView: View {
                 )
             }
         }
-        .navigationTitle(cattle?.name ?? "Detail Sapi")
+        .navigationTitle(currentCattle?.name ?? "Detail Sapi")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if let cattle = currentCattle {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Edit") {
+                        onEditTap(cattle)
+                    }
+                }
+            }
+        }
         .task {
-            guard let cattleID else { return }
-
             await viewModel.load()
-            cattle = viewModel.items.first { $0.id == cattleID }
         }
     }
 }
 
 #Preview {
-    CattlesDetailView(
-        cattleID: Cattle.samples[0].id.uuidString,
-        viewModel: CattlesViewModel(
-            repository: MockCattleRepository(),
-            calculation: WeightCalculator()
+    NavigationStack {
+        CattlesDetailView(
+            cattleID: Cattle.samples[1].id.uuidString,
+            viewModel: CattlesViewModel(
+                repository: MockCattleRepository(),
+                calculation: WeightCalculator(),
+                toast: ToastManager()
+            ),
+            onEditTap: { _ in }
         )
-    )
+    }
 }

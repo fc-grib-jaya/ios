@@ -5,6 +5,7 @@
 
 import Foundation
 import Observation
+import UIKit
 
 /// Backing model for the add-cattle form.
 @Observable
@@ -29,7 +30,7 @@ final class CattleFormViewModel {
     /// breed, or gender is still missing.
     func estimatedWeight(breed: CattleBreed?, gender: CattleGender?) -> Double? {
         guard let scanResult,
-              let girth = scanResult.girth?.centimeters,
+              let girth = scanResult.girth,
               let breed,
               let gender else {
             return nil
@@ -41,5 +42,24 @@ final class CattleFormViewModel {
             breed: breed,
             gender: gender
         )
+    }
+
+    /// Returns a centered square crop for the cattle profile image.
+    func squareCroppedImage(_ image: UIImage) -> UIImage? {
+        guard let cgImage = image.cgImage else { return nil }
+
+        let side = min(cgImage.width, cgImage.height)
+        let cropRect = CGRect(
+            x: (cgImage.width - side) / 2,
+            y: (cgImage.height - side) / 2,
+            width: side,
+            height: side
+        )
+
+        guard let croppedImage = cgImage.cropping(to: cropRect) else {
+            return nil
+        }
+
+        return UIImage(cgImage: croppedImage, scale: image.scale, orientation: .up)
     }
 }

@@ -19,6 +19,7 @@ struct MainTabView: View {
     @State private var analysisResult: RationCalculationResult?
 
     init(container: DIContainer, coordinator: AppCoordinator) {
+        print("Homeview init")
         self.container = container
         _coordinator = Bindable(wrappedValue: coordinator)
         // One shared instance so the home list and the add-cattle form stay in sync.
@@ -32,6 +33,7 @@ struct MainTabView: View {
                 HomeView(
                     viewModel: container.makeHomeViewModel(),
                     cattlesViewModel: cattlesViewModel,
+                    farmerName: container.farmerName(),
                     onProfileTap: { coordinator.showProfile() },
                     onExamplePickerTap: {
                         coordinator.showExamplePickerSheet(
@@ -42,24 +44,26 @@ struct MainTabView: View {
                             }
                         )
                     },
-                    onScanTap: {
-                        coordinator.showScanSession(onFinish: { scanResult in
-                            print(scanResult?.girth?.centimeters)
-                        })
-                    },
                     onCardTap: { cattleID in
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
-                    onAddCattleTap: { coordinator.showAddCattle() }
+                    onAddCattleTap: {
+                       print("on add cattle tap")
+                        coordinator.showAddCattle() }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
                         ProfileView(viewModel: container.makeProfileViewModel())
                     case .cattleDetail(let id):
+                        // Shares the list instance: editing from the detail
+                        // screen mutates the same data the home list shows.
                         CattlesDetailView(
                             cattleID: id,
-                            viewModel: container.makeCattlesViewModel()
+                            viewModel: cattlesViewModel,
+                            onEditTap: { cattle in
+                                coordinator.showEditCattle(cattleID: cattle.id.uuidString)
+                            }
                         )
                     case .rationForm: rationForm
                     case .rationAnalysis:
@@ -72,16 +76,44 @@ struct MainTabView: View {
                                 coordinator.showScanSession(onFinish: onFinish)
                             },
                             viewModel: container.makeCattleFormViewModel()
-                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                        ) { values in
                             try cattlesViewModel.addCattle(
-                                name: name,
-                                dateAcquired: date,
-                                breed: breed,
-                                gender: gender,
-                                recordedAge: recordedAge,
-                                bodyWeight: bodyWeight,
-                                cattleImage: cattleImage,
-                                notes: notes
+                                name: values.name,
+                                dateAcquired: values.dateAcquired,
+                                breed: values.breed,
+                                gender: values.gender,
+                                recordedAge: values.recordedAge,
+                                bodyWeight: values.bodyWeight,
+                                cattleImage: values.cattleImage,
+                                notes: values.notes
+                            )
+                        }
+                    case .editCattle(let id):
+                        if let cattle = cattlesViewModel.items.first(
+                            where: { $0.id.uuidString == id }
+                        ) {
+                            CattleFormView(
+                                cattle: cattle,
+                                onScanSession: { onFinish in
+                                    coordinator.showScanSession(onFinish: onFinish)
+                                },
+                                viewModel: container.makeCattleFormViewModel()
+                            ) { values in
+                                if let error = cattlesViewModel.editCattle(
+                                    values,
+                                    for: cattle
+                                ) {
+                                    throw NSError(
+                                        domain: "CattleForm",
+                                        code: 1,
+                                        userInfo: [NSLocalizedDescriptionKey: error]
+                                    )
+                                }
+                            }
+                        } else {
+                            ContentUnavailableView(
+                                "Sapi Tidak Ditemukan",
+                                systemImage: "exclamationmark.triangle"
                             )
                         }
                     }
@@ -112,12 +144,13 @@ struct MainTabView: View {
                 .tabItem {
                     Label("History", systemImage: "carrot")
                 }
-            
+
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
                     Label("Profil", systemImage: "person")
                 }
         }
+        .toast(manager: container.toastManager)
         .alert("Pakan", isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
             Button("Tutup") { saveError = nil }
         } message: { Text(saveError ?? "") }
@@ -130,10 +163,29 @@ struct MainTabView: View {
                         onSelect: onSelect
                     )
                 )
+            case .guestLoginSheet(let onDone):
+                GuestLoginSheetView(
+                    viewModel: container.makeGuestLoginSheetViewModel(onDone: onDone)
+                )
             }
         }
         .fullScreenCover(item: $coordinator.cover) { cover in
             AppCoverView(cover: cover, container: container)
+        }
+        .alert(
+            "LiDAR Tidak Tersedia",
+            isPresented: Binding(
+                get: { coordinator.scanErrorMessage != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        coordinator.scanErrorMessage = nil
+                    }
+                }
+            )
+        ) {
+            Button("Kembali", role: .cancel) {}
+        } message: {
+            Text(coordinator.scanErrorMessage ?? "Perangkat ini tidak mendukung pemindaian LiDAR.")
         }
     }
 

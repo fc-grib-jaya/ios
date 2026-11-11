@@ -1,0 +1,6 @@
+git_url("https://github.com/54-racing-team/app-certificate")
+storage_mode("git")
+type("appstore")
+app_identifier([
+  "com.gribjaya.lembu",
+])

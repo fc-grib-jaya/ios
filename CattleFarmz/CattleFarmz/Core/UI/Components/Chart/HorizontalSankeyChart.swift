@@ -19,38 +19,49 @@ import SwiftUI
 /// label to the right of the bar instead, so it can never clip the
 /// outgoing edge of the chart.
 ///
-/// The view fills the space proposed by its parent and scrolls
-/// when the levels do not fit.
+/// The view always fits the height proposed by its parent. Bars that
+/// would become invisible at the proportional scale are clamped to a
+/// minimum thickness, so tall uneven trees (many tiny leaves) stay in
+/// frame instead of exploding the layout.
 public struct HorizontalSankeyChart: View {
     public let data: [SankeyItem]
     public let showLabel: Bool
+    public let valueSuffix: String
     public let levelSpacing: CGFloat
     public let minimumLeafThickness: CGFloat
     public let nodeGap: CGFloat
     public let verticalPadding: CGFloat
     public let horizontalPadding: CGFloat
     public let curveStrength: CGFloat
+    /// How much taller than the proposed height the content may grow
+    /// before it is compressed to fit. `1.0` fits the frame exactly;
+    /// `1.3` lets the content be up to 30% taller (scrollable).
+    public let maxHeightScale: CGFloat
     public let onTapGesture: ((SankeySelection) -> Void)?
 
     public init(
         data: [SankeyItem],
         showLabel: Bool = true,
+        valueSuffix: String = "",
         levelSpacing: CGFloat = 140,
         minimumLeafThickness: CGFloat = 14,
         nodeGap: CGFloat = 12,
         verticalPadding: CGFloat = 20,
         horizontalPadding: CGFloat = 16,
         curveStrength: CGFloat = 0.48,
+        maxHeightScale: CGFloat = 1.0,
         onTapGesture: ((SankeySelection) -> Void)? = nil
     ) {
         self.data = data
         self.showLabel = showLabel
+        self.valueSuffix = valueSuffix
         self.levelSpacing = max(44, levelSpacing)
         self.minimumLeafThickness = max(1, minimumLeafThickness)
         self.nodeGap = max(0, nodeGap)
         self.verticalPadding = max(0, verticalPadding)
         self.horizontalPadding = max(0, horizontalPadding)
         self.curveStrength = min(1, max(0, curveStrength))
+        self.maxHeightScale = max(1, maxHeightScale)
         self.onTapGesture = onTapGesture
     }
 
@@ -76,6 +87,7 @@ public struct HorizontalSankeyChart: View {
                 horizontalPadding: horizontalPadding,
                 levelSpacing: levelSpacing,
                 minimumLeafThickness: minimumLeafThickness,
+                maxHeightScale: maxHeightScale,
                 barWidth: barWidth,
                 labelInset: labelInset
             )
@@ -85,6 +97,7 @@ public struct HorizontalSankeyChart: View {
                     draw(
                         result.layout,
                         lastLevel: lastLevel,
+                        valueSuffix: valueSuffix,
                         context: &context
                     )
                 }
@@ -180,6 +193,7 @@ public struct HorizontalSankeyChart: View {
         horizontalPadding: CGFloat,
         levelSpacing: CGFloat,
         minimumLeafThickness: CGFloat,
+        maxHeightScale: CGFloat,
         barWidth: CGFloat,
         labelInset: CGFloat
     ) -> Result {
@@ -213,13 +227,18 @@ public struct HorizontalSankeyChart: View {
         )
 
         // Reserve the gap between stacked nodes, large enough to
-        // hold the label drawn above each bar.
+        // hold the label drawn above each bar (or beside it on the
+        // last level) so adjacent labels never collide.
         let gaps = levels.enumerated().map { level, nodes -> CGFloat in
-            guard level < lastLevel, labels.columnHeight[level] > 0 else {
-                return nodeGap
+            if level < lastLevel, labels.columnHeight[level] > 0 {
+                return max(nodeGap, labels.columnHeight[level] + labelInset + 2)
             }
 
-            return max(nodeGap, labels.columnHeight[level] + labelInset + 2)
+            if level == lastLevel, labels.sideLabelHeight > 0 {
+                return max(nodeGap, labels.sideLabelHeight + labelInset)
+            }
+
+            return nodeGap
         }
 
         let gapsTotal = levels.enumerated().reduce(CGFloat.zero) {
@@ -229,33 +248,144 @@ public struct HorizontalSankeyChart: View {
         // Labels of the first bars must not leave the frame.
         let topReserve = labels.columnHeight.max() ?? 0
 
-        let smallest =
-            levels
-            .flatMap { $0 }
-            .map { $0.item.value }
-            .min() ?? 1
+        // The densest column decides the smallest usable bar thickness:
+        // its minimums plus its gaps must fit the container.
+        let densestIndex = levels.indices.max {
+            levels[$0].count < levels[$1].count
+        } ?? 0
+        let densestCount = max(levels[densestIndex].count, 1)
+        let densestGap = gaps[densestIndex]
 
-        let minimumBarExtent =
-            smallest > 0
-            ? CGFloat(total / smallest) * minimumLeafThickness
-            : 0
+        let floorHeight =
+            verticalPadding * 2
+            + topReserve
+            + densestGap * CGFloat(densestCount - 1)
+            + CGFloat(densestCount)
 
-        let height = max(
-            containerSize.height,
-            verticalPadding * 2 + topReserve + gapsTotal + minimumBarExtent
+        // Fit-to-container: the content stays close to the proposed
+        // height, but may grow up to `maxHeightScale` times taller
+        // (the view scrolls the overflow). Bars that would disappear
+        // at the proportional scale are clamped to a minimum thickness
+        // so they stay visible and tappable; when even the requested
+        // minimums cannot fit, the effective minimum shrinks toward 1pt.
+        let allowedHeight = max(
+            containerSize.height * maxHeightScale,
+            floorHeight
         )
 
-        let available = max(
-            1,
-            height - verticalPadding * 2 - topReserve - gapsTotal
+        // Height the layout would need if every bar got the full
+        // requested minimum thickness.
+        let comfortableHeight =
+            verticalPadding * 2
+            + topReserve
+            + gapsTotal
+            + CGFloat(densestCount) * minimumLeafThickness
+
+        let height = min(
+            allowedHeight,
+            max(containerSize.height, comfortableHeight)
         )
 
-        // One global scale keeps every flow's thickness
-        // proportional to its value.
-        let scale = max(
-            available / CGFloat(total),
-            smallest > 0 ? minimumLeafThickness / CGFloat(smallest) : 0
+        let effectiveMinimum = height >= comfortableHeight
+            ? minimumLeafThickness
+            : max(
+                1,
+                min(
+                    minimumLeafThickness,
+                    (height - verticalPadding * 2 - topReserve
+                        - densestGap * CGFloat(densestCount - 1))
+                        / CGFloat(densestCount)
+                )
+            )
+
+        // Per-column water-filling: each level fills its own vertical
+        // budget, so a dense last level cannot starve the upper levels
+        // (and vice versa). Within a column, bars below the minimum
+        // are clamped so they stay visible, the remaining bars share
+        // what is left proportionally, and the minimum shrinks until
+        // the column fits (big bars take more than the minimum, so
+        // the initial feasibility estimate alone can overflow).
+        var scales: [CGFloat] = Array(repeating: 0, count: levels.count)
+        var minimums: [CGFloat] = Array(
+            repeating: effectiveMinimum,
+            count: levels.count
         )
+
+        for (level, nodes) in levels.enumerated() {
+            let budget = max(
+                1,
+                height
+                    - verticalPadding * 2
+                    - topReserve
+                    - gaps[level] * CGFloat(max(nodes.count - 1, 0))
+            )
+            let columnTotal = nodes.reduce(0.0) { $0 + $1.item.value }
+            let idealScale = columnTotal > 0
+                ? budget / CGFloat(columnTotal)
+                : 0
+
+            var minimum = min(
+                minimumLeafThickness,
+                max(1, budget / CGFloat(max(nodes.count, 1)))
+            )
+            var scale = idealScale
+
+            for _ in 0..<8 {
+                var clampedThickness: CGFloat = 0
+                var clampedValue: Double = 0
+                for node in nodes {
+                    if CGFloat(node.item.value) * idealScale < minimum {
+                        clampedThickness += minimum
+                        clampedValue += node.item.value
+                    }
+                }
+
+                let proportionalValue = columnTotal - clampedValue
+                scale = proportionalValue > 0
+                    ? max(0, budget - clampedThickness)
+                        / CGFloat(proportionalValue)
+                    : idealScale
+
+                let sum = nodes.reduce(CGFloat.zero) {
+                    $0 + max(CGFloat($1.item.value) * scale, minimum)
+                }
+
+                let overflow = sum - budget
+                guard overflow > 0.5 else { break }
+                minimum = max(
+                    1,
+                    minimum - overflow / CGFloat(max(nodes.count, 1))
+                )
+            }
+
+            scales[level] = scale
+            minimums[level] = minimum
+        }
+
+        // Provisional thickness per node from its column's water-filling.
+        var thicknessByID: [String: CGFloat] = [:]
+        for (level, nodes) in levels.enumerated() {
+            for node in nodes {
+                thicknessByID[node.item.id] = max(
+                    CGFloat(node.item.value) * scales[level],
+                    minimums[level]
+                )
+            }
+        }
+
+        // Bottom-up: a branch bar spans exactly its children's ribbon
+        // thicknesses, so every parent visually covers its whole
+        // decomposition (ribbons stack contiguously from the parent's
+        // top edge). Without this, per-column scaling breaks the
+        // parent-child coverage that makes a Sankey readable.
+        for nodes in levels.reversed() {
+            for node in nodes where !node.item.children.isEmpty {
+                let children = node.item.children.reduce(CGFloat.zero) {
+                    $0 + (thicknessByID[$1.id] ?? 0)
+                }
+                thicknessByID[node.item.id] = children
+            }
+        }
 
         var layout = Layout()
         var positions: [String: PlacedNode] = [:]
@@ -265,7 +395,7 @@ public struct HorizontalSankeyChart: View {
             let gap = gaps[level]
 
             let thicknesses = nodes.map {
-                CGFloat($0.item.value) * scale
+                thicknessByID[$0.item.id] ?? minimums[level]
             }
 
             let sumThicknesses = thicknesses.reduce(CGFloat.zero, +)
@@ -369,6 +499,8 @@ public struct HorizontalSankeyChart: View {
         var trailingInset: CGFloat = 0
         /// Height of the tallest label drawn above a bar per column.
         var columnHeight: [CGFloat] = []
+        /// Height of the single-line label drawn beside a last-level bar.
+        var sideLabelHeight: CGFloat = 0
     }
 
     private static func labelMetrics(
@@ -386,9 +518,15 @@ public struct HorizontalSankeyChart: View {
                 let size = labelSize(for: node.item)
 
                 if level == lastLevel {
+                    let side = sideLabelSize(for: node.item)
+
                     metrics.trailingInset = max(
                         metrics.trailingInset,
-                        size.width + labelInset + 4
+                        side.width + labelInset + 4
+                    )
+                    metrics.sideLabelHeight = max(
+                        metrics.sideLabelHeight,
+                        side.height
                     )
                 } else {
                     metrics.columnHeight[level] = max(
@@ -424,7 +562,7 @@ public struct HorizontalSankeyChart: View {
         )
 
         let value = measure(
-            item.value.formatted(),
+            item.value.formatted(.number.precision(.fractionLength(2))),
             pointSize: valuePointSize,
             traits: []
         )
@@ -432,6 +570,30 @@ public struct HorizontalSankeyChart: View {
         return (
             width: max(title.width, value.width),
             height: title.height + value.height
+        )
+    }
+
+    /// Single-line label drawn beside a last-level bar: title and
+    /// value on one line. Its height drives the last level's row gap
+    /// so adjacent labels never collide.
+    private static func sideLabelSize(
+        for item: SankeyItem
+    ) -> (width: CGFloat, height: CGFloat) {
+        let title = measure(
+            item.title,
+            pointSize: titlePointSize,
+            traits: .traitBold
+        )
+
+        let value = measure(
+            item.value.formatted(.number.precision(.fractionLength(2))),
+            pointSize: valuePointSize,
+            traits: []
+        )
+
+        return (
+            width: title.width + value.width + 6,
+            height: max(title.height, value.height)
         )
     }
 
@@ -549,10 +711,23 @@ public struct HorizontalSankeyChart: View {
             .foregroundStyle(.primary)
     }
 
-    private static func valueText(_ value: Double) -> Text {
-        Text(value.formatted())
+    private static func valueText(
+        _ value: Double,
+        suffix: String
+    ) -> Text {
+        Text("\(value.formatted(.number.precision(.fractionLength(2))))\(suffix)")
             .font(.system(size: valuePointSize, weight: .medium))
             .foregroundStyle(.secondary)
+    }
+
+    /// One-line "Title value" label for the last level.
+    private static func sideLabel(
+        for item: SankeyItem,
+        suffix: String
+    ) -> Text {
+        titleText(item.title)
+            + Text("\n")
+            + valueText(item.value, suffix: suffix)
     }
 
     /// Height of the stacked label block.
@@ -566,7 +741,7 @@ public struct HorizontalSankeyChart: View {
                 traits: .traitBold
             ).height,
             value: measure(
-                item.value.formatted(),
+                item.value.formatted(.number.precision(.fractionLength(2))),
                 pointSize: valuePointSize,
                 traits: []
             ).height
@@ -578,6 +753,7 @@ public struct HorizontalSankeyChart: View {
     private func draw(
         _ layout: Layout,
         lastLevel: Int,
+        valueSuffix: String,
         context: inout GraphicsContext
     ) {
         // Draw ribbons first.
@@ -620,22 +796,14 @@ public struct HorizontalSankeyChart: View {
 
             if node.level == lastLevel {
                 // Last level: the bar is the separation line, so its
-                // label sits beside it, vertically centred.
-                let heights = Self.labelHeight(for: node.item)
-                let blockHeight = heights.title + heights.value
-                let top = node.bar.midY - blockHeight / 2
-                let x = node.bar.maxX + labelInset
-
+                // single-line label sits beside it, vertically centred.
                 context.draw(
-                    Self.titleText(node.item.title),
-                    at: CGPoint(x: x, y: top + heights.title),
-                    anchor: .bottomLeading
-                )
-
-                context.draw(
-                    Self.valueText(node.item.value),
-                    at: CGPoint(x: x, y: top + blockHeight),
-                    anchor: .bottomLeading
+                    Self.sideLabel(for: node.item, suffix: valueSuffix),
+                    at: CGPoint(
+                        x: node.bar.maxX + labelInset,
+                        y: node.bar.midY
+                    ),
+                    anchor: .leading
                 )
             } else {
                 // Everything else: label sits above the bar's top
@@ -651,7 +819,7 @@ public struct HorizontalSankeyChart: View {
                 )
 
                 context.draw(
-                    Self.valueText(node.item.value),
+                    Self.valueText(node.item.value, suffix: valueSuffix),
                     at: CGPoint(x: x, y: bottom),
                     anchor: .bottom
                 )

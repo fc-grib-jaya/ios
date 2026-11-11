@@ -38,7 +38,7 @@ struct WeightDetailCard: View {
                         .font(AppFont.mediumBody)
                         .foregroundStyle(AppColor.Primitive.Neutral.shade950)
                     
-                    Text("\(bodyWeight.formatted(.number.precision(.fractionLength(1)))) kg")
+                    Text("\(bodyWeight.formatted(.number.precision(.fractionLength(2)))) kg")
                         .font(AppFont.largeTitle)
                         .foregroundStyle(AppColor.Primitive.Secondary.shade900)
                 }
@@ -84,6 +84,7 @@ struct WeightDetailCard: View {
                     Text("Pengambilan data: \(formattedDateAcquired)")
                         .font(AppFont.caption)
                         .foregroundStyle(AppColor.Primitive.Neutral.shade400)
+                        .padding(.vertical, AppSpacing.sm)
                     
                     Button {
                         action()
@@ -95,7 +96,7 @@ struct WeightDetailCard: View {
                             .frame(maxWidth: .infinity)
                             .glassEffect(
                                 .regular
-                                    .tint(AppColor.Button.Secondary.background)
+                                    .tint(AppColor.Primitive.Primary.shade100)
                             )
                     }
                 }

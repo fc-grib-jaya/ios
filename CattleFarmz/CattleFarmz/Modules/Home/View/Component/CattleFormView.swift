@@ -93,12 +93,14 @@ struct CattleFormView: View {
                         .font(AppFont.body)
                         
                         Picker("Masukkan Jenis Sapi", selection: $jenisCattle) {
-                            Text("Masukkan Jenis Sapi")
-                                .tag(nil as CattleBreed?)
+                            if jenisCattle == nil {
+                                Text("Masukkan Jenis Sapi")
+                                    .tag(nil as CattleBreed?)
+                            }
                             
                             ForEach(CattleBreed.allCases) { breed in
                                 Text(breed.rawValue)
-                                    .tag(breed)
+                                    .tag(breed as CattleBreed?)
                             }
                         }
                         .pickerStyle(.menu)
@@ -233,6 +235,10 @@ struct CattleFormView: View {
                                 
                                 if (viewModel.scanResult == nil){
                                     Button {
+                                        guard jenisCattle != nil, genderCattle != nil else {
+                                            return
+                                        }
+
                                         onScanSession { result in
                                             viewModel.storeScanResult(result)
                                             gambarCattle = result?.cattleImage
@@ -264,6 +270,7 @@ struct CattleFormView: View {
                                         )
                                     }
                                     .buttonStyle(.plain)
+                                    .disabled(jenisCattle == nil || genderCattle == nil)
                                 } else if let scan = viewModel.scanResult {
                                     if let girth = scan.girth,
                                        let weight = bobotCattle {

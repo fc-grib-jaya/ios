@@ -55,7 +55,9 @@ struct MainTabView: View {
                         CattlesDetailView(
                             cattleID: id,
                             viewModel: cattlesViewModel,
-                            onEditTap: coordinator.showEditCattleSheet,
+                            onEditTap: { cattle in
+                                coordinator.showEditCattle(cattleID: cattle.id.uuidString)
+                            }
                         )
                     case .addCattle:
                         CattleFormView(
@@ -63,16 +65,44 @@ struct MainTabView: View {
                                 coordinator.showScanSession(onFinish: onFinish)
                             },
                             viewModel: container.makeCattleFormViewModel()
-                        ) { name, date, breed, gender, recordedAge, bodyWeight, cattleImage, notes in
+                        ) { values in
                             try cattlesViewModel.addCattle(
-                                name: name,
-                                dateAcquired: date,
-                                breed: breed,
-                                gender: gender,
-                                recordedAge: recordedAge,
-                                bodyWeight: bodyWeight,
-                                cattleImage: cattleImage,
-                                notes: notes
+                                name: values.name,
+                                dateAcquired: values.dateAcquired,
+                                breed: values.breed,
+                                gender: values.gender,
+                                recordedAge: values.recordedAge,
+                                bodyWeight: values.bodyWeight,
+                                cattleImage: values.cattleImage,
+                                notes: values.notes
+                            )
+                        }
+                    case .editCattle(let id):
+                        if let cattle = cattlesViewModel.items.first(
+                            where: { $0.id.uuidString == id }
+                        ) {
+                            CattleFormView(
+                                cattle: cattle,
+                                onScanSession: { onFinish in
+                                    coordinator.showScanSession(onFinish: onFinish)
+                                },
+                                viewModel: container.makeCattleFormViewModel()
+                            ) { values in
+                                if let error = cattlesViewModel.editCattle(
+                                    values,
+                                    for: cattle
+                                ) {
+                                    throw NSError(
+                                        domain: "CattleForm",
+                                        code: 1,
+                                        userInfo: [NSLocalizedDescriptionKey: error]
+                                    )
+                                }
+                            }
+                        } else {
+                            ContentUnavailableView(
+                                "Sapi Tidak Ditemukan",
+                                systemImage: "exclamationmark.triangle"
                             )
                         }
                     }
@@ -108,10 +138,6 @@ struct MainTabView: View {
                         onSelect: onSelect
                     )
                 )
-            case .editCattle(let cattle, let onSave):
-                NavigationStack {
-                    CattlesEditForm(cattle: cattle, onSave: onSave)
-                }
             case .guestLoginSheet(let onDone):
                 GuestLoginSheetView(
                     viewModel: container.makeGuestLoginSheetViewModel(onDone: onDone)

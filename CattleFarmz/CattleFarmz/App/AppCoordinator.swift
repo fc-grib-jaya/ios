@@ -70,11 +70,9 @@ final class AppCoordinator {
         sheet = .examplePickerSheet(current: current, onSelect: onSelect)
     }
 
-    func showEditCattleSheet(
-        cattle: Cattle,
-        onSave: @escaping (CattleEditValues) -> String?
-    ) {
-        sheet = .editCattle(cattle: cattle, onSave: onSave)
+    /// Pushes the edit-cattle form onto the Home navigation stack.
+    func showEditCattle(cattleID: String) {
+        path.append(.editCattle(id: cattleID))
     }
 
     func dismissSheet() {

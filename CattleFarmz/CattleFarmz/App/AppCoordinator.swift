@@ -5,6 +5,7 @@
 
 import ARKit
 import Observation
+import SwiftUI
 import UIKit
 
 /// The top-level states the app can be in.
@@ -89,10 +90,19 @@ final class AppCoordinator {
     }
 
     /// Marks onboarding complete and reveals the main tab interface.
+    ///
+    /// The guest login sheet is closed first; the phase swap waits until the
+    /// dismissal animation has finished so the main interface never appears
+    /// underneath a still-dismissing sheet.
     func finishOnboarding() {
         hasCompletedOnboarding = true
         sheet = nil
-        phase = .main
+        Task {
+            try? await Task.sleep(for: .seconds(0.6))
+            withAnimation {
+                phase = .main
+            }
+        }
     }
 
     /// App Cover handling

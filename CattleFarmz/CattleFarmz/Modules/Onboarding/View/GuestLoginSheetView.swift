@@ -45,10 +45,18 @@ struct GuestLoginSheetView: View {
 
                 Spacer(minLength: 0)
 
-                Button("Login sebagai tamu"){
+                Button {
                     viewModel.submit()
+                } label: {
+                    if viewModel.isSubmitting {
+                        ProgressView()
+                            .tint(AppColor.Button.Primary.foreground)
+                    } else {
+                        Text("Login sebagai tamu")
+                    }
                 }
                 .appButtonStyle(.primary)
+                .disabled(viewModel.isSubmitting)
             }
             .padding(AppSpacing.md)
             .navigationTitle(viewModel.title)

@@ -10,15 +10,18 @@ struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
     @State private var detailView = 0
     private let cattleID: UUID?
+    private let onOpenRation: (UUID) -> Void
     private let onEditTap: (Cattle) -> Void
 
     init(
         cattleID: String,
         viewModel: CattlesViewModel,
+        onOpenRation: @escaping (UUID) -> Void,
         onEditTap: @escaping (Cattle) -> Void
     ) {
         self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
+        self.onOpenRation = onOpenRation
         self.onEditTap = onEditTap
         
         let primary = UIColor(AppColor.Primitive.Primary.shade400)
@@ -90,16 +93,12 @@ struct CattlesDetailView: View {
                     .controlSize(.large)
                     .padding(.vertical, AppSpacing.xs)
                     
-                    switch detailView {
-                    case 0:
+                    if detailView == 1 {
+                        NoRationCard { onOpenRation(cattle.id) }
+                    } else {
                         CarcassView(breakdown: breakdown)
-                    case 1:
-                        NoRationCard()
-                    default:
-                        EmptyView()
                     }
-                    
-                    
+
                     Text("Terakhir disimpan: \(formatDate(cattle.dateAcquired))")
                         .font(AppFont.caption)
                         .foregroundStyle(AppColor.Primitive.Neutral.shade500)
@@ -139,6 +138,7 @@ struct CattlesDetailView: View {
                 calculation: WeightCalculator(),
                 toast: ToastManager()
             ),
+            onOpenRation: { _ in },
             onEditTap: { _ in }
         )
     }

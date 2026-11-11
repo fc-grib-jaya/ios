@@ -81,7 +81,6 @@ struct CameraView: View {
     private func shutterButton(viewportSize: CGSize) -> some View {
         Button {
             viewModel.takePhoto(viewportSize: viewportSize)
-            
         } label: {
             ZStack {
                 Circle()
@@ -133,5 +132,5 @@ struct CameraView: View {
 }
 
 #Preview {
-    CameraView(viewModel: CameraViewModel(service: MockScanCapturing()), onClose: {})
+    CameraView(viewModel: CameraViewModel(service: MockScanCapturing(), haptics: NoopHaptics()), onClose: {})
 }

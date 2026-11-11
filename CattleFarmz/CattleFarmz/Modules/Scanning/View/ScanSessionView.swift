@@ -75,6 +75,7 @@ struct ScanSessionView: View {
     ScanSessionView(
         viewModel: ScanSessionViewModel(
             service: MockScanCapturing(),
+            haptics: NoopHaptics(),
             makeMeasurement: { capture in
                 MeasurementViewModel(capture: capture, renderer: MockDepthRenderer())
             },

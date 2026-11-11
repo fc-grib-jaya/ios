@@ -5,7 +5,7 @@
 //  Created by Muhamad Yuan Sastro Dimianta on 04/11/26.
 //
 
-struct RationCalculationResult {
+struct RationCalculationResult: Codable {
     let profile: CattleRationProfile
     let items: [RationItem]
 
@@ -40,8 +40,7 @@ struct RationCalculationResult {
 
     var proteinKilogramsPerAnimalPerDay: Double {
         items.reduce(0) {
-            $0 + $1.kilogramsPerAnimalPerDay
-                * ($1.ingredient.nutrients.crudeProteinPercent / 100)
+            $0 + $1.proteinKilogramsPerAnimalPerDay
         }
     }
 

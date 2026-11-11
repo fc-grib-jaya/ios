@@ -13,6 +13,9 @@ enum AppRoute: Hashable {
     case cattleDetail(id: String)
     /// Add-cattle form screen.
     case addCattle
+    case rationForm
+    case rationAnalysis
+    case rationAnalysisDetail
 }
 
 enum AppSheet: Identifiable {

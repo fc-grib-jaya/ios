@@ -138,7 +138,8 @@ struct CattlesDetailView: View {
             cattleID: Cattle.samples[1].id.uuidString,
             viewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
-                calculation: WeightCalculator()
+                calculation: WeightCalculator(),
+                toast: ToastManager()
             ),
             onEditTap: { _, _ in }
         )

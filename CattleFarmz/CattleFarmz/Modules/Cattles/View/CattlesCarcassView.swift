@@ -92,7 +92,8 @@ struct CattlesCarcassView: View {
             cattleID: Cattle.samples[0].id.uuidString,
             viewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
-                calculation: WeightCalculator()
+                calculation: WeightCalculator(),
+                toast: ToastManager()
             )
         )
     }

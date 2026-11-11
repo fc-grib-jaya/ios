@@ -42,8 +42,6 @@
 		};
 		92B84B6C309AE93600A09384 /* CattleFarmzTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-			);
 			path = CattleFarmzTests;
 			sourceTree = "<group>";
 		};

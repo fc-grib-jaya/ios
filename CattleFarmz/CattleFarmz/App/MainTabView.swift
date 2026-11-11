@@ -48,12 +48,7 @@ struct MainTabView: View {
                     },
                     onAddCattleTap: {
                        print("on add cattle tap")
-                        coordinator.showAddCattle() },
-                    onToastTap: {
-                        container.toastManager.show(
-                            "Your changes have been saved"
-                        )
-                    }
+                        coordinator.showAddCattle() }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {

@@ -15,7 +15,6 @@ struct HomeView: View {
     private let onScanTap: () -> Void
     private let onCardTap: (String) -> Void
     private let onAddCattleTap: () -> Void
-    private let onToastTap: () -> Void
 
     init(
         viewModel: HomeViewModel,
@@ -25,8 +24,7 @@ struct HomeView: View {
         onExamplePickerTap: @escaping () -> Void,
         onScanTap: @escaping () -> Void,
         onCardTap: @escaping (String) -> Void,
-        onAddCattleTap: @escaping () -> Void,
-        onToastTap: @escaping () -> Void
+        onAddCattleTap: @escaping () -> Void
     ) {
         _viewModel = State(initialValue: viewModel)
         _cattlesViewModel = State(initialValue: cattlesViewModel)
@@ -36,7 +34,6 @@ struct HomeView: View {
         self.onScanTap = onScanTap
         self.onCardTap = onCardTap
         self.onAddCattleTap = onAddCattleTap
-        self.onToastTap = onToastTap
     }
 
     @State private var isFilterPresented = false
@@ -132,12 +129,7 @@ struct HomeView: View {
                     }
                     .padding(.horizontal, AppSpacing.md)
 
-                Button("Show toast", action: onToastTap)
-                    .appButtonStyle(.secondary)
-                    .padding(.horizontal, AppSpacing.md)
-                    .padding(.bottom, AppSpacing.sm)
-
-                    if cattlesViewModel.hasNoVisibleCattle
+                if cattlesViewModel.hasNoVisibleCattle
                         || cattlesViewModel.filteredItems.isEmpty
                     {
                         NoCattleCard()
@@ -218,23 +210,20 @@ struct HomeView: View {
 }
 
 #Preview {
-    @Previewable @State var toastManager = ToastManager()
-
     NavigationStack {
         HomeView(
             viewModel: HomeViewModel(haptics: NoopHaptics()),
             cattlesViewModel: CattlesViewModel(
                 repository: MockCattleRepository(),
-                calculation: WeightCalculator()
+                calculation: WeightCalculator(),
+                toast: ToastManager()
             ),
             farmerName: "Dylan",
             onProfileTap: {},
             onExamplePickerTap: {},
             onScanTap: {},
             onCardTap: { _ in },
-            onAddCattleTap: {},
-            onToastTap: { toastManager.show("Your changes have been saved") }
+            onAddCattleTap: {}
         )
-        .toast(manager: toastManager)
     }
 }

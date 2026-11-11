@@ -137,7 +137,7 @@ final class DIContainer {
     
     /// Creates the cattles screen view model.
     func makeCattlesViewModel() -> CattlesViewModel {
-        CattlesViewModel(repository: cattleRepository, calculation: weightCalculation)
+        CattlesViewModel(repository: cattleRepository, calculation: weightCalculation, toast: toastManager)
     }
 
     /// Creates the add-cattle form view model.

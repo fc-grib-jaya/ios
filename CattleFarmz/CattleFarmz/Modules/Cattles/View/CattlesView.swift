@@ -51,7 +51,8 @@ struct CattlesView: View {
     CattlesView(
         viewModel: CattlesViewModel(
             repository: MockCattleRepository(),
-            calculation: WeightCalculator()
+            calculation: WeightCalculator(),
+            toast: ToastManager()
         ),
         onCardTap: { _ in }
     )

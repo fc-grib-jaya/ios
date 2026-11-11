@@ -14,26 +14,9 @@ struct WeightDetailCardDylan: View {
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                
-                HStack {
-                    Text("Estimasi Bobot")
-                        .font(AppFont.headline)
-                        .foregroundStyle(AppColor.Text.primary)
-                    
-                    Spacer()
-                    
-                    Button {
-                        // Ke Detail Bobot
-                    } label: {
-                        Text("Detail Bobot \(Image(systemName: "chevron.right"))")
-                            .font(AppFont.caption)
-                            .foregroundStyle(AppColor.Primitive.Secondary.shade900)
-                            .padding(.horizontal, AppSpacing.sm)
-                            .padding(.vertical, AppSpacing.xs)
-                    }
-                    .buttonStyle(.plain)
-                    .glassEffect(.regular.tint(AppColor.Primitive.Secondary.shade200))
-                }
+                Text("Estimasi Bobot")
+                    .font(AppFont.headline)
+                    .foregroundStyle(AppColor.Text.primary)
                 
                 HStack {
                     Image(systemName: "scalemass.fill")
@@ -61,6 +44,17 @@ struct WeightDetailCardDylan: View {
         .frame(maxWidth: .infinity)
         .background(AppColor.Primitive.Secondary.shade50)
         .cornerRadius(AppSpacing.lg)
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                        .stroke(
+                            LinearGradient(
+                                gradient: Gradient(colors: [AppColor.Primitive.Secondary.shade500, AppColor.Primitive.Secondary.shade50]),
+                                startPoint: .topTrailing,
+                                endPoint: .bottomLeading
+                            ),
+                            lineWidth: 2
+                        )
+        )
     }
 }
 

@@ -60,8 +60,9 @@ final class MeasurementViewModel {
         return nil
     }
     var canAdvance: Bool {
-        guard let activePoint, let step = currentStep else { return false }
-        return step.id.hasPrefix("chest") || (try? capture.metadata.depth.point(at: activePoint.point)) != nil
+        guard let activePoint, currentStep != nil else { return false }
+        // All four landmarks must point to a usable raw-depth pixel.
+        return (try? capture.metadata.depth.point(at: activePoint.point)) != nil
     }
 
     func prepare() {

@@ -22,38 +22,50 @@ struct CameraView: View {
 
     var body: some View {
         GeometryReader { geometry in
+            // Keep the original 734:874 proportion while fitting any landscape width.
+            let previewWidth = min(
+                geometry.size.width * 734 / 874,
+                max(1, geometry.size.width - 2 * AppSpacing.lg)
+            )
+            let previewSize = CGSize(width: previewWidth, height: geometry.size.height)
+            
             ZStack {
-                Color.gray
+                Color.white
                     .ignoresSafeArea()
 
                 CameraPreview(session: viewModel.previewSession)
-                    .ignoresSafeArea()
+                    .frame(width: previewSize.width, height: previewSize.height)
+                    .clipShape(RoundedRectangle(cornerRadius: 40))
+                    .overlay(alignment: .trailing) {
+                        shutterButton(viewportSize: previewSize)
+                    }
+                    .overlay(alignment: .bottomLeading) {
+                        statusOverlay(maxWidth: min(340, max(1, previewWidth - 2 * AppSpacing.lg)))
+                            .padding(.leading, AppSpacing.lg)
+                            .padding(.bottom, AppSpacing.lg)
+                    }
             }
             .overlay(alignment: .topLeading) {
                 Button(action: onClose) {
                     Image(systemName: "xmark")
-                        .padding(12)
+                        .frame(width: 44, height: 44)
                         .background(.ultraThinMaterial, in: Circle())
                 }
                 .tint(.primary)
-                .padding(24)
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.xxl)
                 .accessibilityLabel("Tutup kamera")
             }
-            .overlay(alignment: .bottomTrailing) {
+            .overlay(alignment: .bottomLeading) {
                 Button {} label: {
-                    Image(systemName: "info")
-                        .padding(12)
-                        .background(.ultraThinMaterial, in: Circle())
+                    Image(systemName: "questionmark.circle")
+                        .frame(width: 44, height: 44)
+                        .background(AppColor.Primitive.Primary.shade500, in: Circle())
                 }
-                .tint(.primary)
-                .padding(24)
+                .foregroundStyle(AppColor.Primitive.Neutral.shade50)
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.xxl)
                 .accessibilityLabel("Petunjuk pemindaian")
-            }
-            .overlay(alignment: .trailing) {
-                shutterButton(viewportSize: geometry.size)
-            }
-            .overlay(alignment: .bottom) {
-                statusOverlay
             }
         }
         .ignoresSafeArea()
@@ -92,31 +104,33 @@ struct CameraView: View {
         .padding(.trailing, 24)
     }
 
-    private var statusOverlay: some View {
-        VStack(spacing: 12) {
-            Text("Pastikan tubuh sapi terlihat utuh dari samping")
-                .multilineTextAlignment(.center)
-                .padding(8)
-                .background(
-                    .ultraThinMaterial,
-                    in: RoundedRectangle(cornerRadius: 14)
-                )
+    private func statusOverlay(maxWidth: CGFloat) -> some View {
+        HStack(spacing: AppSpacing.sm) {
+            Image(systemName: "info.circle")
+                .font(AppFont.title)
+                .accessibilityHidden(true)
 
-            Text(viewModel.errorMessage ?? viewModel.status)
-                .font(.subheadline)
-                .multilineTextAlignment(.center)
-                .padding(12)
-                .background(
-                    .ultraThinMaterial,
-                    in: RoundedRectangle(cornerRadius: 14)
-                )
+            VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                Text("Foto sapi dari samping")
+                    .font(AppFont.mediumBody)
+
+                Text("Pastikan pengambilan foto simetris")
+                    .font(AppFont.mediumSubheadline)
+                    .foregroundStyle(AppColor.Text.secondary)
+
+//                Text(viewModel.errorMessage ?? viewModel.status)
+//                    .font(AppFont.caption)
+//                    .foregroundStyle(AppColor.Text.secondary)
+            }
         }
-        .frame(maxWidth: 340)
-        .padding(.horizontal, 20)
-        .padding(.bottom, 24)
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.sm)
+        .frame(width: maxWidth, alignment: .leading)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 50))
     }
+
 }
 
 #Preview {
-    CameraView(viewModel: CameraViewModel(service: MockScanCapturing()), onClose: {})
+    CameraView(viewModel: CameraViewModel(service: MockScanCapturing(), haptics: NoopHaptics()), onClose: {})
 }

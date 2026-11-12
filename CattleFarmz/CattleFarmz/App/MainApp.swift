@@ -42,8 +42,6 @@ struct MainApp: App {
                 )
             )
             
-            UISegmentedControl.appearance().selectedSegmentTintColor =
-            UIColor(AppColor.Primitive.Primary.shade500)
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }

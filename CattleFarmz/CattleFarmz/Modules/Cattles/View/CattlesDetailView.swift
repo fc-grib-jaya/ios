@@ -21,22 +21,6 @@ struct CattlesDetailView: View {
         _viewModel = State(initialValue: viewModel)
         self.onEditTap = onEditTap
         
-        let primary = UIColor(AppColor.Primitive.Primary.shade400)
-        let white = UIColor(AppColor.Primitive.Base.white)
-        let segmented = UISegmentedControl.appearance()
-        let font = UIFont.systemFont(ofSize: 15, weight: .regular)
-
-        segmented.selectedSegmentTintColor = primary
-        segmented.backgroundColor = primary.withAlphaComponent(0.12)
-
-        segmented.setTitleTextAttributes(
-            [.foregroundColor: primary, .font: font],
-            for: .normal
-        )
-        segmented.setTitleTextAttributes(
-            [.foregroundColor: white, .font: font],
-            for: .selected
-        )
     }
 
     /// Derived from the ViewModel so edits made through the shared instance
@@ -82,12 +66,13 @@ struct CattlesDetailView: View {
                         notes: cattle.notes
                     )
                     
-                    Picker("Options", selection: $detailView) {
-                        Text("Karkas").tag(0)
-                        Text("Pakan").tag(1)
+                    AppSegmentedControl(
+                        "Bagian detail sapi",
+                        options: [0, 1],
+                        selection: $detailView
+                    ) { option in
+                        Text(option == 0 ? "Karkas" : "Pakan")
                     }
-                    .pickerStyle(.segmented)
-                    .controlSize(.large)
                     .padding(.vertical, AppSpacing.xs)
                     
                     switch detailView {

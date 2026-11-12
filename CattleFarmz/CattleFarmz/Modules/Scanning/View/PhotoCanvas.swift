@@ -55,7 +55,7 @@ import SwiftUI
                             to: screenPoint(b.point, origin: origin, size: size)
                         )
                     }.stroke(
-                        .mint,
+                        AppColor.Primitive.Primary.shade500,
                         style: StrokeStyle(lineWidth: 2, lineCap: .round)
                     )
                 }
@@ -80,7 +80,7 @@ import SwiftUI
                             )
                         )
                     }.stroke(
-                        .yellow,
+                        AppColor.Primitive.Primary.shade500,
                         style: StrokeStyle(lineWidth: 2, dash: [5, 3])
                     )
                 }
@@ -103,18 +103,23 @@ import SwiftUI
                 }
                 ForEach(landmarks) { point in
                     let active = point.id == activeID
+                    let stepNumber = MeasurementGuideStep.steps.first { $0.id == point.id }?.number
                     ZStack {
+                        Circle()
+                            .fill(AppColor.Primitive.Primary.shade500)
                         if active {
-                            Circle().stroke(.white, lineWidth: 2).frame(
-                                width: 42,
-                                height: 42
-                            )
+                            Circle()
+                                .strokeBorder(.white, lineWidth: 2)
+                                .frame(width: 26, height: 26)
                         }
-                        Circle().stroke(active ? Color.mint : Color.teal, lineWidth: 2).frame(width: 44, height: 44)
-                        Text("+").font(
-                            .caption.bold()
-                        ).foregroundStyle(.black)
-                    }.position(
+                        if let stepNumber {
+                            Text(stepNumber.formatted())
+                                .font(.caption.bold())
+                                .foregroundStyle(.white)
+                        }
+                    }
+                    .frame(width: 32, height: 32)
+                    .position(
                         screenPoint(point.point, origin: origin, size: size)
                     )
                 }
@@ -186,7 +191,7 @@ import SwiftUI
                     : "Tampilan \(display.rawValue) dari capture."
             )
         }
-        .clipShape(RoundedRectangle(cornerRadius: 18))
+//        .clipShape(RoundedRectangle(cornerRadius: 18))
     }
 
     private func screenPoint(_ point: Point2, origin: CGPoint, size: CGSize)

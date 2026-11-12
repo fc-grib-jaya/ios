@@ -11,3 +11,16 @@ enum CaptureDisplay: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 }
+
+extension CaptureDisplay {
+    var icon: String {
+        switch self {
+        case .photo:
+            return "photo.fill"
+        case .depth:
+            return "viewfinder"
+        case .overlay:
+            return "camera.filters"
+        }
+    }
+}

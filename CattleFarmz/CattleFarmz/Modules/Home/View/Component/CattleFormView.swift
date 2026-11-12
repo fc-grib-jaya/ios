@@ -83,22 +83,6 @@ struct CattleFormView: View {
             viewModel.storeScanResult(existingScan)
         }
 
-        let primary = UIColor(AppColor.Primitive.Primary.shade400)
-        let white = UIColor(AppColor.Primitive.Base.white)
-        let segmented = UISegmentedControl.appearance()
-        let font = UIFont.systemFont(ofSize: 15, weight: .regular)
-
-        segmented.selectedSegmentTintColor = primary
-        segmented.backgroundColor = primary.withAlphaComponent(0.12)
-
-        segmented.setTitleTextAttributes(
-            [.foregroundColor: primary, .font: font],
-            for: .normal
-        )
-        segmented.setTitleTextAttributes(
-            [.foregroundColor: white, .font: font],
-            for: .selected
-        )
     }
     
     var body: some View {
@@ -341,6 +325,25 @@ struct CattleFormView: View {
                                     } else {
                                         Text("Panjang badan: \(scan.lengthCM.formatted()) cm")
                                         Text("Lingkar dada: \(scan.girth) cm")
+                                        
+                                        Button {
+                                            onScanSession { result in
+                                                viewModel.storeScanResult(result)
+                                                gambarCattle = result?.cattleImage
+                                                syncEstimatedWeight()
+                                                print(result)
+                                            }
+                                        } label: {
+                                            Text("Ambil Ulang")
+                                                .font(AppFont.body)
+                                                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                                                .padding(.vertical, AppSpacing.md)
+                                                .frame(maxWidth: .infinity)
+                                                .glassEffect(
+                                                    .regular
+                                                        .tint(AppColor.Button.Secondary.background)
+                                                )
+                                        }
                                     }
                                 }
                             }

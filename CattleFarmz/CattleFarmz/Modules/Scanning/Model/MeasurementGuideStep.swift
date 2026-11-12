@@ -15,6 +15,6 @@ struct MeasurementGuideStep: Identifiable {
                 .init(id: "chestTop", label: "3 · Atas dada", title: "Tandai bagian atas dada",
                       instruction: "Cari garis tepat di belakang kaki depan. Pada garis itu, ketuk tepi atas tubuh di punggung.", number: 3),
                 .init(id: "chestBottom", label: "4 · Bawah dada", title: "Tandai bagian bawah dada",
-                      instruction: "Pada penampang yang sama dengan titik 3, ketuk tepi bawah dada. Garis kuning menghubungkan dua batas dada.", number: 4)
+                      instruction: "Pada penampang yang sama dengan titik 3, ketuk tepi bawah dada. Garis menghubungkan dua batas dada.", number: 4)
             ]
 }

@@ -116,6 +116,7 @@ final class DIContainer {
     /// Creates the splash screen view model.
     func makeSplashViewModel() -> SplashViewModel {
         SplashViewModel(
+            displayDuration: .zero,
             prepareCatalog: prepareCatalog
         )
     }
@@ -190,6 +191,7 @@ final class DIContainer {
     ) -> ScanSessionViewModel {
         ScanSessionViewModel(
             service: scanCapture,
+            haptics: haptics,
             makeMeasurement: makeMeasurementViewModel(capture:),
             onFinish: onFinish
         )

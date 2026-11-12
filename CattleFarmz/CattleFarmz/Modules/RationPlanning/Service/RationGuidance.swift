@@ -17,27 +17,24 @@ enum RationGuidance {
         if profile.sex == .male {
             messages.append(
                 """
-                Source guidance for male cattle: provide sufficient \
-                energy for growth and physical activity.
+                Sediakan energi yang cukup untuk mendukung pertumbuhan dan aktivitas fisik sapi \
+                jantan.
                 """
             )
 
             if profile.productionType == .beef {
                 messages.append(
                     """
-                    Source beef guidance: review protein supply for \
-                    muscle development and consider appropriate \
-                    supplementation when needed.
+                    Untuk sapi potong, periksa kecukupan protein untuk pembentukan otot. \
+                    Pertimbangkan suplemen bila diperlukan.
                     """
                 )
 
                 if profile.targetDailyWeightGainKilograms > 0.8 {
                     messages.append(
                         """
-                        For a weight-gain target above 0.8 kg/day, \
-                        the source suggests 12–14% crude protein \
-                        and 65–70% TDN. This does not predict \
-                        achieved weight gain.
+                        Untuk target kenaikan bobot di atas 0,8 kg/hari, acuan menyarankan protein kasar \
+                        12–14% dan TDN 65–70%. Kenaikan bobot aktual dapat berbeda.
                         """
                     )
                 }
@@ -46,9 +43,8 @@ enum RationGuidance {
             if profile.productionType == .dairy {
                 messages.append(
                     """
-                    Source dairy guidance: review calcium and \
-                    phosphorus supply. The source gives a Ca:P \
-                    reference ratio of 1.5:1 to 2:1.
+                    Untuk sapi perah, periksa pasokan kalsium dan fosfor. Rasio kalsium terhadap \
+                    fosfor yang digunakan sebagai acuan berkisar antara 1,5:1 dan 2:1.
                     """
                 )
 
@@ -59,14 +55,14 @@ enum RationGuidance {
                     let extraEnergy =
                         profile.dailyMilkProductionLiters * 5.5
 
+                    let format = FloatingPointFormatStyle<Double>.number.locale(Locale(identifier: "id_ID"))
+
                     messages.append(
                         """
-                        Source milk-production estimates: \
-                        \(extraProtein.formatted()) g additional \
-                        crude protein/day and \
-                        \(extraEnergy.formatted()) MJ NEL/day. \
-                        These estimates are separate from the \
-                        concentration targets.
+                        Untuk produksi susu yang dimasukkan, perkiraan kebutuhan tambahan per hari \
+                        adalah \(extraProtein.formatted(format)) g \
+                        protein kasar dan \(extraEnergy.formatted(format)) MJ energi neto laktasi (NEL). Angka ini menyatakan kebutuhan harian. \
+                        Target konsentrasi nutrisi dinilai terpisah.
                         """
                     )
                 }
@@ -74,13 +70,11 @@ enum RationGuidance {
 
             messages.append(
                 """
-                If pregnant, the source describes first-trimester \
-                needs as near maintenance; second-trimester additions \
-                of 10–15% protein and 10% energy; and third-trimester \
-                additions of 20–25% protein and 15–20% energy. \
-                It also highlights vitamins A, D, E and minerals \
-                Ca, P, I and Se. No trimester adjustment is \
-                automatically applied.
+                Jika sapi bunting, kebutuhan pada trimester pertama mendekati kebutuhan \
+                pemeliharaan. Pada trimester kedua, acuan menyebut tambahan protein 10–15% dan \
+                energi 10%. Pada trimester ketiga, tambahannya sebesar 20–25% untuk protein dan \
+                15–20% untuk energi. Perhatikan juga vitamin A, D, dan E serta kalsium, fosfor, \
+                iodium, dan selenium. Penyesuaian ransum per trimester dilakukan secara manual.
                 """
             )
         }
@@ -88,9 +82,9 @@ enum RationGuidance {
         if profile.animalCount > 10 {
             messages.append(
                 """
-                Source herd guidance: plan ingredient supply and \
-                suitable storage, consider complete feed or TMR \
-                for consistency, and perform routine feed-quality checks.
+                Untuk kelompok lebih dari 10 ekor, rencanakan pasokan dan penyimpanan bahan \
+                pakan. Pertimbangkan pakan lengkap atau ransum campuran total (TMR) agar \
+                komposisinya konsisten. Periksa mutu pakan secara rutin.
                 """
             )
         }
@@ -104,22 +98,19 @@ enum RationGuidance {
         if [11, 12, 1, 2, 3, 4].contains(month) {
             messages.append(
                 """
-                Wet-season source reference, November–April: \
-                protect stored feed from moisture and aflatoxin \
-                contamination, use available fresh forage, and \
-                review hay and silage use. Actual local \
-                conditions may differ.
+                Pada musim hujan (November–April menurut acuan), lindungi stok pakan dari \
+                kelembapan dan kontaminasi aflatoksin. Manfaatkan hijauan segar yang tersedia \
+                dan evaluasi penggunaan hay (hijauan kering) serta silase. Sesuaikan dengan \
+                kondisi setempat.
                 """
             )
         } else {
             messages.append(
                 """
-                Dry-season source reference, May–October: \
-                plan hay and silage stocks, use seasonal \
-                agricultural by-products, review concentrate \
-                supply when forage quality falls, and ensure \
-                sufficient drinking water. Actual local \
-                conditions may differ.
+                Pada musim kemarau (Mei–Oktober menurut acuan), rencanakan stok hijauan kering \
+                dan silase. Manfaatkan hasil samping pertanian musiman, periksa pasokan \
+                konsentrat jika mutu hijauan menurun, dan sediakan air minum yang cukup. \
+                Sesuaikan dengan kondisi setempat.
                 """
             )
         }

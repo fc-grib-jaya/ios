@@ -22,8 +22,11 @@ final class CameraViewModel {
 
     @ObservationIgnored private let service: any ScanCapturing
 
-    init(service: any ScanCapturing) {
+    @ObservationIgnored private let haptics: any HapticProviding
+
+    init(service: any ScanCapturing, haptics: any HapticProviding) {
         self.service = service
+        self.haptics = haptics
     }
 
     /// Session shown by the preview. `nil` for mocks and previews.
@@ -33,6 +36,7 @@ final class CameraViewModel {
     var isBusy: Bool { service.isBusy }
 
     func start() {
+        haptics.prepare()
         service.start()
     }
 
@@ -41,7 +45,8 @@ final class CameraViewModel {
     }
 
     func takePhoto(viewportSize: CGSize) {
-        guard !service.isBusy else { return }
+        guard service.isReady, !service.isBusy else { return }
+        haptics.play(.scanStart)
         errorMessage = nil
         service.capture(viewportSize: viewportSize) { [weak self] outcome in
             guard let self else { return }

@@ -28,22 +28,6 @@ struct CarcassView: View {
         self.carcassPercent = bodyWeight > 0 ? carcassWeight / bodyWeight * 100 : 0
         self.nonCarcassPercent = bodyWeight > 0 ? nonCarcassWeight / bodyWeight * 100 : 0
         
-        let primary = UIColor(AppColor.Primitive.Primary.shade400)
-        let white = UIColor(AppColor.Primitive.Base.white)
-        let segmented = UISegmentedControl.appearance()
-        let font = UIFont.systemFont(ofSize: 15, weight: .regular)
-
-        segmented.selectedSegmentTintColor = primary
-        segmented.backgroundColor = primary.withAlphaComponent(0.12)
-
-        segmented.setTitleTextAttributes(
-            [.foregroundColor: primary, .font: font],
-            for: .normal
-        )
-        segmented.setTitleTextAttributes(
-            [.foregroundColor: white, .font: font],
-            for: .selected
-        )
     }
     
     init(
@@ -80,12 +64,13 @@ struct CarcassView: View {
                     .font(AppFont.headline)
                     .padding(.trailing, AppSpacing.huge)
                 
-                Picker("Options", selection: $weightView) {
-                    Text("kg").tag(0)
-                    Text("%").tag(1)
+                AppSegmentedControl(
+                    "Satuan distribusi bobot",
+                    options: [0, 1],
+                    selection: $weightView
+                ) { option in
+                    Text(option == 0 ? "kg" : "%")
                 }
-                .pickerStyle(.segmented)
-                .controlSize(.large)
                 .padding(.vertical, AppSpacing.xs)
                 .padding(.leading, AppSpacing.huge)
             }

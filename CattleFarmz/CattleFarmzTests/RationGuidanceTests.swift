@@ -40,15 +40,15 @@ struct RationGuidanceTests {
         )
 
         #expect(messages.contains {
-            $0.contains("weight-gain target")
+            $0.contains("target kenaikan bobot")
         })
 
         #expect(messages.contains {
-            $0.contains("Source herd guidance")
+            $0.contains("kelompok lebih dari 10 ekor")
         })
 
         #expect(messages.contains {
-            $0.contains("Wet-season")
+            $0.contains("musim hujan")
         })
     }
 
@@ -65,19 +65,19 @@ struct RationGuidanceTests {
         )
 
         #expect(messages.contains {
-            $0.contains("milk-production estimates")
+            $0.contains("900 g protein kasar")
         })
 
         #expect(messages.contains {
-            $0.contains("If pregnant")
+            $0.contains("Jika sapi bunting")
         })
 
         #expect(messages.contains {
-            $0.contains("Dry-season")
+            $0.contains("musim kemarau")
         })
 
         #expect(!messages.contains {
-            $0.contains("weight-gain target")
+            $0.contains("target kenaikan bobot")
         })
     }
 }

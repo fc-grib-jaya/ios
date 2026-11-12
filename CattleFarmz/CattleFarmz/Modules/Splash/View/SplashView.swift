@@ -17,6 +17,7 @@ struct SplashView: View {
         _viewModel = State(initialValue: viewModel)
     }
     
+    @State private var retryCount = 0
     @State private var stage = 0
     @State private var isFalling = false
     @State private var isStanding = false
@@ -101,8 +102,21 @@ struct SplashView: View {
             .rotationEffect(.degrees(loadingRotation))
             .opacity(isHidden ? 0 : 1)
         }
-        .task {
-            await runAnimation()
+        .overlay {
+            if let message = viewModel.errorMessage {
+                VStack(spacing: AppSpacing.md) {
+                    Text(message).multilineTextAlignment(.center)
+                    GlassPrimaryButton("Coba lagi") { retryCount += 1 }
+                }
+                .padding(AppSpacing.md)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(AppColor.Surface.canvas)
+            }
+        }
+        .task(id: retryCount) {
+            if retryCount == 0 { await runAnimation() }
+            guard !Task.isCancelled else { return }
+            await viewModel.start()
         }
     }
 
@@ -179,7 +193,6 @@ struct SplashView: View {
         try? await Task.sleep(for: .milliseconds(1300))
         guard !Task.isCancelled else { return }
 
-        viewModel.onFinished()
     }
 }
 #Preview {

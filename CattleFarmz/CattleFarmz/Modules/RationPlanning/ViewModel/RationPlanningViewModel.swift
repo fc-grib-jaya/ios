@@ -30,6 +30,26 @@ final class RationPlanningViewModel {
     var milkProductionText = "0" {
         didSet { clearResult() }
     }
+    
+    var totalFeedKilogramsPerAnimalPerDay: Double? {
+        var total = 0.0
+
+        for feed in selectedFeeds {
+            let text = amountText(for: feed)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .replacingOccurrences(of: ",", with: ".")
+
+            guard let amount = Double(text),
+                  amount.isFinite,
+                  amount >= 0 else {
+                return nil
+            }
+
+            total += amount
+        }
+
+        return total.isFinite ? total : nil
+    }
 
     var searchText = ""
     var selectedCategory: FeedCategory?
@@ -140,6 +160,18 @@ final class RationPlanningViewModel {
     ) {
         amountTexts[feed.id] = text
         clearResult()
+    }
+
+    func restore(_ saved: RationCalculationResult) {
+        profile = saved.profile
+        bodyWeightText = String(saved.profile.bodyWeightKilograms)
+        dailyWeightGainText = String(saved.profile.targetDailyWeightGainKilograms)
+        animalCountText = String(saved.profile.animalCount)
+        milkProductionText = String(saved.profile.dailyMilkProductionLiters)
+        selectedFeedIDs = Set(saved.items.map { $0.id })
+        amountTexts = Dictionary(uniqueKeysWithValues: saved.items.map {
+            ($0.id, String($0.kilogramsPerAnimalPerDay))
+        })
     }
 
     func calculate() {

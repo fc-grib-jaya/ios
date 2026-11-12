@@ -45,6 +45,9 @@ final class AppCoordinator {
     /// Navigation path of the Home tab, expressed as `AppRoute` values.
     var path: [AppRoute] = []
 
+    /// Independent navigation state for the Feed tab.
+    var rationPath: [AppRoute] = []
+
     /// Pushes the profile screen onto the Home navigation stack.
     func showProfile() {
         guard path.last != .profile else { return }
@@ -173,5 +176,15 @@ final class AppCoordinator {
             }
             OrientationController.shared.lock(to: .portrait)
         }
+    }
+    
+    func goToRationAnalysisDetail() {
+        guard rationPath.last != .rationAnalysisDetail else { return }
+        rationPath.append(.rationAnalysisDetail)
+    }
+
+    func goToRationAnalysis() {
+        guard rationPath.last != .rationAnalysis else { return }
+        rationPath.append(.rationAnalysis)
     }
 }

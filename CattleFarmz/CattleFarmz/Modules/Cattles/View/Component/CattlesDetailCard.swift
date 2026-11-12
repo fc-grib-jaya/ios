@@ -89,7 +89,7 @@ struct CattlesDetailCard: View {
                         : notes!
                     )
                         .font(AppFont.body)
-                        .foregroundStyle(AppColor.Text.primary)
+                        .foregroundStyle(AppColor.Primitive.Neutral.shade400)
                         .padding(AppSpacing.md)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(

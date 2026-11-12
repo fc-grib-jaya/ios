@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NoRationCard: View {
-//    let onAddTap: () -> Void
+    let onAddTap: () -> Void
     
     var body: some View {
         VStack {
@@ -21,10 +21,7 @@ struct NoRationCard: View {
                 Text("Isi data pakan untuk menampilkan data")
                     .font(AppFont.body)
                 
-                // Harus disesuain sama button salman
-                Button {
-//                    onAddTap()
-                } label: {
+                Button(action: onAddTap) {
                     Text("Hitung Pakan")
                         .font(AppFont.body)
                         .foregroundStyle(AppColor.Button.Primary.foreground)
@@ -50,6 +47,5 @@ struct NoRationCard: View {
 }
 
 #Preview {
-//    NoRationCard(onAddTap: {})
-    NoRationCard()
+    NoRationCard(onAddTap: {})
 }

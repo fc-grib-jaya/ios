@@ -5,7 +5,7 @@
 //  Created by Muhamad Yuan Sastro Dimianta on 04/11/26.
 //
 
-enum CattleProductionType: String, CaseIterable, Identifiable {
+enum CattleProductionType: String, Codable, CaseIterable, Identifiable {
     case beef = "Beef cattle"
     case dairy = "Dairy cattle"
     
@@ -35,7 +35,7 @@ enum CattleProductionType: String, CaseIterable, Identifiable {
     }
 }
 
-enum CattleProductionStage: String, Identifiable {
+enum CattleProductionStage: String, Codable, Identifiable {
     case calf = "Calf under 6 months"
     case growing = "Growing, 6–12 months"
     case adult = "Adult over 12 months"
@@ -66,14 +66,14 @@ enum CattleProductionStage: String, Identifiable {
     }
 }
 
-enum CattleSex: String, CaseIterable, Identifiable {
+enum CattleSex: String, Codable, CaseIterable, Identifiable {
     case male = "Male"
     case female = "Female"
     
     var id: Self { self }
 }
 
-struct CattleRationProfile: Equatable {
+struct CattleRationProfile: Codable, Equatable {
     private(set) var productionType: CattleProductionType = .beef
     private(set) var sex: CattleSex = .male
     private(set) var stage: CattleProductionStage = .adult

@@ -40,8 +40,8 @@ struct SplashView: View {
                 RoundedRectangle(cornerRadius: 30)
                     .fill(AppColor.Primitive.Primary.shade500)
                     .rotationEffect(.degrees(135))
-                    .frame(width: 80, height: 30)
-                    .offset(x: -AppSpacing.md, y: -AppSpacing.md)
+                    .frame(width: 70, height: 30)
+                    .offset(x: -AppSpacing.sm, y: -AppSpacing.sm)
                     .scaleEffect(showMouth ? 1 : 0, anchor: .top)
                     .opacity(showMouth ? 1 : 0)
                     .scaleEffect(dotPulseScale)
@@ -51,7 +51,7 @@ struct SplashView: View {
                         circleDot()
                             .scaleEffect(showTwoDots ? 1 : 0)
                             .scaleEffect(dotPulseScale)
-                            .offset(y: isConverged ? 0 : -AppSpacing.xxl)
+                            .offset(y: isConverged ? 0 : -AppSpacing.xl)
 
                         circleDot()
                             .overlay {
@@ -62,7 +62,7 @@ struct SplashView: View {
                             }
                             .scaleEffect(showTwoDots ? 1 : 0)
                             .scaleEffect(dotPulseScale)
-                            .offset(y: isConverged ? 0 : AppSpacing.xxl)
+                            .offset(y: isConverged ? 0 : AppSpacing.xl)
                             
                     }
                     .rotationEffect(.degrees(formationRotation))
@@ -76,8 +76,8 @@ struct SplashView: View {
                         .offset(
                             x: isConverged
                                 ? 0
-                                : (stage == 1 ? AppSpacing.xxl : 0),
-                            y: isStanding ? AppSpacing.xxl : 0
+                                : (stage == 1 ? AppSpacing.xl : 0),
+                            y: isStanding ? AppSpacing.xl : 0
                         )
                 }
 
@@ -94,8 +94,8 @@ struct SplashView: View {
                     .offset(
                         x: isConverged
                             ? 0
-                        : (stage == 1 ? -AppSpacing.xxl : 0),
-                        y: isStanding ? -AppSpacing.xxl : (stage == 1 ? 0 : (isFalling ? 0 : -300))
+                        : (stage == 1 ? -AppSpacing.xl : 0),
+                        y: isStanding ? -AppSpacing.xl : (stage == 1 ? 0 : (isFalling ? 0 : -300))
                     )
             }
             .rotationEffect(.degrees(loadingRotation))
@@ -114,7 +114,7 @@ struct SplashView: View {
             showFirstDot = true
         }
         
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(200))
         guard !Task.isCancelled else { return }
         
         withAnimation(.interpolatingSpring(stiffness: 150, damping: 14)) {

@@ -97,7 +97,7 @@ struct CarcassView: View {
                     asPercentage: weightView == 1
                 ),
                 valueSuffix: weightView == 1 ? " %" : " kg",
-                levelSpacing: 84
+                levelSpacing: 120
             )
             .frame(height: 520)
             .padding(.bottom, AppSpacing.md)

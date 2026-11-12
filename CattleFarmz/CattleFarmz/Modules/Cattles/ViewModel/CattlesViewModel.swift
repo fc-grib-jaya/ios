@@ -196,6 +196,10 @@ final class CattlesViewModel {
     }
 
     func cattleWeight(for cattle: Cattle) -> Double? {
+        if let bodyWeight = cattle.bodyWeight {
+            return bodyWeight
+        }
+
         guard let chestGirth = cattle.chestGirth else {
             return nil
         }

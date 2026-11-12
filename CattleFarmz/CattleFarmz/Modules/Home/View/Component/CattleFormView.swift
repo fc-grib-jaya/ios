@@ -8,6 +8,21 @@
 import SwiftUI
 import UIKit
 
+private struct FormValidationHelperText: View {
+    let message: String
+
+    init(_ message: String) {
+        self.message = message
+    }
+
+    var body: some View {
+        Label(message, systemImage: "exclamationmark.circle.fill")
+            .font(AppFont.caption)
+            .foregroundStyle(Color.red)
+            .accessibilityLabel(message)
+    }
+}
+
 struct CattleFormValues {
     let name: String
     let dateAcquired: Date
@@ -36,6 +51,8 @@ struct CattleFormView: View {
     let viewModel: CattleFormViewModel
     let onSave: (CattleFormValues) async throws -> Void
     @State private var saveError: String?
+    @State private var hasAttemptedSave = false
+    @State private var showCameraValidationAlert = false
     
     private enum WeightEntryMode {
         case manual
@@ -157,6 +174,11 @@ struct CattleFormView: View {
                             RoundedRectangle(cornerRadius: 23)
                                 .fill(AppColor.Primitive.Neutral.shade100)
                         )
+
+                        if hasAttemptedSave,
+                           jenisCattle == nil {
+                            FormValidationHelperText("Jenis sapi wajib diisi.")
+                        }
                     }
                     
                     VStack (alignment: .leading){
@@ -176,6 +198,11 @@ struct CattleFormView: View {
                                     selection: $genderCattle
                                 )
                             }
+                        }
+                        
+                        if hasAttemptedSave,
+                           genderCattle == nil {
+                            FormValidationHelperText("Jenis kelamin sapi wajib diisi.")
                         }
                     }
                     
@@ -201,12 +228,10 @@ struct CattleFormView: View {
                                     .padding(.vertical, AppSpacing.sm)
                                 
                                 HStack (spacing: 1) {
-                                    Text(cattle == nil ? "Bobot" : "Bobot Sapi (Jika Ada)")
+                                    Text("Bobot Sapi")
                                         .foregroundStyle(AppColor.Text.primary)
-                                    if cattle == nil {
-                                        Text("*")
-                                            .foregroundStyle(Color.red)
-                                    }
+                                    Text("*")
+                                        .foregroundStyle(Color.red)
                                 }
                                 .font(AppFont.body)
                                 
@@ -214,7 +239,7 @@ struct CattleFormView: View {
                                     TextField(
                                         value: $bobotCattle,
                                         format: .number,
-                                        prompt: Text("e.g. \"604,19\"").italic()
+                                        prompt: Text("e.g. \"190,64\"").italic()
                                     ) {
                                         Text("Bobot Sapi (kg)")
                                     }
@@ -228,6 +253,11 @@ struct CattleFormView: View {
                                     RoundedRectangle(cornerRadius: 23)
                                         .fill(AppColor.Primitive.Neutral.shade100)
                                 )
+
+                                if hasAttemptedSave,
+                                   bobotCattle == nil {
+                                    FormValidationHelperText("Masukkan bobot sapi.")
+                                }
                                 
                                 //Capture session
                                 Button {
@@ -267,7 +297,7 @@ struct CattleFormView: View {
                                     .padding(.vertical, AppSpacing.sm)
                                 
                                 HStack {
-                                    Text("\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi.")
+                                    Text("\(Image(systemName: "exclamationmark.circle")) Isi jenis dan jenis kelamin sapi untuk mulai estimasi.")
                                         .font(AppFont.caption)
                                     Spacer()
                                 }
@@ -277,9 +307,33 @@ struct CattleFormView: View {
                                         .fill(AppColor.Primitive.Neutral.shade100)
                                 )
                                 
-                                if displayedScanResult == nil {
+                                if hasAttemptedSave, bobotCattle == nil {
+                                    FormValidationHelperText("Ambil hasil estimasi bobot dengan kamera.")
+                                }
+
+                                if displayedScanResult == nil, let bodyWeight = bobotCattle {
+                                    WeightDetailCard(
+                                        cattleImage: cattleImageForDisplay,
+                                        bodyWeight: bodyWeight,
+                                        chestGirth: cattle?.chestGirth,
+                                        bodyLength: cattle?.bodyLength,
+                                        dateAcquired: cattle?.dateAcquired ?? .now
+                                    ) {
+                                        onScanSession { result in
+                                            viewModel.storeScanResult(result)
+                                            displayedScanResult = result
+                                            gambarCattle = result.flatMap {
+                                                viewModel.squareCroppedImage($0.cattleImage)
+                                            }
+                                            if let estimatedWeight = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle) {
+                                                bobotCattle = estimatedWeight
+                                            }
+                                        }
+                                    }
+                                } else if displayedScanResult == nil {
                                     Button {
                                         guard jenisCattle != nil, genderCattle != nil else {
+                                            showCameraValidationAlert = true
                                             return
                                         }
 
@@ -317,7 +371,6 @@ struct CattleFormView: View {
                                         )
                                     }
                                     .buttonStyle(.plain)
-                                    .disabled(jenisCattle == nil || genderCattle == nil)
                                 } else if let scan = displayedScanResult {
                                     if let girth = scan.girth,
                                        let weight = estimatedWeightForScan {
@@ -365,11 +418,21 @@ struct CattleFormView: View {
                         TextField("Tuliskan Nama Sapi", text: $namaCattle)
                             .font(AppFont.body)
                             .autocorrectionDisabled()
+                            .onChange(of: namaCattle) { _, newValue in
+                                if newValue.count > 30 {
+                                    namaCattle = String(newValue.prefix(30))
+                                }
+                            }
                             .padding(AppSpacing.md)
                             .background(
                                 RoundedRectangle(cornerRadius: 23)
                                     .fill(AppColor.Primitive.Neutral.shade100)
                             )
+                        
+                        if hasAttemptedSave,
+                           namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                            FormValidationHelperText("Nama sapi wajib diisi.")
+                        }
                     }
                     
                     VStack (alignment: .leading){
@@ -404,6 +467,11 @@ struct CattleFormView: View {
                             RoundedRectangle(cornerRadius: 23)
                                 .fill(AppColor.Primitive.Neutral.shade100)
                         )
+
+                        if hasAttemptedSave,
+                           umurCattle == nil {
+                            FormValidationHelperText("Usia sapi wajib diisi.")
+                        }
                     }
                     
                     VStack (alignment: .leading){
@@ -426,14 +494,17 @@ struct CattleFormView: View {
                         )
                     }
                     .padding(.bottom, AppSpacing.lg)
-                    
+
                     Button {
-                        guard let breed = jenisCattle,
-                              let gender = genderCattle else {
+                        hasAttemptedSave = true
+
+                        guard !hasIncompleteRequiredFields,
+                              let breed = jenisCattle,
+                              let gender = genderCattle,
+                              let umurCattle else {
                             return
                         }
                         
-                        guard let umurCattle else { return }
                         
                         Task {
                             do {
@@ -458,7 +529,6 @@ struct CattleFormView: View {
                         Text(cattle == nil ? "Simpan Data" : "Simpan Perubahan")
                     }
                     .appButtonStyle(.primary)
-                    .disabled(isSaveDisabled)
                 }
                 .padding(AppSpacing.md)
             }
@@ -473,6 +543,11 @@ struct CattleFormView: View {
         }
         .navigationTitle(cattle == nil ? "Tambah Sapi" : "Edit Sapi")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Data Belum Lengkap", isPresented: $showCameraValidationAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Isi jenis sapi dan jenis kelamin sapi terlebih dahulu.")
+        }
         .onChange(of: jenisCattle) { _, _ in
             if let estimatedWeight = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle) { bobotCattle = estimatedWeight }
         }
@@ -493,12 +568,13 @@ struct CattleFormView: View {
             ?? UIImage()
     }
 
-    private var isSaveDisabled: Bool {
+    private var hasIncompleteRequiredFields: Bool {
         namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         || jenisCattle == nil
         || genderCattle == nil
         || umurCattle == nil
-        || (weightEntryMode == .manual && cattle == nil && bobotCattle == nil)
+        || (weightEntryMode == .manual && bobotCattle == nil)
+        || (weightEntryMode == .camera && bobotCattle == nil)
     }
 }
 

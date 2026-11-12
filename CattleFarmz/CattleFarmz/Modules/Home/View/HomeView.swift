@@ -32,9 +32,9 @@ struct HomeView: View {
         self.onCardTap = onCardTap
         self.onAddCattleTap = onAddCattleTap
     }
-
+    
     @State private var isFilterPresented = false
-
+    
     var body: some View {
         ZStack {
             GeometryReader { geometry in
@@ -51,6 +51,7 @@ struct HomeView: View {
             }
             .background(AppColor.Surface.canvas)
             .ignoresSafeArea()
+            
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading) {
                     HomeCard(
@@ -58,7 +59,7 @@ struct HomeView: View {
                         Subtitle: cattlesViewModel.listSubtitle,
                         onAddCattleTap: onAddCattleTap
                     )
-
+                    
                     HStack {
                         Text("Sapi-Sapi Anda")
                             .font(AppFont.mediumBody)
@@ -149,12 +150,12 @@ struct HomeView: View {
                         .font(.system(size: 28, weight: .regular))
                         .foregroundStyle(AppColor.Text.primary)
                         .fixedSize()
-
+                    
                     HStack(spacing: 3) {
                         Ellipse()
                             .fill(AppColor.Primitive.Primary.shade400)
                             .frame(width: 13, height: 15)
-
+                        
                         Ellipse()
                             .fill(AppColor.Primitive.Primary.shade400)
                             .frame(width: 13, height: 15)
@@ -166,7 +167,7 @@ struct HomeView: View {
                 .accessibilityLabel("Lemu")
             }
             .sharedBackgroundVisibility(.hidden)
-
+            
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     isFilterPresented = true
@@ -174,16 +175,16 @@ struct HomeView: View {
                     Image(systemName: "line.3.horizontal.decrease")
                         .foregroundStyle(
                             cattlesViewModel.hasActiveFilter
-                                ? AppColor.Primitive.Base.white
-                                : Color.black
+                            ? AppColor.Primitive.Base.white
+                            : Color.black
                         )
                         .frame(width: 44, height: 44)
                         .background {
                             Circle()
                                 .fill(
                                     cattlesViewModel.hasActiveFilter
-                                        ? AppColor.Primitive.Primary.shade400
-                                        : Color.clear
+                                    ? AppColor.Primitive.Primary.shade400
+                                    : Color.clear
                                 )
                         }
                         .glassEffect()
@@ -207,6 +208,8 @@ struct HomeView: View {
 }
 
 #Preview {
+    @Previewable @State var toastManager = ToastManager()
+    
     NavigationStack {
         HomeView(
             viewModel: HomeViewModel(haptics: NoopHaptics()),

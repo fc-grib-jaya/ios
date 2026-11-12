@@ -191,6 +191,7 @@ final class DIContainer {
     ) -> ScanSessionViewModel {
         ScanSessionViewModel(
             service: scanCapture,
+            haptics: haptics,
             makeMeasurement: makeMeasurementViewModel(capture:),
             onFinish: onFinish
         )

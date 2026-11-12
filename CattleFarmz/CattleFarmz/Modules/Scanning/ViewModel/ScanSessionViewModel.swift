@@ -23,12 +23,13 @@ final class ScanSessionViewModel {
 
     init(
         service: any ScanCapturing,
+        haptics: any HapticProviding,
         makeMeasurement: @escaping (Capture) -> MeasurementViewModel,
         onFinish: @escaping (ScanResult?) -> Void
     ) {
         self.makeMeasurement = makeMeasurement
         self.onFinish = onFinish
-        camera = CameraViewModel(service: service)
+        camera = CameraViewModel(service: service, haptics: haptics)
         camera.onCapture = { [weak self] capture in
             self?.showMeasurement(for: capture)
         }

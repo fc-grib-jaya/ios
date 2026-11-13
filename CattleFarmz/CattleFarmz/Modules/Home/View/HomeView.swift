@@ -60,6 +60,8 @@ struct HomeView: View {
                         onAddCattleTap: onAddCattleTap
                     )
                     
+                    if !(cattlesViewModel.hasNoVisibleCattle
+                            || cattlesViewModel.filteredItems.isEmpty) {
                     HStack {
                         Text("Sapi-Sapi Anda")
                             .font(AppFont.mediumBody)
@@ -139,6 +141,7 @@ struct HomeView: View {
                         }
                     }
                     .padding(.horizontal, AppSpacing.md)
+                    }
 
                     if cattlesViewModel.hasNoVisibleCattle {
                         NoCattleCard(copy: "Belum ada sapi")

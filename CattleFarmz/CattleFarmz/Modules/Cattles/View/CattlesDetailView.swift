@@ -48,13 +48,15 @@ struct CattlesDetailView: View {
                             .clipped()
                             .cornerRadius(AppSpacing.Card.compact)
                     } else {
-                        Image("CattlePlaceholder")
-                            .resizable()
-                            .scaledToFill()
+                        VStack {
+                            Image(systemName: "photo")
+                                .resizable()
+                                .frame(width: 60, height: 50)
+                        }
                             .frame(maxWidth: .infinity)
                             .frame(height: 180)
-                            .clipped()
-                            .cornerRadius(AppSpacing.Card.compact)
+                            .background(AppColor.Surface.inset)
+                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.medium))
                     }
                     
                     CattlesDetailCard(
@@ -81,7 +83,7 @@ struct CattlesDetailView: View {
                     if detailView == 1 {
                         NoRationCard { onOpenRation(cattle.id) }
                     } else {
-                        CarcassView(breakdown: breakdown)
+                        CarcassView(breakdown: breakdown, breed: cattle.breed)
                     }
 
                     Text("Terakhir disimpan: \(formatDate(cattle.dateAcquired))")

@@ -22,7 +22,7 @@ struct ToastItem: Identifiable, Equatable {
         id: UUID = UUID(),
         message: String,
         icon: String = "checkmark",
-        accentColor: Color = .green,
+        accentColor: Color = AppColor.Primitive.Primary.shade500,
         duration: Duration = .seconds(3)
     ) {
         self.id = id

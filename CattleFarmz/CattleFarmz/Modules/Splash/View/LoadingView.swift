@@ -23,7 +23,7 @@ struct LoadingView: View {
 
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
+            AppColor.Primitive.Secondary.shade100
                 .ignoresSafeArea()
 
             ZStack {

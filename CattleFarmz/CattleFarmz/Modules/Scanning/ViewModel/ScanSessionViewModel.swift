@@ -25,13 +25,18 @@ final class ScanSessionViewModel {
         service: any ScanCapturing,
         haptics: any HapticProviding,
         makeMeasurement: @escaping (Capture) -> MeasurementViewModel,
-        onFinish: @escaping (ScanResult?) -> Void
+        onFinish: @escaping (ScanResult?) -> Void,
+        onCameraAccessDenied: @escaping () -> Void
     ) {
         self.makeMeasurement = makeMeasurement
         self.onFinish = onFinish
         camera = CameraViewModel(service: service, haptics: haptics)
         camera.onCapture = { [weak self] capture in
             self?.showMeasurement(for: capture)
+        }
+        camera.onAccessDenied = { [weak self] in
+            self?.camera.stop()
+            onCameraAccessDenied()
         }
     }
 

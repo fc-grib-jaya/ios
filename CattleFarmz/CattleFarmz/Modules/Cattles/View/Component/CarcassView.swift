@@ -11,13 +11,17 @@ struct CarcassView: View {
     @State private var weightView = 0
     
     let breakdown: CattleWeightBreakdown
+    let cattleBreed: String
+    let carcassReference: String
     let carcassPercent: Double
     let nonCarcassPercent: Double
     let carcassWeight: Double
     let nonCarcassWeight: Double
     
-    init(breakdown: CattleWeightBreakdown) {
+    init(breakdown: CattleWeightBreakdown, breed: CattleBreed) {
         self.breakdown = breakdown
+        self.cattleBreed = breed.rawValue
+        self.carcassReference = CarcassPercentage.percentage(for: breed)?.reference ?? "Data penelitian tidak tersedia"
         
         let bodyWeight = breakdown.bodyWeight ?? 0
         let carcassWeight = breakdown.carcass ?? 0
@@ -34,7 +38,8 @@ struct CarcassView: View {
         carcassPercent: Double,
         nonCarcassPercent: Double,
         carcassWeight: Double,
-        nonCarcassWeight: Double
+        nonCarcassWeight: Double,
+        breed: CattleBreed = .bali
     ) {
         self.init(
             breakdown: CattleWeightBreakdown(
@@ -43,7 +48,8 @@ struct CarcassView: View {
                 nonCarcass: nonCarcassWeight,
                 meat: nil,
                 nonCarcassParts: [:]
-            )
+            ),
+            breed: breed
         )
     }
     var body: some View {
@@ -87,7 +93,11 @@ struct CarcassView: View {
             .frame(height: 520)
             .padding(.bottom, AppSpacing.md)
             
-            Text("Lebar aliran menunjukkan proporsi bobot hidup.")
+            VStack(alignment: .leading) {
+                Text("Lebar aliran menunjukkan proporsi bobot pada sapi \(cattleBreed).")
+
+                Text("Sumber · \(carcassReference)")
+            }
                 .font(AppFont.caption)
                 .foregroundStyle(AppColor.Primitive.Neutral.shade400)
         }

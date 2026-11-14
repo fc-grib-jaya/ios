@@ -10,8 +10,8 @@ import SwiftUI
 struct WeightDetailCard: View {
     var cattleImage: UIImage
     var bodyWeight: Double
-    var chestGirth: Double
-    var bodyLength: Double
+    var chestGirth: Double?
+    var bodyLength: Double?
     var dateAcquired: Date
     var action: () -> Void
     
@@ -29,7 +29,7 @@ struct WeightDetailCard: View {
             Image(uiImage: cattleImage)
                 .resizable()
                 .scaledToFill()
-                .frame(width: .infinity, height: 198, alignment: .topLeading)
+                .frame(width: .infinity, height: 198)
                 .clipped()
             
             VStack (spacing: AppSpacing.md){
@@ -63,7 +63,7 @@ struct WeightDetailCard: View {
                         VStack(spacing: AppSpacing.xxs){
                             Text("Lingkar Dada")
                                 .font(AppFont.caption)
-                            Text("\(chestGirth.formatted(.number.precision(.fractionLength(1)))) cm")
+                            Text(chestGirth.map { "\($0.formatted(.number.precision(.fractionLength(1)))) cm" } ?? "Belum tersedia")
                                 .font(AppFont.mediumBody)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -75,7 +75,7 @@ struct WeightDetailCard: View {
                         VStack(spacing: AppSpacing.xxs){
                             Text("Panjang Badan")
                                 .font(AppFont.caption)
-                            Text("\(bodyLength.formatted(.number.precision(.fractionLength(1)))) cm")
+                            Text(bodyLength.map { "\($0.formatted(.number.precision(.fractionLength(1)))) cm" } ?? "Belum tersedia")
                                 .font(AppFont.mediumBody)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)

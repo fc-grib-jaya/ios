@@ -196,6 +196,10 @@ final class CattlesViewModel {
     }
 
     func cattleWeight(for cattle: Cattle) -> Double? {
+        if let bodyWeight = cattle.bodyWeight {
+            return bodyWeight
+        }
+
         guard let chestGirth = cattle.chestGirth else {
             return nil
         }
@@ -284,7 +288,7 @@ final class CattlesViewModel {
 
     /// Applies edit-form values to the given cattle, then refreshes the list.
     /// Returns an error message when the save fails, `nil` on success.
-    func editCattle(_ values: CattleEditValues, for cattle: Cattle) -> String? {
+    func editCattle(_ values: CattleFormValues, for cattle: Cattle) -> String? {
         do {
             try update(
                 for: cattle,
@@ -317,6 +321,8 @@ final class CattlesViewModel {
         breed: CattleBreed,
         gender: CattleGender,
         recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
         bodyWeight: Double?,
         cattleImage: UIImage?,
         notes: String?
@@ -328,8 +334,8 @@ final class CattlesViewModel {
             breed: breed,
             gender: gender,
             recordedAge: recordedAge,
-            chestGirth: nil,
-            bodyLength: nil,
+            chestGirth: chestGirth,
+            bodyLength: bodyLength,
             bodyWeight: bodyWeight,
             cattleImage: imageData,
             notes: notes

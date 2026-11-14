@@ -116,6 +116,7 @@ final class DIContainer {
     /// Creates the splash screen view model.
     func makeSplashViewModel() -> SplashViewModel {
         SplashViewModel(
+            displayDuration: .zero,
             prepareCatalog: prepareCatalog
         )
     }

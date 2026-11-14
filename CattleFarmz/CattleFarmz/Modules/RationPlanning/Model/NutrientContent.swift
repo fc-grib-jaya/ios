@@ -5,7 +5,7 @@
 //  Created by Muhamad Yuan Sastro Dimianta on 04/11/26.
 //
 
-struct NutrientContent: Equatable {
+struct NutrientContent: Codable, Equatable {
     let crudeProteinPercent: Double
     let totalDigestibleNutrientsPercent: Double
 

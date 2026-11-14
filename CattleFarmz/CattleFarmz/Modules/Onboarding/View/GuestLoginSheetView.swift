@@ -59,6 +59,7 @@ struct GuestLoginSheetView: View {
                 .disabled(viewModel.isSubmitting)
             }
             .padding(AppSpacing.md)
+            .dismissibleKeyboard()
             .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
         }

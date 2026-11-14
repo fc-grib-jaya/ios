@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct NoRationCard: View {
-//    let onAddTap: () -> Void
+    let onAddTap: () -> Void
     
     var body: some View {
         VStack {
@@ -21,17 +21,10 @@ struct NoRationCard: View {
                 Text("Isi data pakan untuk menampilkan data")
                     .font(AppFont.body)
                 
-                // Harus disesuain sama button salman
-                Button {
-//                    onAddTap()
-                } label: {
+                Button(action: onAddTap) {
                     Text("Hitung Pakan")
-                        .font(AppFont.body)
-                        .foregroundStyle(AppColor.Button.Primary.foreground)
-                        .padding(.vertical, AppSpacing.xs)
-                        .frame(maxWidth: .infinity)
-                        .glassEffect(.regular.tint(AppColor.Primitive.Primary.shade500))
                 }
+                .appButtonStyle(.primary)
                 .padding(.horizontal, AppSpacing.md)
             }
             .padding(.bottom, AppSpacing.md)
@@ -40,11 +33,15 @@ struct NoRationCard: View {
         .frame(maxWidth: .infinity)
         .background(AppColor.Surface.canvas)
         .cornerRadius(16)
-        .shadow(radius: 5, x: 0, y: 2)
+        .shadow(
+            color: Color(red: 0.000, green: 0.000, blue: 0.000, opacity: 0.05),
+            radius: 5,
+            x: 0,
+            y: 4
+        )
     }
 }
 
 #Preview {
-//    NoRationCard(onAddTap: {})
-    NoRationCard()
+    NoRationCard(onAddTap: {})
 }

@@ -70,6 +70,10 @@ final class Cattle {
     @Attribute(.externalStorage)
     var cattleImage: Data?
     
+    var savedRation: Data?
+    var rationUpdatedAt: Date?
+    var rationTargetADG: Double?
+
     var notes: String?
 
     init(

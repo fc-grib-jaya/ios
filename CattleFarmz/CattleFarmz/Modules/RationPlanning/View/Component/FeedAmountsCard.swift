@@ -7,6 +7,8 @@
 
 import SwiftUI
 struct FeedAmountsCard: View {
+    @FocusState private var focusedFeedID: String?
+    
     var rationVM: RationPlanningViewModel
     var onTap: () -> Void
     
@@ -38,6 +40,7 @@ struct FeedAmountsCard: View {
                             .font(AppFont.body)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
+                            .focused($focusedFeedID, equals: feed.id)
                             
                             Text("kg")
                             // MARK: belum pake AppFont
@@ -50,6 +53,10 @@ struct FeedAmountsCard: View {
                                 .stroke(Color(.systemGray4), lineWidth: 1)
                         )
                         .fixedSize(horizontal: true, vertical: false)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            focusedFeedID = feed.id
+                        }
                         
                         Button {
                             rationVM.removeFeed(feed)

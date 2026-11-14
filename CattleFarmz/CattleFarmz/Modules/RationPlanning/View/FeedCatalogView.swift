@@ -83,16 +83,9 @@ struct FeedCatalogView: View {
                 Text("Tambah pakan")
                     .font(AppFont.headline)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.md)
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(AppColor.Button.Primary.foreground)
-            .background(
-                AppColor.Button.Primary.background,
-                in: Capsule()
-            )
-            .padding(AppSpacing.md)
-            .background(AppColor.Surface.card)
+            .appButtonStyle(.primary)
+            .padding(.horizontal, AppSpacing.md)
         }
         .task {
             rationVM.load()

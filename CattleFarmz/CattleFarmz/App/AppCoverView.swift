@@ -17,9 +17,12 @@ struct AppCoverView: View {
         switch cover {
         case .scanLoading(let onFinished):
             LoadingView(onFinished: onFinished)
-        case .scanSession(let onFinish):
+        case .scanSession(let onFinish, let onCameraAccessDenied):
             ScanSessionView(
-                viewModel: container.makeScanSessionViewModel(onFinish: onFinish)
+                viewModel: container.makeScanSessionViewModel(
+                    onFinish: onFinish,
+                    onCameraAccessDenied: onCameraAccessDenied
+                )
             )
         }
     }

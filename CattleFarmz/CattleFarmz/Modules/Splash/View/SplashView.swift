@@ -34,14 +34,23 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
+            AppColor.Primitive.Secondary.shade100
                 .ignoresSafeArea()
 
             ZStack {
                 RoundedRectangle(cornerRadius: 30)
-                    .fill(AppColor.Primitive.Primary.shade500)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                AppColor.Primitive.Primary.shade400,
+                                AppColor.Primitive.Primary.shade500
+                            ],
+                            startPoint: UnitPoint(x: 0.5 - sin(Angle.degrees(30).radians)/2, y: 0.5 - cos(Angle.degrees(30).radians)/2),
+                            endPoint: UnitPoint(x: 0.5 + sin(Angle.degrees(30).radians)/2, y: 0.5 + cos(Angle.degrees(30).radians)/2)
+                        )
+                    )
                     .rotationEffect(.degrees(135))
-                    .frame(width: 70, height: 30)
+                    .frame(width: 75, height: 36)
                     .offset(x: -AppSpacing.sm, y: -AppSpacing.sm)
                     .scaleEffect(showMouth ? 1 : 0, anchor: .top)
                     .opacity(showMouth ? 1 : 0)

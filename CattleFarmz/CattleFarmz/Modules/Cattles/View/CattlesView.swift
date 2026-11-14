@@ -28,7 +28,7 @@ struct CattlesView: View {
                     onCardTap(cattle.id.uuidString)
                 } label: {
                     CattleCard(
-                        cattleImage: image ?? UIImage(named: "CattlePlaceholder") ?? UIImage(),
+                        cattleImage: image,
                         name: cattle.name,
                         breed: cattle.breed,
                         gender: cattle.gender,

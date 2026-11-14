@@ -10,6 +10,7 @@ import UIKit
 struct CameraPicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
     @Binding var isPresented: Bool
+    var onAccessDenied: (() -> Void)?
 
     func makeUIViewController(context: Context) -> CameraViewController {
         let viewController = CameraViewController()
@@ -19,6 +20,10 @@ struct CameraPicker: UIViewControllerRepresentable {
         }
         viewController.onCancel = {
             context.coordinator.parent.isPresented = false
+        }
+        viewController.onAccessDenied = {
+            context.coordinator.parent.isPresented = false
+            context.coordinator.parent.onAccessDenied?()
         }
         return viewController
     }
@@ -44,6 +49,7 @@ struct CameraPicker: UIViewControllerRepresentable {
 final class CameraViewController: UIViewController {
     var onFinish: ((UIImage?) -> Void)?
     var onCancel: (() -> Void)?
+    var onAccessDenied: (() -> Void)?
 
     private let session = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()
@@ -207,7 +213,7 @@ final class CameraViewController: UIViewController {
             AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
                 guard granted else {
                     DispatchQueue.main.async {
-                        self?.onCancel?()
+                        self?.onAccessDenied?()
                     }
                     return
                 }
@@ -216,8 +222,12 @@ final class CameraViewController: UIViewController {
                     self?.session.startRunning()
                 }
             }
-        default:
-            onCancel?()
+        case .denied, .restricted:
+            // iOS does not show the system prompt again after a denial, so
+            // notify the form every time the camera screen is opened.
+            onAccessDenied?()
+        @unknown default:
+            onAccessDenied?()
         }
     }
 

@@ -13,6 +13,8 @@ struct GuestLoginSheetView: View {
         _viewModel = State(initialValue: viewModel)
     }
 
+    @FocusState private var isNameFocused: Bool
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -34,6 +36,11 @@ struct GuestLoginSheetView: View {
                             RoundedRectangle(cornerRadius: 23)
                                 .fill(AppColor.Input.background)
                         )
+                        .focused($isNameFocused)
+                        .submitLabel(.done)
+                        .onSubmit {
+                            isNameFocused = false
+                        }
 
                     if let errorMessage = viewModel.errorMessage {
                         Text(errorMessage)
@@ -59,6 +66,13 @@ struct GuestLoginSheetView: View {
                 .disabled(viewModel.isSubmitting)
             }
             .padding(AppSpacing.md)
+            .background {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isNameFocused = false
+                    }
+            }
             .navigationTitle(viewModel.title)
             .navigationBarTitleDisplayMode(.inline)
         }

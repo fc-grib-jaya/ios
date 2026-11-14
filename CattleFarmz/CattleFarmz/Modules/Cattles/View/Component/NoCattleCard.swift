@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct NoCattleCard: View {
+    let copy: String
     var body: some View {
         VStack {
             Image(.cattle)
                 .padding(.vertical, AppSpacing.lg)
             
             VStack (spacing: AppSpacing.sm){
-                Text("Belum ada sapi")
+                Text(copy)
                     .font(AppFont.headline)
                 Text("Isi data untuk menambahkan sapi")
                     .font(AppFont.body)
@@ -35,5 +36,5 @@ struct NoCattleCard: View {
 }
 
 #Preview {
-    NoCattleCard()
+    NoCattleCard(copy: "Belum ada sapi")
 }

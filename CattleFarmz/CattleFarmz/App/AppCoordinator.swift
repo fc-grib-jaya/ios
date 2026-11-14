@@ -4,6 +4,7 @@
 //
 
 import ARKit
+import AVFoundation
 import Observation
 import SwiftUI
 import UIKit
@@ -122,6 +123,22 @@ final class AppCoordinator {
         isPreparingScanSession = true
         coverEpoch &+= 1
         scanErrorMessage = nil
+
+        // Request camera access before rotating/presenting the LiDAR cover. This
+        // prevents a denied camera permission from being reported as a LiDAR error.
+        AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+            Task { @MainActor [weak self] in
+                guard let self, self.isPreparingScanSession else { return }
+                guard granted else {
+                    self.presentCameraPermissionError()
+                    return
+                }
+                self.beginScanSession(onFinish: onFinish)
+            }
+        }
+    }
+
+    private func beginScanSession(onFinish: @escaping (ScanResult?) -> Void) {
         cover = .scanLoading { [weak self] in
             self?.prepareScanSession(onFinish: onFinish)
         }
@@ -132,6 +149,12 @@ final class AppCoordinator {
             scanErrorMessage = "Perangkat ini tidak mendukung pemindaian LiDAR."
             return
         }
+    }
+
+    private func presentCameraPermissionError() {
+        isPreparingScanSession = false
+        cover = nil
+        scanErrorMessage = "Akses kamera diperlukan untuk membuka kamera dan LiDAR. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
     }
 
     private func prepareScanSession(onFinish: @escaping (ScanResult?) -> Void) {
@@ -147,10 +170,27 @@ final class AppCoordinator {
             guard let self else { return }
             self.isPreparingScanSession = false
             guard self.cover != nil else { return }
-            self.cover = .scanSession { [weak self] result in
-                onFinish(result)
-                self?.dismissCover()
-            }
+            self.cover = .scanSession(
+                onFinish: { [weak self] result in
+                    onFinish(result)
+                    self?.dismissCover()
+                },
+                onCameraAccessDenied: { [weak self] in
+                    self?.handleCameraAccessDenied(onFinish: onFinish)
+                }
+            )
+        }
+    }
+
+    private func handleCameraAccessDenied(onFinish: @escaping (ScanResult?) -> Void) {
+        guard cover != nil else { return }
+
+        onFinish(nil)
+        dismissCover()
+        Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .milliseconds(350))
+            guard let self, self.cover == nil else { return }
+            self.scanErrorMessage = "Akses kamera diperlukan untuk membuka kamera dan LiDAR. Silakan izinkan akses kamera, lalu coba lagi."
         }
     }
 

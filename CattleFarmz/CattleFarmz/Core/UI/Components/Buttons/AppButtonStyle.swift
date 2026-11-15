@@ -11,7 +11,7 @@ struct AppButtonStyle: ButtonStyle {
         let shape = Capsule()
 
         let label = configuration.label
-            .font(AppFont.body)
+            .font(AppFont.mediumBody)
             .foregroundStyle(foregroundColor(isPressed: isPressed))
             .padding(.horizontal, AppSpacing.Button.horizontal)
             .padding(.vertical, AppSpacing.md)

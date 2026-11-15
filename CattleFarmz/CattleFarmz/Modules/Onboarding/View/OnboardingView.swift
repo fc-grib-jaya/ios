@@ -30,14 +30,23 @@ struct OnboardingView: View {
             .background(AppColor.Surface.canvas)
             .ignoresSafeArea()
 
-            VStack(spacing: AppSpacing.xl) {
-                TabView(selection: $viewModel.index) {
-                    ForEach(viewModel.pages) { page in
-                        OnboardingPageContent(page: page)
-                            .tag(page.id)
-                    }
+            TabView(selection: $viewModel.index) {
+                ForEach(viewModel.pages) { page in
+                    OnboardingPageContent(page: page)
+                        .tag(page.id)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+
+            VStack(spacing: AppSpacing.xl) {
+
+                Spacer()
+
+                Button(viewModel.buttonTitle) {
+                    viewModel.primaryTapped()
+                }
+                .appButtonStyle(.primary)
+                .padding(.horizontal, AppSpacing.md)
 
                 // Custom page indicator: the active page is an elongated
                 // capsule, inactive pages stay circular dots.
@@ -46,8 +55,8 @@ struct OnboardingView: View {
                         Capsule()
                             .fill(
                                 i == viewModel.index
-                                ? AppColor.Primitive.Primary.shade500
-                                : AppColor.Text.muted
+                                    ? AppColor.Primitive.Primary.shade500
+                                    : AppColor.Text.muted
                             )
                             .frame(
                                 width: i == viewModel.index ? 24 : 8,
@@ -57,11 +66,6 @@ struct OnboardingView: View {
                 }
                 .animation(.easeInOut(duration: 0.2), value: viewModel.index)
 
-                Button(viewModel.buttonTitle) {
-                    viewModel.primaryTapped()
-                }
-                .appButtonStyle(.primary)
-                .padding(.horizontal, AppSpacing.md)
             }
             .padding(.top, AppSpacing.massive)
             .padding(.bottom, AppSpacing.xl)
@@ -84,17 +88,25 @@ private struct OnboardingPageContent: View {
                 .foregroundStyle(AppColor.Text.secondary)
                 .multilineTextAlignment(.center)
 
-            Spacer()
-
-            Image(systemName: page.systemImage)
-                .font(AppFont.largeTitle)
-                .imageScale(.large)
-                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+            // Per-page visual, pinned top-left so there is room beneath it.
+            pageVisual
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 16)
 
             Spacer()
         }
         .padding(.horizontal, AppSpacing.xl)
         .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private var pageVisual: some View {
+        switch page.id {
+        case 0: OnboardingWeightEstimationView()
+        case 1: OnboardingCameraWeightView()
+        case 2: OnboardingFeedPlanView()
+        default: OnboardingGrowthTrackingView()
+        }
     }
 }
 

@@ -85,17 +85,17 @@ struct OnboardingNutritionPlanningView: View {
             .frame(width: size, height: size)
             .rotationEffect(config.rotation)
             .offset(x: config.extraOffsetX * size, y: 0)
-            // Same card shadow as the other onboarding visuals.
+            // Slightly stronger card shadow for the corner images.
             .shadow(
                 color: Color(
                     red: 0.000,
                     green: 0.000,
                     blue: 0.000,
-                    opacity: 0.05
+                    opacity: 0.12
                 ),
-                radius: 5,
+                radius: 8,
                 x: 0,
-                y: 4
+                y: 5
             )
     }
 

@@ -8,7 +8,7 @@
 enum FeedCategory: String, Codable, CaseIterable, Identifiable {
     case forage = "Forage"
     case concentrate = "Concentrate"
-    case mineral = "Mineral"
+//    case mineral = "Mineral"
 
     var id: Self { self }
 
@@ -16,7 +16,7 @@ enum FeedCategory: String, Codable, CaseIterable, Identifiable {
         switch self {
         case .forage: "Hijauan"
         case .concentrate: "Konsentrat"
-        case .mineral: "Mineral"
+//        case .mineral: "Mineral"
         }
     }
 }

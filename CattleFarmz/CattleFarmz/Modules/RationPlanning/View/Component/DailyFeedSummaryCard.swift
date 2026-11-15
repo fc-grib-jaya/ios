@@ -21,7 +21,7 @@ struct DailyFeedSummaryCard: View {
     private func metric(_ title: String, value: Double) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(title).font(AppFont.caption)
-            Text(value.formatted(.number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(3))))
+            Text(value.formatted(.number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(2))))
                 .font(AppFont.title) + Text(" kg/hari").font(AppFont.caption)
         }
         .padding(AppSpacing.sm)

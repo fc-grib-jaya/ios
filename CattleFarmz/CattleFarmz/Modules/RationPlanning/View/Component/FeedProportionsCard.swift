@@ -34,7 +34,7 @@ struct FeedProportionsCard: View {
         switch category {
         case .forage: AppColor.Primitive.Primary.shade500
         case .concentrate: AppColor.Primitive.Secondary.shade600
-        case .mineral: AppColor.Primitive.Neutral.shade300
+//        case .mineral: AppColor.Primitive.Neutral.shade300
         }
     }
 }

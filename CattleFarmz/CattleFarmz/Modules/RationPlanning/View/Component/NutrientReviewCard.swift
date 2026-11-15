@@ -35,12 +35,14 @@ struct NutrientReviewCard: View {
                         .foregroundStyle(AppColor.Primitive.Neutral.shade400)
                     Text("Lihat detail analisis")
                         .font(AppFont.mediumBody)
+                        
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
                         .foregroundStyle(AppColor.Primitive.Neutral.shade400)
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             

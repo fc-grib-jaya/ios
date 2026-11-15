@@ -12,19 +12,24 @@ struct CattlesDetailView: View {
     private let cattleID: UUID?
     private let onOpenRation: (UUID) -> Void
     private let onEditTap: (Cattle) -> Void
+    private let onDeleteTap: (Cattle) -> Void
 
     init(
         cattleID: String,
         viewModel: CattlesViewModel,
         onOpenRation: @escaping (UUID) -> Void,
-        onEditTap: @escaping (Cattle) -> Void
+        onEditTap: @escaping (Cattle) -> Void,
+        onDeleteTap: @escaping (Cattle) -> Void
     ) {
         self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
         self.onOpenRation = onOpenRation
         self.onEditTap = onEditTap
-        
+        self.onDeleteTap = onDeleteTap
+
     }
+
+    @State private var isDeleteConfirmationPresented = false
 
     /// Derived from the ViewModel so edits made through the shared instance
     /// are reflected here without manual syncing.
@@ -104,11 +109,37 @@ struct CattlesDetailView: View {
         .toolbar {
             if let cattle = currentCattle {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Edit") {
+                    Button {
                         onEditTap(cattle)
+                    } label: {
+                        Image(systemName: "pencil")
                     }
                 }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .destructive) {
+                        isDeleteConfirmationPresented = true
+                    } label: {
+                        Label("Hapus", systemImage: "trash")
+                    }
+                    .tint(.red)
+                }
             }
+        }
+        .alert(
+            "Hapus Sapi?",
+            isPresented: $isDeleteConfirmationPresented
+        ) {
+            Button("Batal", role: .cancel) {}
+            Button("Hapus", role: .destructive) {
+                if let cattle = currentCattle,
+                    viewModel.deleteCattle(cattle) == nil
+                {
+                    onDeleteTap(cattle)
+                }
+            }
+        } message: {
+            Text("Data sapi akan dihapus secara permanen.")
         }
         .task {
             await viewModel.load()
@@ -126,7 +157,8 @@ struct CattlesDetailView: View {
                 toast: ToastManager()
             ),
             onOpenRation: { _ in },
-            onEditTap: { _ in }
+            onEditTap: { _ in },
+            onDeleteTap: { _ in }
         )
     }
 }

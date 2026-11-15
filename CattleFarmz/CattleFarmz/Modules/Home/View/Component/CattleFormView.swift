@@ -52,6 +52,9 @@ struct CattleFormView: View {
     let onScanSession: (@escaping (ScanResult?) -> Void) -> Void
     let viewModel: CattleFormViewModel
     let onSave: (CattleFormValues) async throws -> Void
+    /// Duplicate-name check injected by the caller; defaults to never-taken
+    /// so previews and other call sites compile unchanged.
+    let isNameTaken: (String) -> Bool
     @State private var saveError: String?
     @State private var hasAttemptedSave = false
     @State private var showCameraValidationAlert = false
@@ -70,12 +73,14 @@ struct CattleFormView: View {
             _ in
         },
         viewModel: CattleFormViewModel,
-        onSave: @escaping (CattleFormValues) async throws -> Void
+        onSave: @escaping (CattleFormValues) async throws -> Void,
+        isNameTaken: @escaping (String) -> Bool = { _ in false }
     ) {
         self.cattle = cattle
         self.onScanSession = onScanSession
         self.viewModel = viewModel
         self.onSave = onSave
+        self.isNameTaken = isNameTaken
         _namaCattle = State(initialValue: cattle?.name ?? "")
         _jenisCattle = State(initialValue: cattle?.breed)
         _genderCattle = State(initialValue: cattle?.gender)
@@ -172,6 +177,14 @@ struct CattleFormView: View {
     }
 
     @FocusState private var focusedField: Field?
+
+    private var isNameDuplicate: Bool {
+        isNameTaken(namaCattle)
+    }
+
+    private var showNameErrorBorder: Bool {
+        hasAttemptedSave && (isNameDuplicate || saveError != nil)
+    }
 
     var body: some View {
         ZStack {
@@ -628,6 +641,14 @@ struct CattleFormView: View {
                                             AppColor.Primitive.Neutral.shade100
                                         )
                                 )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 23)
+                                        .stroke(
+                                            showNameErrorBorder
+                                                ? Color.red : Color.clear,
+                                            lineWidth: 1
+                                        )
+                                )
                                 .focused($focusedField, equals: .name)
 
                             if hasAttemptedSave,
@@ -638,6 +659,16 @@ struct CattleFormView: View {
                                 FormValidationHelperText(
                                     "Nama sapi wajib diisi."
                                 )
+                            }
+
+                            if hasAttemptedSave, isNameDuplicate {
+                                FormValidationHelperText(
+                                    "Nama sapi sudah digunakan, pilih nama lain."
+                                )
+                            }
+
+                            if let saveError {
+                                FormValidationHelperText(saveError)
                             }
                         }
 
@@ -712,6 +743,7 @@ struct CattleFormView: View {
                             hasAttemptedSave = true
 
                             guard !hasIncompleteRequiredFields,
+                                !isNameDuplicate,
                                 let breed = jenisCattle,
                                 let gender = genderCattle,
                                 let umurCattle
@@ -721,6 +753,7 @@ struct CattleFormView: View {
 
                             Task {
                                 do {
+                                    saveError = nil
                                     try await onSave(
                                         CattleFormValues(
                                             name: namaCattle,

@@ -149,7 +149,6 @@ struct MeasurementView: View {
         .padding(.horizontal, AppSpacing.md)
         .padding(.vertical, AppSpacing.sm)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 50))
     }
     
     private var visibleLandmarks: [Landmark] {

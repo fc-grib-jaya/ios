@@ -62,7 +62,8 @@ struct FeedAmountsCard: View {
                         Button {
                             rationVM.removeFeed(feed)
                         } label: {
-                            Image(systemName: "minus")
+                            Image(systemName: "trash.fill")
+                                .foregroundStyle(AppColor.Primitive.Neutral.shade300)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel("Hapus \(feed.name)")

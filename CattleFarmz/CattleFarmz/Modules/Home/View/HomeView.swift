@@ -110,6 +110,16 @@ struct HomeView: View {
                                 }
                                 
                                 Button {
+                                    cattlesViewModel.selectSort(.age)
+                                } label: {
+                                    if cattlesViewModel.sortOption == .age {
+                                        Label("Usia", systemImage: "checkmark")
+                                    } else {
+                                        Text("Usia")
+                                    }
+                                }
+                                
+                                Button {
                                     cattlesViewModel.selectSort(.weight)
                                 } label: {
                                     if cattlesViewModel.sortOption == .weight {

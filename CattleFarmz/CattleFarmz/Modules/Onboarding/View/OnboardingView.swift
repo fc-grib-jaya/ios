@@ -104,7 +104,7 @@ private struct OnboardingPageContent: View {
     private var pageVisual: some View {
         switch page.id {
         case 0: OnboardingWeightEstimationView()
-        case 1: OnboardingCameraWeightView()
+        case 1: OnboardingNutritionPlanningView()
         case 2: OnboardingFeedPlanView()
         default: OnboardingGrowthTrackingView()
         }

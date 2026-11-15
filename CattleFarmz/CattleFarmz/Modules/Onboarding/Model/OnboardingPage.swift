@@ -21,8 +21,8 @@ nonisolated struct OnboardingPage: Identifiable, Hashable {
         ),
         OnboardingPage(
             id: 1,
-            title: "Ukur bobot dengan kamera",
-            subtitle: "Estimasi bobot sapi tanpa perlu menimbang manual."
+            title: "Nutrisi pakan sudah pas?",
+            subtitle: "Nutrisi tepat bikin tumbuh optimal, kesehatan terjaga, dan gemuk ideal."
         ),
         OnboardingPage(
             id: 2,

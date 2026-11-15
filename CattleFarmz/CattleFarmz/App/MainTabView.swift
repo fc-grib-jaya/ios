@@ -5,6 +5,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 /// Main tab interface: Home, Scan, and History.
 struct MainTabView: View {
@@ -121,6 +122,10 @@ struct MainTabView: View {
                     }
                 }
             }
+            .toolbarVisibility(
+                shouldHideTabBar(for: coordinator.path) ? .hidden : .automatic,
+                for: .tabBar
+            )
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
@@ -138,13 +143,13 @@ struct MainTabView: View {
                     }
                 }
             }
+            .toolbarVisibility(
+                shouldHideTabBar(for: coordinator.rationPath) ? .hidden : .automatic,
+                for: .tabBar
+            )
             .tabItem {
                 Label("Pakan", systemImage: "leaf")
             }
-            HistoryView()
-                .tabItem {
-                    Label("History", systemImage: "carrot")
-                }
 
             ProfileView(viewModel: container.makeProfileViewModel())
                 .tabItem {
@@ -174,7 +179,7 @@ struct MainTabView: View {
             AppCoverView(cover: cover, container: container)
         }
         .alert(
-            "LiDAR Tidak Tersedia",
+            "Akses Kamera atau LiDAR Tidak Tersedia",
             isPresented: Binding(
                 get: { coordinator.scanErrorMessage != nil },
                 set: { isPresented in
@@ -184,9 +189,25 @@ struct MainTabView: View {
                 }
             )
         ) {
+            Button("Buka Pengaturan") {
+                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                UIApplication.shared.open(url)
+            }
             Button("Kembali", role: .cancel) {}
         } message: {
             Text(coordinator.scanErrorMessage ?? "Perangkat ini tidak mendukung pemindaian LiDAR.")
+        }
+        .tint(AppColor.Primitive.Primary.shade400)
+    }
+
+    private func shouldHideTabBar(for path: [AppRoute]) -> Bool {
+        guard let route = path.last else { return false }
+
+        switch route {
+        case .addCattle, .editCattle, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail:
+            return true
+        default:
+            return false
         }
     }
 

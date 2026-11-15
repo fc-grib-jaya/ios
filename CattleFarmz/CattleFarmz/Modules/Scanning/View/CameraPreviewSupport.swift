@@ -18,7 +18,7 @@ final class MockScanCapturing: ScanCapturing {
     var isReady = true
     var isBusy = false
 
-    func start() {}
+    func start(onAccessDenied: @escaping () -> Void) {}
     func stop() {}
 
     func capture(

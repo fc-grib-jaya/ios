@@ -63,7 +63,9 @@ struct ScanSessionView: View {
         guard let measurement = viewModel.measurement else { return 0 }
 
         switch measurement.flow.stage {
-        case .inspection, .point:
+        case .inspection:
+            return 0
+        case .point:
             return 1
         case .results:
             return 2

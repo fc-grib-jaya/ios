@@ -9,19 +9,24 @@ import SwiftUI
 struct CaptureDisplayWheel: View {
     @Binding var selection: CaptureDisplay
     @State private var centeredOption: CaptureDisplay?
+    @State private var isUserScrolling = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let itemHeight: CGFloat = 80
     private let viewportHeight: CGFloat = 240
+    private let initialAnchor: UnitPoint
 
     init(selection: Binding<CaptureDisplay>) {
         self._selection = selection
         self._centeredOption = State(initialValue: selection.wrappedValue)
+        let options = CaptureDisplay.allCases
+        let index = options.firstIndex(of: selection.wrappedValue) ?? 0
+        initialAnchor = UnitPoint(x: 0.5, y: CGFloat(index) / CGFloat(max(1, options.count - 1)))
     }
 
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(spacing: 0) {
+            VStack(spacing: 0) {
                 ForEach(CaptureDisplay.allCases) { option in
                     Button {
                         select(option)
@@ -52,6 +57,8 @@ struct CaptureDisplayWheel: View {
         .contentMargins(.vertical, (viewportHeight - itemHeight) / 2, for: .scrollContent)
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
+        // Match the first layout to the model, including the last (Gabungan) option.
+        .defaultScrollAnchor(initialAnchor, for: .initialOffset)
         .scrollPosition(id: $centeredOption, anchor: .center)
         .frame(width: 88, height: viewportHeight)
         .overlay {
@@ -64,8 +71,14 @@ struct CaptureDisplayWheel: View {
         // Change the photo/depth layer once scrolling settles, avoiding work
         // on the measurement canvas for every intermediate scroll position.
         .onScrollPhaseChange { _, phase in
-            if phase == .idle, let centeredOption {
-                selection = centeredOption
+            if phase == .tracking || phase == .interacting {
+                isUserScrolling = true
+            }
+            if phase == .idle, isUserScrolling {
+                isUserScrolling = false
+                if let centeredOption {
+                    selection = centeredOption
+                }
             }
         }
         .onChange(of: selection) { _, option in
@@ -99,8 +112,8 @@ struct CaptureDisplayWheel: View {
     }
 }
 
-#Preview {
-    @Previewable @State var selection: CaptureDisplay = .photo
+#Preview("Initial selection: Gabungan") {
+    @Previewable @State var selection: CaptureDisplay = .overlay
     ZStack {
         Color.black.ignoresSafeArea()
         CaptureDisplayWheel(selection: $selection)

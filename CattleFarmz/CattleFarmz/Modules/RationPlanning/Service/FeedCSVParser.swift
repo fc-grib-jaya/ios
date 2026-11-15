@@ -52,7 +52,7 @@ struct FeedCSVParser {
             switch value("Kategori").lowercased() {
             case "hijauan": category = .forage
             case "konsentrat": category = .concentrate
-            case "mineral": category = .mineral
+//            case "mineral": category = .mineral
             default: throw ParseError.invalidRecord(recordNumber, "Unknown feed category.")
             }
             // Keeps duplicate names as separate records, matching the original cattle-row order.

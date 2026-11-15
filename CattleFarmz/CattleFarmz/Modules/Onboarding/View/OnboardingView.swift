@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Paged first-launch intro with the primary action pinned below the page dots.
 struct OnboardingView: View {
@@ -12,19 +11,24 @@ struct OnboardingView: View {
 
     init(viewModel: OnboardingViewModel) {
         _viewModel = State(initialValue: viewModel)
-
-        // Runs before the TabView builds its page control. Dots sit directly on
-        // the canvas with no backdrop, so they need explicit colors.
-        UIPageControl.appearance().currentPageIndicatorTintColor =
-            UIColor(AppColor.Primitive.Primary.shade500)
-        UIPageControl.appearance().pageIndicatorTintColor =
-            UIColor(AppColor.Text.muted)
     }
 
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
-                .ignoresSafeArea()
+            GeometryReader { geometry in
+                LinearGradient(
+                    colors: [
+                        AppColor.Primitive.Secondary.shade100,
+                        AppColor.Surface.canvas,
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: geometry.size.height * 0.3)
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
+            .background(AppColor.Surface.canvas)
+            .ignoresSafeArea()
 
             VStack(spacing: AppSpacing.xl) {
                 TabView(selection: $viewModel.index) {
@@ -33,11 +37,25 @@ struct OnboardingView: View {
                             .tag(page.id)
                     }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                // The canvas is near-white, so the system's default white dots
-                // need a tint; the appearance proxy keeps the dots native and
-                // lets them render without a background pill.
-                .indexViewStyle(.page(backgroundDisplayMode: .never))
+                .tabViewStyle(.page(indexDisplayMode: .never))
+
+                // Custom page indicator: the active page is an elongated
+                // capsule, inactive pages stay circular dots.
+                HStack(spacing: AppSpacing.sm) {
+                    ForEach(viewModel.pages.indices, id: \.self) { i in
+                        Capsule()
+                            .fill(
+                                i == viewModel.index
+                                ? AppColor.Primitive.Primary.shade500
+                                : AppColor.Text.muted
+                            )
+                            .frame(
+                                width: i == viewModel.index ? 24 : 8,
+                                height: 8
+                            )
+                    }
+                }
+                .animation(.easeInOut(duration: 0.2), value: viewModel.index)
 
                 Button(viewModel.buttonTitle) {
                     viewModel.primaryTapped()
@@ -58,22 +76,20 @@ private struct OnboardingPageContent: View {
         VStack(spacing: AppSpacing.lg) {
             Spacer()
 
+            Text(page.title)
+                .font(AppFont.title)
+                .foregroundStyle(AppColor.Text.primary)
+                .multilineTextAlignment(.center)
+
+            Text(page.subtitle)
+                .font(AppFont.body)
+                .foregroundStyle(AppColor.Text.secondary)
+                .multilineTextAlignment(.center)
+
             Image(systemName: page.systemImage)
                 .font(AppFont.largeTitle)
                 .imageScale(.large)
                 .foregroundStyle(AppColor.Primitive.Primary.shade500)
-
-            VStack(spacing: AppSpacing.sm) {
-                Text(page.title)
-                    .font(AppFont.title)
-                    .foregroundStyle(AppColor.Text.primary)
-                    .multilineTextAlignment(.center)
-
-                Text(page.subtitle)
-                    .font(AppFont.body)
-                    .foregroundStyle(AppColor.Text.secondary)
-                    .multilineTextAlignment(.center)
-            }
 
             Spacer()
         }

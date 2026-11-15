@@ -38,7 +38,11 @@ struct RationAnalysisView: View {
         .toolbar {
             if let onEdit {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Edit", action: onEdit)
+                    Button{
+                        onEdit()
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
                 }
             }
         }

@@ -9,11 +9,18 @@ import SwiftUI
 /// pinned to the corners of a fixed-height container with an empty glass
 /// rectangle in the center.
 struct OnboardingNutritionPlanningView: View {
+    /// True while this onboarding page is the selected one. The visual
+    /// stays hidden until then so a partial swipe does not reveal it early.
+    var isActive: Bool = false
+
     /// Bounds the visual so it does not stretch to the full screen height.
     private let containerHeight: CGFloat = 320
     private let imageSize: CGFloat = 144
     private let cardSize = CGSize(width: 150, height: 210)
     private let cardCornerRadius: CGFloat = 24
+
+    /// Drives the entrance: hidden until the page becomes active.
+    @State private var appeared = false
 
     var body: some View {
         ZStack {
@@ -24,6 +31,18 @@ struct OnboardingNutritionPlanningView: View {
         .frame(maxWidth: .infinity)
         .frame(height: containerHeight)
         .padding(.top, 48)
+        .opacity(appeared ? 1 : 0)
+        .scaleEffect(appeared ? 1 : 0.8)
+        .onAppear { syncAppeared() }
+        .onChange(of: isActive) { syncAppeared() }
+    }
+
+    private func syncAppeared() {
+        // Damping fraction below 1 gives a slight overshoot, matching the
+        // fly-in feel of the other onboarding visuals.
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.6)) {
+            appeared = isActive
+        }
     }
 
     /// One image per corner of the container, centered on the corner point
@@ -138,7 +157,7 @@ private struct CornerImageConfig {
 }
 
 #Preview {
-    OnboardingNutritionPlanningView()
+    OnboardingNutritionPlanningView(isActive: true)
         .padding(AppSpacing.massive)
         .background(AppColor.Surface.canvas)
 }

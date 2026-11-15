@@ -32,8 +32,11 @@ struct OnboardingView: View {
 
             TabView(selection: $viewModel.index) {
                 ForEach(viewModel.pages) { page in
-                    OnboardingPageContent(page: page)
-                        .tag(page.id)
+                    OnboardingPageContent(
+                        page: page,
+                        isActive: page.id == viewModel.index
+                    )
+                    .tag(page.id)
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -76,6 +79,9 @@ struct OnboardingView: View {
 
 private struct OnboardingPageContent: View {
     let page: OnboardingPage
+    /// True while this page is the selected one; visuals use it to hold
+    /// their entrance until the page is actually shown.
+    let isActive: Bool
 
     var body: some View {
         VStack(spacing: AppSpacing.lg) {
@@ -104,7 +110,7 @@ private struct OnboardingPageContent: View {
     private var pageVisual: some View {
         switch page.id {
         case 0: OnboardingWeightEstimationView()
-        case 1: OnboardingNutritionPlanningView()
+        case 1: OnboardingNutritionPlanningView(isActive: isActive)
         case 2: OnboardingFeedPlanView()
         default: OnboardingGrowthTrackingView()
         }

@@ -26,12 +26,9 @@ struct RationAnalysisView: View {
                 } label: {
                     Text("Simpan")
                         .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.md)
                 }
                 .disabled(onSave == nil)
-                .buttonStyle(.plain)
-                .glassEffect(.regular.tint(AppColor.Primitive.Primary.shade500).interactive(), in: Capsule())
+                .appButtonStyle(.primary)
             }
             .padding(AppSpacing.Screen.compact)
         }

@@ -74,10 +74,8 @@ private struct OnboardingPageContent: View {
 
     var body: some View {
         VStack(spacing: AppSpacing.lg) {
-            Spacer()
-
             Text(page.title)
-                .font(AppFont.title)
+                .font(.custom("PlusJakartaSans-ExtraBold", size: 48))
                 .foregroundStyle(AppColor.Text.primary)
                 .multilineTextAlignment(.center)
 
@@ -85,6 +83,8 @@ private struct OnboardingPageContent: View {
                 .font(AppFont.body)
                 .foregroundStyle(AppColor.Text.secondary)
                 .multilineTextAlignment(.center)
+
+            Spacer()
 
             Image(systemName: page.systemImage)
                 .font(AppFont.largeTitle)

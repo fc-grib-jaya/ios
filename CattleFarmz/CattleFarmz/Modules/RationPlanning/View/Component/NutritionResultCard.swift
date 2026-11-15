@@ -20,12 +20,12 @@ struct NutritionResultCard: View {
                     .accessibilityHidden(true)
             }
             if below > 0 {
-                Text("\(below) dari \(total) nutrisi pakan berada **di bawah** nilai minimum referensi.")
+                Text("**\(below) dari \(total) nutrisi** pakan berada di bawah nilai minimum referensi.")
             } else if complete {
                 Text("Seluruh \(total) nutrisi mencapai nilai minimum referensi.")
             }
             if unknown > 0 {
-                Text("\(unknown) nutrisi belum dapat dibandingkan karena data belum lengkap.")
+                Text("**\(unknown) nutrisi** belum dapat dibandingkan karena data belum lengkap.")
             }
         }
         .font(AppFont.body)

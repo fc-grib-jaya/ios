@@ -244,7 +244,7 @@ struct FeedCatalogView: View {
         switch category {
         case .forage: "Hijauan"
         case .concentrate: "Konsentrat"
-        case .mineral: "Mineral"
+//        case .mineral: "Mineral"
         }
     }
     

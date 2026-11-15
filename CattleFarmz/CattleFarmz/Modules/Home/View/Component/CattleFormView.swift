@@ -5,6 +5,7 @@
 //  Created by Dylan Amadeus on 04/11/26.
 //
 
+import AVFoundation
 import SwiftUI
 import UIKit
 
@@ -54,6 +55,7 @@ struct CattleFormView: View {
     @State private var saveError: String?
     @State private var hasAttemptedSave = false
     @State private var showCameraValidationAlert = false
+    @State private var cameraPermissionError: String?
 
     private enum WeightEntryMode {
         case manual
@@ -94,7 +96,7 @@ struct CattleFormView: View {
                 lengthCM: bodyLength,
                 girth: chestGirth,
                 cattleImage: existingImage
-                    ?? UIImage(named: "CattlePlaceholder")
+                    ?? UIImage(systemName: "photo")
                     ?? UIImage()
             )
         }
@@ -108,15 +110,52 @@ struct CattleFormView: View {
 
     }
 
+    private func requestManualCameraAccess() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            isShowingCamera = true
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                Task { @MainActor in
+                    if granted {
+                        isShowingCamera = true
+                    } else {
+                        cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+                    }
+                }
+            }
+        case .denied, .restricted:
+            cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+        @unknown default:
+            cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+        }
+    }
+
     private var estimatedWeightForScan: Double? {
         viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
             ?? bobotCattle
     }
 
-    private var cattleImageForDisplay: UIImage {
-        gambarCattle
-            ?? UIImage(named: "CattlePlaceholder")
-            ?? UIImage()
+    private var bodyWeightForSave: Double? {
+        // Always calculate from the latest breed and gender before saving.
+        // This prevents a scan from keeping the factors used by the first
+        // selection in the form.
+        viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
+            ?? bobotCattle
+    }
+
+    private func syncEstimatedWeight(
+        breed: CattleBreed?,
+        gender: CattleGender?
+    ) {
+        guard let estimatedWeight = viewModel.estimatedWeight(
+            breed: breed,
+            gender: gender
+        ) else {
+            return
+        }
+
+        bobotCattle = estimatedWeight
     }
 
     private var hasIncompleteRequiredFields: Bool {
@@ -127,6 +166,12 @@ struct CattleFormView: View {
             || (weightEntryMode == .manual && bobotCattle == nil)
             || (weightEntryMode == .camera && bobotCattle == nil)
     }
+    
+    private enum Field: Hashable {
+        case name, age, weight, notes
+    }
+
+    @FocusState private var focusedField: Field?
 
     var body: some View {
         ZStack {
@@ -267,6 +312,7 @@ struct CattleFormView: View {
                                         Text("Bobot Sapi (kg)")
                                     }
                                     .keyboardType(.decimalPad)
+                                    .focused($focusedField, equals: .weight)
 
                                     Text("kg   ")
                                         .foregroundStyle(AppColor.Text.primary)
@@ -289,7 +335,7 @@ struct CattleFormView: View {
 
                                 //Capture session
                                 Button {
-                                    isShowingCamera = true
+                                    requestManualCameraAccess()
                                 } label: {
                                     VStack(spacing: AppSpacing.md) {
                                         if let gambarCattle {
@@ -373,7 +419,7 @@ struct CattleFormView: View {
                                         let bodyWeight = bobotCattle
                                     {
                                         WeightDetailCard(
-                                            cattleImage: cattleImageForDisplay,
+                                            cattleImage: gambarCattle,
                                             bodyWeight: bodyWeight,
                                             chestGirth: cattle?.chestGirth,
                                             bodyLength: cattle?.bodyLength,
@@ -476,7 +522,7 @@ struct CattleFormView: View {
                                         {
                                             WeightDetailCard(
                                                 cattleImage:
-                                                    cattleImageForDisplay,
+                                                    gambarCattle,
                                                 bodyWeight: weight,
                                                 chestGirth: girth,
                                                 bodyLength: scan.lengthCM,
@@ -582,6 +628,7 @@ struct CattleFormView: View {
                                             AppColor.Primitive.Neutral.shade100
                                         )
                                 )
+                                .focused($focusedField, equals: .name)
 
                             if hasAttemptedSave,
                                 namaCattle.trimmingCharacters(
@@ -626,6 +673,7 @@ struct CattleFormView: View {
                                 RoundedRectangle(cornerRadius: 23)
                                     .fill(AppColor.Primitive.Neutral.shade100)
                             )
+                            .focused($focusedField, equals: .age)
 
                             if hasAttemptedSave,
                                 umurCattle == nil
@@ -656,6 +704,7 @@ struct CattleFormView: View {
                                 RoundedRectangle(cornerRadius: 23)
                                     .fill(AppColor.Primitive.Neutral.shade100)
                             )
+                            .focused($focusedField, equals: .notes)
                         }
                         .padding(.bottom, AppSpacing.lg)
 
@@ -680,7 +729,7 @@ struct CattleFormView: View {
                                             breed: breed,
                                             gender: gender,
                                             recordedAge: umurCattle,
-                                            bodyWeight: bobotCattle,
+                                            bodyWeight: bodyWeightForSave,
                                             cattleImage: gambarCattle,
                                             notes: catatan.trimmingCharacters(
                                                 in: .whitespacesAndNewlines
@@ -704,11 +753,24 @@ struct CattleFormView: View {
                 }
 
             }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = nil
+            }
+            .scrollDismissesKeyboard(.interactively)
         }
         .fullScreenCover(isPresented: $isShowingCamera) {
             CameraPicker(
                 image: $gambarCattle,
-                isPresented: $isShowingCamera
+                isPresented: $isShowingCamera,
+                onAccessDenied: {
+                    // Wait for the full-screen camera dismissal before presenting
+                    // the alert on the form underneath it.
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(350))
+                        cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+                    }
+                }
             )
             .ignoresSafeArea()
         }
@@ -719,21 +781,26 @@ struct CattleFormView: View {
         } message: {
             Text("Isi jenis sapi dan jenis kelamin sapi terlebih dahulu.")
         }
-        .onChange(of: jenisCattle) { _, _ in
-            if let estimatedWeight = viewModel.estimatedWeight(
-                breed: jenisCattle,
-                gender: genderCattle
-            ) {
-                bobotCattle = estimatedWeight
+        .alert(
+            "Akses Kamera Diperlukan",
+            isPresented: Binding(
+                get: { cameraPermissionError != nil },
+                set: { if !$0 { cameraPermissionError = nil } }
+            )
+        ) {
+            Button("Buka Pengaturan") {
+                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                UIApplication.shared.open(url)
             }
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(cameraPermissionError ?? "Silakan izinkan akses kamera di Pengaturan.")
         }
-        .onChange(of: genderCattle) { _, _ in
-            if let estimatedWeight = viewModel.estimatedWeight(
-                breed: jenisCattle,
-                gender: genderCattle
-            ) {
-                bobotCattle = estimatedWeight
-            }
+        .onChange(of: jenisCattle) { _, newBreed in
+            syncEstimatedWeight(breed: newBreed, gender: genderCattle)
+        }
+        .onChange(of: genderCattle) { _, newGender in
+            syncEstimatedWeight(breed: jenisCattle, gender: newGender)
         }
     }
 

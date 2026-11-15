@@ -10,6 +10,8 @@ struct FeedAmountsCard: View {
     var rationVM: RationPlanningViewModel
     var onTap: () -> Void
     
+    @FocusState private var focusedFeedID: FeedIngredient.ID?
+    
     var body: some View {
         
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -38,6 +40,8 @@ struct FeedAmountsCard: View {
                             .font(AppFont.body)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
+                            .focused($focusedFeedID, equals: feed.id)
+                            
                             
                             Text("kg")
                             // MARK: belum pake AppFont
@@ -66,6 +70,7 @@ struct FeedAmountsCard: View {
             }
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 Button {
+                    focusedFeedID = nil
                     onTap()
                 } label: {
                     Label("Tambah bahan pakan yang dimiliki", systemImage: "plus")
@@ -84,6 +89,13 @@ struct FeedAmountsCard: View {
             RoundedRectangle(cornerRadius: 16).fill(
                 AppColor.Card.background)
                 .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+        )
+        .gesture(
+            TapGesture()
+                .onEnded {
+                    focusedFeedID = nil
+                },
+            including: .gesture
         )
     }
 }

@@ -14,6 +14,8 @@ struct FeedCatalogView: View {
     
     @State private var nutritionFeed: FeedIngredient?
     
+    @FocusState private var isSearchFocused: Bool
+    
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -64,7 +66,13 @@ struct FeedCatalogView: View {
         }
         .padding(.horizontal, AppSpacing.md)
         .padding(.top, AppSpacing.md)
-        .background(AppColor.Surface.card)
+        .background {
+            AppColor.Surface.card
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isSearchFocused = false
+                }
+        }
         .navigationTitle("Susunan Pakan")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -115,7 +123,11 @@ struct FeedCatalogView: View {
             TextField("Cari bahan pakan", text: $rationVM.searchText)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
+                .focused($isSearchFocused)
                 .submitLabel(.search)
+                .onSubmit {
+                    isSearchFocused = false
+                }
         }
         .padding(.horizontal, AppSpacing.md)
         .frame(minHeight: 48)

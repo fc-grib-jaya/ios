@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CattleCard: View {
-    let cattleImage: UIImage
+    let cattleImage: UIImage?
     let name: String
     let breed: CattleBreed
     let gender: CattleGender
@@ -19,11 +19,18 @@ struct CattleCard: View {
     var body: some View {
         VStack (alignment: .leading){
             HStack(alignment: .top, spacing: AppSpacing.sm) {
-                Image(uiImage: cattleImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                Group {
+                    if let cattlePhoto = cattleImage {
+                        Image(uiImage: cattlePhoto)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Image(systemName: "photo")
+                    }
+                }
+                .frame(width: 60, height: 60)
+                .background(AppColor.Surface.inset)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
 
                 VStack(alignment: .leading) {
                     Text(name)
@@ -74,6 +81,6 @@ struct CattleCard: View {
 
 #Preview {
     CattleCard(
-        cattleImage: UIImage(named: "CattlePlaceholder")!, name: "Salman Boat", breed: .friesianHolstein, gender: .female, age: 12, weight: 69.69, updated: .now
+        cattleImage: nil, name: "Salman Boat", breed: .friesianHolstein, gender: .female, age: 12, weight: 69.69, updated: .now
     )
 }

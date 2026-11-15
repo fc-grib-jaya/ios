@@ -57,9 +57,9 @@ final class CattlesViewModel {
                 || selectedGenders.contains(cattle.gender.rawValue)
             let matchesAge =
                 selectedAgeRanges.isEmpty
-                || selectedAgeRanges.contains { range in
-                    ageRange(for: cattle.currentAge) == range
-                }
+                || !selectedAgeRanges
+                    .intersection(ageRanges(for: cattle.currentAge))
+                    .isEmpty
 
             return matchesBreed && matchesGender && matchesAge
         }
@@ -341,19 +341,26 @@ final class CattlesViewModel {
         toast.show("Sapi berhasil ditambahkan")
     }
 
-    private func ageRange(for ageInMonths: Int) -> String {
-        switch ageInMonths {
-        case 0..<6:
-            return CattleAgeRange.baby.rawValue
-        case 6..<12:
-            return CattleAgeRange.veryYoung.rawValue
-        case 12..<18:
-            return CattleAgeRange.young.rawValue
-        case 18..<24:
-            return CattleAgeRange.mature.rawValue
-        default:
-            return CattleAgeRange.old.rawValue
+    private func ageRanges(for ageInMonths: Int) -> Set<String> {
+        var ranges = Set<String>()
+
+        if (0...6).contains(ageInMonths) {
+            ranges.insert(CattleAgeRange.baby.rawValue)
         }
+        if (6...12).contains(ageInMonths) {
+            ranges.insert(CattleAgeRange.veryYoung.rawValue)
+        }
+        if (12...18).contains(ageInMonths) {
+            ranges.insert(CattleAgeRange.young.rawValue)
+        }
+        if (18...24).contains(ageInMonths) {
+            ranges.insert(CattleAgeRange.mature.rawValue)
+        }
+        if ageInMonths > 24 {
+            ranges.insert(CattleAgeRange.old.rawValue)
+        }
+
+        return ranges
     }
 
     /// Loads all cattle from the repository, newest acquisitions first.

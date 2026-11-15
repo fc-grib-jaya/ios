@@ -18,20 +18,21 @@ struct CattleCard: View {
     
     var body: some View {
         VStack (alignment: .leading){
-            HStack {
+            HStack(alignment: .top, spacing: AppSpacing.sm) {
                 Image(uiImage: cattleImage)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 60)
-                    .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .padding(.trailing, AppSpacing.sm)
-                
+
                 VStack(alignment: .leading) {
                     Text(name)
                         .font(AppFont.title)
+                        .lineLimit(2)
+
                     Text("\(breed.rawValue) • \(gender.rawValue) • \(age) bulan")
                         .font(AppFont.body)
+                        .lineLimit(2)
                 }
             }
             .padding(.bottom, AppSpacing.sm)

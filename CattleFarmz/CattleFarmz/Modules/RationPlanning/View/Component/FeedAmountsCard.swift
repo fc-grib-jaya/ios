@@ -7,6 +7,8 @@
 
 import SwiftUI
 struct FeedAmountsCard: View {
+//    @FocusState private var focusedFeedID: String?
+    
     var rationVM: RationPlanningViewModel
     var onTap: () -> Void
     

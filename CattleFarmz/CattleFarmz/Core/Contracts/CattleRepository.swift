@@ -7,8 +7,20 @@ import Foundation
 
 enum CattleRepositoryError: Error {
     case cattleNotFound
+    case duplicateName
     case invalidMeasurement
     case invalidWeight
+}
+
+extension CattleRepositoryError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .cattleNotFound: "Data sapi tidak ditemukan."
+        case .duplicateName: "Nama sapi sudah digunakan, pilih nama lain."
+        case .invalidMeasurement: "Periksa kembali data yang dimasukkan."
+        case .invalidWeight: "Bobot sapi tidak valid."
+        }
+    }
 }
 
 /// Storage abstraction for cattle records.

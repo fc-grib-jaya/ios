@@ -120,7 +120,6 @@ struct RationPlanningView: View {
     RationPlanningPreview()
 }
 
-#if DEBUG
 private struct RationPlanningPreview: View {
     @State private var coordinator = AppCoordinator()
     @State private var analysisResult: RationCalculationResult?
@@ -153,4 +152,3 @@ private struct RationPlanningPreview: View {
         }
     }
 }
-#endif

@@ -16,7 +16,9 @@ struct CaptureDisplayWheel: View {
 
     init(selection: Binding<CaptureDisplay>) {
         self._selection = selection
-        self._centeredOption = State(initialValue: selection.wrappedValue)
+        // centeredOption starts empty and is aligned to the selection after
+        // the first layout pass; setting it here can be ignored by the lazy
+        // scroll stack and leave the ring on the wrong button.
     }
 
     var body: some View {
@@ -53,6 +55,11 @@ struct CaptureDisplayWheel: View {
         .scrollIndicators(.hidden)
         .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
         .scrollPosition(id: $centeredOption, anchor: .center)
+        .onAppear {
+            // Align the ring to the current selection (last option by default)
+            // once the lazy stack has materialized its items.
+            centeredOption = selection
+        }
         .frame(width: 88, height: viewportHeight)
         .overlay {
             Circle()

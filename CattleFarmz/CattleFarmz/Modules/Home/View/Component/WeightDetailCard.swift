@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WeightDetailCard: View {
-    var cattleImage: UIImage
+    var cattleImage: UIImage?
     var bodyWeight: Double
     var chestGirth: Double?
     var bodyLength: Double?
@@ -26,11 +26,23 @@ struct WeightDetailCard: View {
     
     var body: some View {
         VStack {
-            Image(uiImage: cattleImage)
-                .resizable()
-                .scaledToFill()
-                .frame(width: .infinity, height: 198)
-                .clipped()
+            Group {
+                if let cattlePhoto = cattleImage {
+                    Image(uiImage: cattlePhoto)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    VStack {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .frame(width: 60, height: 50)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+            .frame(width: .infinity, height: 198)
+            .background(AppColor.Surface.inset)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
             
             VStack (spacing: AppSpacing.md){
                 VStack (alignment: .leading, spacing: 8){
@@ -58,9 +70,9 @@ struct WeightDetailCard: View {
                 )
                 .cornerRadius(18)
                 
-                VStack (spacing: AppSpacing.xs){
+                VStack (alignment: .leading, spacing: AppSpacing.xs){
                     HStack(spacing: AppSpacing.xs) {
-                        VStack(spacing: AppSpacing.xxs){
+                        VStack(alignment: .leading, spacing: AppSpacing.xxs){
                             Text("Lingkar Dada")
                                 .font(AppFont.caption)
                             Text(chestGirth.map { "\($0.formatted(.number.precision(.fractionLength(1)))) cm" } ?? "Belum tersedia")
@@ -72,7 +84,7 @@ struct WeightDetailCard: View {
                         Divider()
                             .frame(height: 45)
                         
-                        VStack(spacing: AppSpacing.xxs){
+                        VStack(alignment: .leading, spacing: AppSpacing.xxs){
                             Text("Panjang Badan")
                                 .font(AppFont.caption)
                             Text(bodyLength.map { "\($0.formatted(.number.precision(.fractionLength(1)))) cm" } ?? "Belum tersedia")
@@ -118,10 +130,10 @@ struct WeightDetailCard: View {
             .ignoresSafeArea()
         
         WeightDetailCard(
-            cattleImage: UIImage(named: "CattlePlaceholder")!,
+            cattleImage: nil,
             bodyWeight: 573.4,
-            chestGirth: 174,
-            bodyLength: 200,
+            chestGirth: nil,
+            bodyLength: nil,
             dateAcquired: Date(),
             action: {}
         )

@@ -17,6 +17,7 @@ import Observation
 final class CameraViewModel {
     /// Invoked on the main actor after a successful capture.
     var onCapture: ((Capture) -> Void)?
+    var onAccessDenied: (() -> Void)?
 
     private(set) var errorMessage: String?
 
@@ -37,7 +38,9 @@ final class CameraViewModel {
 
     func start() {
         haptics.prepare()
-        service.start()
+        service.start(onAccessDenied: { [weak self] in
+            self?.onAccessDenied?()
+        })
     }
 
     func stop() {

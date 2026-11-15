@@ -12,7 +12,10 @@ enum AppCover: Identifiable {
     /// One complete scan flow: camera, capture, then measurement.
     /// `onFinish` receives the measurement, or `nil` when the user cancelled.
     case scanLoading(onFinished: () -> Void)
-    case scanSession(onFinish: (ScanResult?) -> Void)
+    case scanSession(
+        onFinish: (ScanResult?) -> Void,
+        onCameraAccessDenied: () -> Void
+    )
 
     var id: String {
         // Keep both phases in the same full-screen cover so SwiftUI replaces

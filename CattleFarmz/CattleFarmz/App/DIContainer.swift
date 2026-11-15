@@ -187,13 +187,15 @@ final class DIContainer {
 
     /// Creates the view model for one full-screen scan session.
     func makeScanSessionViewModel(
-        onFinish: @escaping (ScanResult?) -> Void
+        onFinish: @escaping (ScanResult?) -> Void,
+        onCameraAccessDenied: @escaping () -> Void
     ) -> ScanSessionViewModel {
         ScanSessionViewModel(
             service: scanCapture,
             haptics: haptics,
             makeMeasurement: makeMeasurementViewModel(capture:),
-            onFinish: onFinish
+            onFinish: onFinish,
+            onCameraAccessDenied: onCameraAccessDenied
         )
     }
 

@@ -64,7 +64,7 @@ final class ToastManager {
     func show(
         _ message: String,
         icon: String = "checkmark",
-        color: Color = .green,
+        color: Color = AppColor.Primitive.Primary.shade400,
         duration: Duration = .seconds(3)
     ) {
         queue.append(

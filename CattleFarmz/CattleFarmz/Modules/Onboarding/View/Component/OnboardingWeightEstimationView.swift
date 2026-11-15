@@ -14,14 +14,29 @@ struct OnboardingWeightEstimationView: View {
     private let frontAngle = Angle.degrees(-4)
     private let backAngle = Angle.degrees(4)
 
+    /// Drives the entrance animation: cards start off-screen and fly in
+    /// with a slight overshoot.
+    @State private var appeared = false
+
     var body: some View {
-        ZStack(alignment: .topLeading) {
+        ZStack(alignment: .topTrailing) {
             frontCard
+                // Enters from the left edge.
+                .offset(x: appeared ? 0 : -450)
 
             backCard
                 // Half-overlap so the second card sits at the
                 // bottom-right corner, stacked diagonally.
                 .offset(x: cardSize - 64, y: cardSize - 48)
+                // Enters from the bottom-right edge.
+                .offset(x: appeared ? 0 : 450, y: appeared ? 0 : 450)
+        }
+        .offset(x: -64, y: 0)
+        .onAppear {
+            // Damping fraction below 1 gives the slight overshoot.
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.65)) {
+                appeared = true
+            }
         }
     }
 

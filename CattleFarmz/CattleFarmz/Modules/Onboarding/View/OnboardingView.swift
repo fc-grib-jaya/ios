@@ -37,6 +37,7 @@ struct OnboardingView: View {
                 }
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
+            .padding(.top, 24)
 
             VStack(spacing: AppSpacing.xl) {
 
@@ -90,7 +91,7 @@ private struct OnboardingPageContent: View {
 
             // Per-page visual, pinned top-left so there is room beneath it.
             pageVisual
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .padding(.top, 16)
 
             Spacer()

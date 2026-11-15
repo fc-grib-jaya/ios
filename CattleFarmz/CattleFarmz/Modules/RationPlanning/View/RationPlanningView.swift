@@ -45,9 +45,8 @@ struct RationPlanningView: View {
                 
                 HStack {
                     Text("Bobot sapi (kg)")
-                    TextField("Masukkan bobot", text: $rationVM.bodyWeightText)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
+                    Spacer()
+                    Text(rationVM.bodyWeightText)
                 }
                 FeedAmountsCard(
                     rationVM: rationVM,
@@ -91,12 +90,8 @@ struct RationPlanningView: View {
                     }
                 } label: {
                     Text("Evaluasi pakan")
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.md)
-                        .glassEffect(.regular.tint(AppColor.Primitive.Primary.shade500).interactive(), in: Capsule())
                 }
-                .buttonStyle(.plain)
+                .appButtonStyle(.primary)
                 .disabled(rationVM.selectedFeeds.isEmpty)
                 
                 if let error = rationVM.errorMessage {
@@ -107,7 +102,6 @@ struct RationPlanningView: View {
             }
             .padding(.horizontal, AppSpacing.md)
         }
-        .dismissibleKeyboard()
         .navigationTitle("Pakan Sapi")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showsFeedCatalog, content: {

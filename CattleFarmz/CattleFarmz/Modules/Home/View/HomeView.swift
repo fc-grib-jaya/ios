@@ -69,80 +69,84 @@ struct HomeView: View {
                         
                         Spacer()
                         
-                        Menu {
-                            Section {
-                                Button {
-                                    cattlesViewModel.sortAscending = true
-                                } label: {
-                                    if cattlesViewModel.sortAscending {
-                                        Label(
-                                            "Ascending",
-                                            systemImage: "checkmark"
-                                        )
-                                    } else {
-                                        Text("Ascending")
+                        if cattlesViewModel.filteredItems.count > 1
+                        {
+                            Menu {
+                                Section {
+                                    Button {
+                                        cattlesViewModel.sortAscending = true
+                                    } label: {
+                                        if cattlesViewModel.sortAscending {
+                                            Label(
+                                                "Ascending",
+                                                systemImage: "checkmark"
+                                            )
+                                        } else {
+                                            Text("Ascending")
+                                        }
+                                    }
+                                    
+                                    Button {
+                                        cattlesViewModel.sortAscending = false
+                                    } label: {
+                                        if !cattlesViewModel.sortAscending {
+                                            Label(
+                                                "Descending",
+                                                systemImage: "checkmark"
+                                            )
+                                        } else {
+                                            Text("Descending")
+                                        }
                                     }
                                 }
                                 
-                                Button {
-                                    cattlesViewModel.sortAscending = false
-                                } label: {
-                                    if !cattlesViewModel.sortAscending {
-                                        Label(
-                                            "Descending",
-                                            systemImage: "checkmark"
-                                        )
-                                    } else {
-                                        Text("Descending")
+                                Section {
+                                    Button {
+                                        cattlesViewModel.selectSort(.name)
+                                    } label: {
+                                        if cattlesViewModel.sortOption == .name {
+                                            Label("Nama", systemImage: "checkmark")
+                                        } else {
+                                            Text("Nama")
+                                        }
+                                    }
+                                    
+                                    Button {
+                                        cattlesViewModel.selectSort(.age)
+                                    } label: {
+                                        if cattlesViewModel.sortOption == .age {
+                                            Label("Usia", systemImage: "checkmark")
+                                        } else {
+                                            Text("Usia")
+                                        }
+                                    }
+                                    
+                                    Button {
+                                        cattlesViewModel.selectSort(.weight)
+                                    } label: {
+                                        if cattlesViewModel.sortOption == .weight {
+                                            Label("Bobot", systemImage: "checkmark")
+                                        } else {
+                                            Text("Bobot")
+                                        }
                                     }
                                 }
+                            } label: {
+                                Label("Sort", systemImage: "arrow.up.arrow.down")
                             }
-                            
-                            Section {
-                                Button {
-                                    cattlesViewModel.selectSort(.name)
-                                } label: {
-                                    if cattlesViewModel.sortOption == .name {
-                                        Label("Nama", systemImage: "checkmark")
-                                    } else {
-                                        Text("Nama")
-                                    }
-                                }
-                                
-                                Button {
-                                    cattlesViewModel.selectSort(.age)
-                                } label: {
-                                    if cattlesViewModel.sortOption == .age {
-                                        Label("Usia", systemImage: "checkmark")
-                                    } else {
-                                        Text("Usia")
-                                    }
-                                }
-                                
-                                Button {
-                                    cattlesViewModel.selectSort(.weight)
-                                } label: {
-                                    if cattlesViewModel.sortOption == .weight {
-                                        Label("Bobot", systemImage: "checkmark")
-                                    } else {
-                                        Text("Bobot")
-                                    }
-                                }
-                            }
-                        } label: {
-                            Label("Sort", systemImage: "arrow.up.arrow.down")
+                            .buttonStyle(.plain)
+                            .foregroundStyle(AppColor.Primitive.Primary.shade500)
                         }
-                        .buttonStyle(.plain)
-                        .foregroundStyle(AppColor.Primitive.Primary.shade500)
                     }
                     .padding(.horizontal, AppSpacing.md)
 
-                if cattlesViewModel.hasNoVisibleCattle
-                        || cattlesViewModel.filteredItems.isEmpty
-                    {
-                        NoCattleCard()
+                    if cattlesViewModel.hasNoVisibleCattle {
+                        NoCattleCard(copy: "Belum ada sapi")
                             .padding(AppSpacing.md)
                         Spacer()
+                    } else if cattlesViewModel.filteredItems.isEmpty {
+                        NoCattleCard(copy: "Tidak ada sapi yang sesuai")
+                            .padding(AppSpacing.md)
                     } else {
                         CattlesView(
                             viewModel: cattlesViewModel,
@@ -153,6 +157,8 @@ struct HomeView: View {
             }
         }
         .task { await cattlesViewModel.load() }
+        .navigationTitle("Lemoo")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 HStack(alignment: .bottom, spacing: 2) {
@@ -177,6 +183,12 @@ struct HomeView: View {
                 .accessibilityLabel("Lemu")
             }
             .sharedBackgroundVisibility(.hidden)
+            
+            ToolbarItem(placement: .principal) {
+                Color.clear
+                    .frame(width: 1, height: 1)
+                    .accessibilityHidden(true)
+            }
             
             ToolbarItem(placement: .topBarTrailing) {
                 Button {

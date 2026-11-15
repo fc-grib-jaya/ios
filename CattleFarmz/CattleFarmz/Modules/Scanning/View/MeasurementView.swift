@@ -11,7 +11,7 @@ struct MeasurementView: View {
     private let onExit: () -> Void
     private let onFinish: () -> Void
     private let onRetake: () -> Void
-
+    
     init(
         viewModel: MeasurementViewModel,
         onExit: @escaping () -> Void,
@@ -81,6 +81,9 @@ struct MeasurementView: View {
                 .padding(.vertical, AppSpacing.xxl)
             }
         }
+        //        .navigationTitle("Periksa profil sapi")
+        //        .navigationBarTitleDisplayMode(.inline)
+        //        .navigationSubtitle("Estimasi dengan kamera LiDAR")
         .task { model.prepare() }
         .forceLandscape()
     }
@@ -143,6 +146,10 @@ struct MeasurementView: View {
                 }
             }
         }
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.sm)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 50))
     }
     
     private var visibleLandmarks: [Landmark] {

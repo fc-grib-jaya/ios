@@ -44,7 +44,7 @@ final class CaptureService: NSObject, ARSessionDelegate, ScanCapturing {
     )
     @ObservationIgnored private var context: CIContext?
 
-    func start() {
+    func start(onAccessDenied: @escaping () -> Void) {
         guard !running else { return }
         startRequest += 1
         let request = startRequest
@@ -56,7 +56,10 @@ final class CaptureService: NSObject, ARSessionDelegate, ScanCapturing {
             DispatchQueue.main.async {
                 guard request == self.startRequest else { return }
                 guard granted else {
+                    self.running = false
+                    self.isReady = false
                     self.status = "Izin kamera diperlukan. Aktifkan melalui Settings."
+                    onAccessDenied()
                     return
                 }
                 let config = ARWorldTrackingConfiguration()
@@ -109,7 +112,7 @@ final class CaptureService: NSObject, ARSessionDelegate, ScanCapturing {
         DispatchQueue.main.async {
             if self.running {
                 self.stop()
-                self.start()
+                self.start(onAccessDenied: {})
             }
         }
     }

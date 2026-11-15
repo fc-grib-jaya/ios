@@ -5,6 +5,7 @@
 //  Created by Dylan Amadeus on 04/11/26.
 //
 
+import AVFoundation
 import SwiftUI
 import UIKit
 
@@ -56,6 +57,7 @@ struct CattleFormView: View {
     @State private var saveError: String?
     @State private var hasAttemptedSave = false
     @State private var showCameraValidationAlert = false
+    @State private var cameraPermissionError: String?
 
     private enum WeightEntryMode {
         case manual
@@ -96,7 +98,7 @@ struct CattleFormView: View {
                 lengthCM: bodyLength,
                 girth: chestGirth,
                 cattleImage: existingImage
-                    ?? UIImage(named: "CattlePlaceholder")
+                    ?? UIImage(systemName: "photo")
                     ?? UIImage()
             )
         }
@@ -106,6 +108,68 @@ struct CattleFormView: View {
         )
 
     }
+
+    private func requestManualCameraAccess() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            isShowingCamera = true
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                Task { @MainActor in
+                    if granted {
+                        isShowingCamera = true
+                    } else {
+                        cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+                    }
+                }
+            }
+        case .denied, .restricted:
+            cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+        @unknown default:
+            cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+        }
+    }
+
+    private var estimatedWeightForScan: Double? {
+        viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
+            ?? bobotCattle
+    }
+
+    private var bodyWeightForSave: Double? {
+        // Keep manual entries; camera estimates use the latest breed and gender.
+        guard weightEntryMode == .camera else { return bobotCattle }
+        return viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
+            ?? bobotCattle
+    }
+
+    private func syncEstimatedWeight(
+        breed: CattleBreed?,
+        gender: CattleGender?
+    ) {
+        guard weightEntryMode == .camera else { return }
+        guard let estimatedWeight = viewModel.estimatedWeight(
+            breed: breed,
+            gender: gender
+        ) else {
+            return
+        }
+
+        bobotCattle = estimatedWeight
+    }
+
+    private var hasIncompleteRequiredFields: Bool {
+        namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            || jenisCattle == nil
+            || genderCattle == nil
+            || umurCattle == nil
+            || bobotCattle == nil
+    }
+
+    private enum Field: Hashable {
+        case name, age, weight, notes
+    }
+
+    @FocusState private var focusedField: Field?
 
     var body: some View {
         ZStack {
@@ -166,11 +230,14 @@ struct CattleFormView: View {
                             RoundedRectangle(cornerRadius: 23)
                                 .fill(AppColor.Primitive.Neutral.shade100)
                         )
-                    }
 
-                    if hasAttemptedSave, jenisCattle == nil {
-                        FormValidationHelperText("Jenis sapi wajib diisi.")
+                        if hasAttemptedSave,
+                            jenisCattle == nil
+                        {
+                            FormValidationHelperText("Jenis sapi wajib diisi.")
+                        }
                     }
+                    .padding(.horizontal, AppSpacing.md)
 
                     VStack(alignment: .leading) {
                         HStack(spacing: 1) {
@@ -191,16 +258,21 @@ struct CattleFormView: View {
                                 )
                             }
                         }
-                    }
 
-                    if hasAttemptedSave, genderCattle == nil {
-                        FormValidationHelperText("Jenis kelamin sapi wajib diisi.")
+                        if hasAttemptedSave,
+                            genderCattle == nil
+                        {
+                            FormValidationHelperText(
+                                "Jenis kelamin sapi wajib diisi."
+                            )
+                        }
                     }
+                    .padding(.horizontal, AppSpacing.md)
 
-                    Text("Bobot dan Foto Sapi")
-                        .foregroundStyle(AppColor.Text.primary)
-                        .font(AppFont.body)
                     VStack(alignment: .leading) {
+                        Text("Bobot dan Foto Sapi")
+                            .foregroundStyle(AppColor.Text.primary)
+                            .font(AppFont.body)
 
                         VStack(alignment: .leading) {
                             AppSegmentedControl(
@@ -222,15 +294,10 @@ struct CattleFormView: View {
                                 .padding(.vertical, AppSpacing.sm)
 
                                 HStack(spacing: 1) {
-                                    Text(
-                                        cattle == nil
-                                            ? "Bobot" : "Bobot Sapi (Jika Ada)"
-                                    )
-                                    .foregroundStyle(AppColor.Text.primary)
-                                    if cattle == nil {
-                                        Text("*")
-                                            .foregroundStyle(Color.red)
-                                    }
+                                    Text("Bobot Sapi")
+                                        .foregroundStyle(AppColor.Text.primary)
+                                    Text("*")
+                                        .foregroundStyle(Color.red)
                                 }
                                 .font(AppFont.body)
 
@@ -238,11 +305,12 @@ struct CattleFormView: View {
                                     TextField(
                                         value: $bobotCattle,
                                         format: .number,
-                                        prompt: Text("e.g. \"604,19\"").italic()
+                                        prompt: Text("e.g. \"190,64\"").italic()
                                     ) {
                                         Text("Bobot Sapi (kg)")
                                     }
                                     .keyboardType(.decimalPad)
+                                    .focused($focusedField, equals: .weight)
 
                                     Text("kg   ")
                                         .foregroundStyle(AppColor.Text.primary)
@@ -255,9 +323,17 @@ struct CattleFormView: View {
                                         )
                                 )
 
+                                if hasAttemptedSave,
+                                    bobotCattle == nil
+                                {
+                                    FormValidationHelperText(
+                                        "Masukkan bobot sapi."
+                                    )
+                                }
+
                                 //Capture session
                                 Button {
-                                    isShowingCamera = true
+                                    requestManualCameraAccess()
                                 } label: {
                                     VStack(spacing: AppSpacing.md) {
                                         if let gambarCattle {
@@ -311,52 +387,70 @@ struct CattleFormView: View {
                                 )
                                 .font(AppFont.caption)
                                 .padding(.vertical, AppSpacing.sm)
-
-                                HStack {
-                                    Text(
-                                        "\(Image(systemName: "exclamationmark.circle")) Pilih jenis sapi untuk mulai estimasi."
-                                    )
-                                    .font(AppFont.caption)
-                                    Spacer()
-                                }
-                                .padding(AppSpacing.xs)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 23)
-                                        .fill(
-                                            AppColor.Primitive.Neutral.shade100
+                                VStack(alignment: .leading) {
+                                    HStack {
+                                        Text(
+                                            "\(Image(systemName: "exclamationmark.circle")) Isi jenis dan jenis kelamin sapi untuk mulai estimasi."
                                         )
-                                )
-
-                                if displayedScanResult == nil, let weight = bobotCattle {
-                                    WeightDetailCard(
-                                        cattleImage: cattleImageForDisplay,
-                                        bodyWeight: weight,
-                                        chestGirth: cattle?.chestGirth,
-                                        bodyLength: cattle?.bodyLength,
-                                        dateAcquired: cattle?.dateAcquired ?? .now
-                                    ) { startScan() }
-                                } else if displayedScanResult == nil {
-                                    Button {
-                                        startScan()
-                                    } label: {
-                                        VStack {
-                                            Image(
-                                                systemName:
-                                                    "camera.on.rectangle.fill"
+                                        .font(AppFont.caption)
+                                        Spacer()
+                                    }
+                                    .padding(AppSpacing.xs)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 23)
+                                            .fill(
+                                                AppColor.Primitive.Neutral
+                                                    .shade100
                                             )
-                                            .font(AppFont.largeTitle)
-                                            Text("Estimasi bobot dan foto sapi")
+                                    )
+
+                                    if hasAttemptedSave, bobotCattle == nil {
+                                        FormValidationHelperText(
+                                            "Ambil hasil estimasi bobot dengan kamera."
+                                        )
+                                    }
+
+                                    if displayedScanResult == nil,
+                                        let bodyWeight = bobotCattle
+                                    {
+                                        WeightDetailCard(
+                                            cattleImage: gambarCattle,
+                                            bodyWeight: bodyWeight,
+                                            chestGirth: cattle?.chestGirth,
+                                            bodyLength: cattle?.bodyLength,
+                                            dateAcquired: cattle?.dateAcquired
+                                                ?? .now
+                                        ) {
+                                            startScan()
+                                        }
+                                    } else if displayedScanResult == nil {
+                                        Button {
+                                            startScan()
+                                        } label: {
+                                            VStack {
+                                                Image(
+                                                    systemName:
+                                                        "camera.on.rectangle.fill"
+                                                )
+                                                .font(AppFont.largeTitle)
+                                                Text(
+                                                    "Estimasi bobot dan foto sapi"
+                                                )
                                                 .italic()
                                                 .lineLimit(1)
-                                        }
-                                        .font(AppFont.body)
-                                        .foregroundStyle(
-                                            AppColor.Text.secondary.opacity(0.5)
-                                        )
-                                        .padding(.vertical, AppSpacing.xl)
-                                        .frame(maxWidth: .infinity)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 23)
+                                            }
+                                            .font(AppFont.body)
+                                            .foregroundStyle(
+                                                AppColor.Text.secondary.opacity(
+                                                    0.5
+                                                )
+                                            )
+                                            .padding(.vertical, AppSpacing.xl)
+                                            .frame(maxWidth: .infinity)
+                                            .background(
+                                                RoundedRectangle(
+                                                    cornerRadius: 23
+                                                )
                                                 .fill(
                                                     AppColor.Primitive.Neutral
                                                         .shade100
@@ -368,76 +462,160 @@ struct CattleFormView: View {
                                                         dash: [2, 3]
                                                     )
                                                 )
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-
-                                } else if let scan = displayedScanResult {
-                                    if let girth = scan.girth,
-                                        let weight = estimatedWeightForScan
-                                    {
-                                        WeightDetailCard(
-                                            cattleImage: cattleImageForDisplay,
-                                            bodyWeight: weight,
-                                            chestGirth: girth,
-                                            bodyLength: scan.lengthCM,
-                                            dateAcquired: Date()
-                                        ) {
-                                            startScan()
+                                            )
                                         }
-                                    } else {
-                                        Text(
-                                            "Panjang badan: \(scan.lengthCM.formatted()) cm"
-                                        )
-                                        Text("Lingkar dada: \(scan.girth) cm")
+                                        .buttonStyle(.plain)
 
-                                        Button {
-                                            startScan()
-                                        } label: {
-                                            Text("Ambil Ulang")
-                                                .font(AppFont.body)
-                                                .foregroundStyle(
-                                                    AppColor.Primitive.Primary
-                                                        .shade500
-                                                )
-                                                .padding(
-                                                    .vertical,
-                                                    AppSpacing.md
-                                                )
-                                                .frame(maxWidth: .infinity)
-                                                .glassEffect(
-                                                    .regular
-                                                        .tint(
-                                                            AppColor.Button
-                                                                .Secondary
-                                                                .background
-                                                        )
-                                                )
+                                    } else if let scan = displayedScanResult {
+                                        if let girth = scan.girth,
+                                            let weight = estimatedWeightForScan
+                                        {
+                                            WeightDetailCard(
+                                                cattleImage:
+                                                    gambarCattle,
+                                                bodyWeight: weight,
+                                                chestGirth: girth,
+                                                bodyLength: scan.lengthCM,
+                                                dateAcquired: Date()
+                                            ) {
+                                                startScan()
+                                            }
+                                        } else {
+                                            Text(
+                                                "Panjang badan: \(scan.lengthCM.formatted()) cm"
+                                            )
+                                            Text(
+                                                "Lingkar dada: \(scan.girth) cm"
+                                            )
+
+                                            Button {
+                                                startScan()
+                                            } label: {
+                                                Text("Ambil Ulang")
+                                                    .font(AppFont.body)
+                                                    .foregroundStyle(
+                                                        AppColor.Primitive
+                                                            .Primary
+                                                            .shade500
+                                                    )
+                                                    .padding(
+                                                        .vertical,
+                                                        AppSpacing.md
+                                                    )
+                                                    .frame(maxWidth: .infinity)
+                                                    .glassEffect(
+                                                        .regular
+                                                            .tint(
+                                                                AppColor.Button
+                                                                    .Secondary
+                                                                    .background
+                                                            )
+                                                    )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                    .font(AppFont.body)
-                    .padding(AppSpacing.md)
-                    .background(
-                        RoundedRectangle(cornerRadius: 23)
-                            .fill(AppColor.Input.background.opacity(0.8))
-                    )
-
-                    VStack(alignment: .leading) {
-                        HStack(spacing: 1) {
-                            Text("Nama Sapi")
-                                .foregroundStyle(AppColor.Text.primary)
-                            Text("*")
-                                .foregroundStyle(Color.red)
-                        }
                         .font(AppFont.body)
+                        .padding(AppSpacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: 23)
+                                .fill(AppColor.Input.background.opacity(0.8))
+                        )
 
-                        TextField("Tuliskan Nama Sapi", text: $namaCattle)
-                            .onChange(of: namaCattle) { _, value in
-                                if value.count > 30 { namaCattle = String(value.prefix(30)) }
+                        VStack(alignment: .leading) {
+                            HStack(spacing: 1) {
+                                Text("Nama Sapi")
+                                    .foregroundStyle(AppColor.Text.primary)
+                                Text("*")
+                                    .foregroundStyle(Color.red)
+                            }
+                            .font(AppFont.body)
+
+                            TextField("Tuliskan Nama Sapi", text: $namaCattle)
+                                .font(AppFont.body)
+                                .autocorrectionDisabled()
+                                .onChange(of: namaCattle) { _, newValue in
+                                    if newValue.count > 30 {
+                                        namaCattle = String(newValue.prefix(30))
+                                    }
+                                }
+                                .padding(AppSpacing.md)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 23)
+                                        .fill(
+                                            AppColor.Primitive.Neutral.shade100
+                                        )
+                                )
+                                .focused($focusedField, equals: .name)
+
+                            if hasAttemptedSave,
+                                namaCattle.trimmingCharacters(
+                                    in: .whitespacesAndNewlines
+                                ).isEmpty
+                            {
+                                FormValidationHelperText(
+                                    "Nama sapi wajib diisi."
+                                )
+                            }
+                        }
+
+                        VStack(alignment: .leading) {
+                            HStack(spacing: 1) {
+                                Text("Usia Sapi (Bulan)")
+                                    .foregroundStyle(AppColor.Text.primary)
+                                Text("*")
+                                    .foregroundStyle(Color.red)
+                            }
+                            .font(AppFont.body)
+
+                            TextField(
+                                value: $umurCattle,
+                                format: .number,
+                                prompt: Text("e.g. \"12\"").italic()
+                            ) {
+                                Text("Usia Sapi (Bulan)")
+                            }
+                            .keyboardType(.numberPad)
+                            .font(AppFont.body)
+                            .onChange(of: umurCattle) { _, value in
+                                guard let value else { return }
+
+                                if value > 99 {
+                                    umurCattle = 99
+                                } else if value < 0 {
+                                    umurCattle = 0
+                                }
+                            }
+                            .padding(AppSpacing.md)
+                            .background(
+                                RoundedRectangle(cornerRadius: 23)
+                                    .fill(AppColor.Primitive.Neutral.shade100)
+                            )
+                            .focused($focusedField, equals: .age)
+
+                            if hasAttemptedSave,
+                                umurCattle == nil
+                            {
+                                FormValidationHelperText(
+                                    "Usia sapi wajib diisi."
+                                )
+                            }
+                        }
+
+                        VStack(alignment: .leading) {
+                            Text("Catatan")
+                                .font(AppFont.body)
+                                .foregroundStyle(AppColor.Text.primary)
+
+                            TextField(
+                                text: $catatan,
+                                prompt: Text(
+                                    "e.g., \"Letak kandang ada di pojok.\""
+                                ).italic()
+                            ) {
+                                Text("Catatan")
                             }
                             .font(AppFont.body)
                             .autocorrectionDisabled()
@@ -446,121 +624,83 @@ struct CattleFormView: View {
                                 RoundedRectangle(cornerRadius: 23)
                                     .fill(AppColor.Primitive.Neutral.shade100)
                             )
-                    }
-
-                    if hasAttemptedSave, namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                        FormValidationHelperText("Nama sapi wajib diisi.")
-                    }
-
-                    VStack(alignment: .leading) {
-                        HStack(spacing: 1) {
-                            Text("Usia Sapi (Bulan)")
-                                .foregroundStyle(AppColor.Text.primary)
-                            Text("*")
-                                .foregroundStyle(Color.red)
+                            .focused($focusedField, equals: .notes)
                         }
-                        .font(AppFont.body)
+                        .padding(.bottom, AppSpacing.lg)
 
-                        TextField(
-                            value: $umurCattle,
-                            format: .number,
-                            prompt: Text("e.g. \"12\"").italic()
-                        ) {
-                            Text("Usia Sapi (Bulan)")
-                        }
-                        .keyboardType(.numberPad)
-                        .font(AppFont.body)
-                        .onChange(of: umurCattle) { _, value in
-                            guard let value else { return }
+                        Button {
+                            hasAttemptedSave = true
 
-                            if value > 99 {
-                                umurCattle = 99
-                            } else if value < 0 {
-                                umurCattle = 0
+                            guard !hasIncompleteRequiredFields,
+                                let breed = jenisCattle,
+                                let gender = genderCattle,
+                                let umurCattle
+                            else {
+                                return
                             }
-                        }
-                        .padding(AppSpacing.md)
-                        .background(
-                            RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.Primitive.Neutral.shade100)
-                        )
-                    }
 
-                    if hasAttemptedSave, umurCattle == nil {
-                        FormValidationHelperText("Usia sapi wajib diisi.")
-                    }
-
-                    VStack(alignment: .leading) {
-                        Text("Catatan")
-                            .font(AppFont.body)
-                            .foregroundStyle(AppColor.Text.primary)
-
-                        TextField(
-                            text: $catatan,
-                            prompt: Text(
-                                "e.g., \"Letak kandang ada di pojok.\""
-                            ).italic()
-                        ) {
-                            Text("Catatan")
-                        }
-                        .font(AppFont.body)
-                        .autocorrectionDisabled()
-                        .padding(AppSpacing.md)
-                        .background(
-                            RoundedRectangle(cornerRadius: 23)
-                                .fill(AppColor.Primitive.Neutral.shade100)
-                        )
-                    }
-                    .padding(.bottom, AppSpacing.lg)
-
-                    if hasAttemptedSave, bobotCattle == nil {
-                        FormValidationHelperText("Isi bobot sapi atau ambil hasil estimasi kamera.")
-                    }
-                    Button {
-                        hasAttemptedSave = true
-                        guard !isSaveDisabled else { return }
-                        guard let breed = jenisCattle,
-                            let gender = genderCattle
-                        else {
-                            return
-                        }
-
-                        guard let umurCattle else { return }
-
-                        Task {
-                            do {
-                                try await onSave(
-                                    CattleFormValues(
-                                        name: namaCattle,
-                                        dateAcquired: cattle?.dateAcquired
-                                            ?? .now,
-                                        breed: breed,
-                                        gender: gender,
-                                        recordedAge: umurCattle,
-                                        bodyWeight: bobotCattle,
-                                        chestGirth: displayedScanResult == nil
-                                            ? cattle?.chestGirth : displayedScanResult?.girth,
-                                        bodyLength: displayedScanResult?.lengthCM ?? cattle?.bodyLength,
-                                        cattleImage: gambarCattle,
-                                        notes: catatan.trimmingCharacters(
-                                            in: .whitespacesAndNewlines
-                                        ).isEmpty ? nil : catatan
+                            Task {
+                                do {
+                                    try await onSave(
+                                        CattleFormValues(
+                                            name: namaCattle,
+                                            dateAcquired: cattle?.dateAcquired
+                                                ?? .now,
+                                            breed: breed,
+                                            gender: gender,
+                                            recordedAge: umurCattle,
+                                            bodyWeight: bodyWeightForSave,
+                                            chestGirth: displayedScanResult == nil
+                                                ? cattle?.chestGirth : displayedScanResult?.girth,
+                                            bodyLength: displayedScanResult?.lengthCM ?? cattle?.bodyLength,
+                                            cattleImage: gambarCattle,
+                                            notes: catatan.trimmingCharacters(
+                                                in: .whitespacesAndNewlines
+                                            ).isEmpty ? nil : catatan
+                                        )
                                     )
-                                )
-                                cancel()
-                            } catch {
-                                saveError = error.localizedDescription
+                                    cancel()
+                                } catch {
+                                    saveError = error.localizedDescription
+                                }
                             }
+                        } label: {
+                            Text(
+                                cattle == nil
+                                    ? "Simpan Data" : "Simpan Perubahan"
+                            )
                         }
-                    } label: {
-                        Text(cattle == nil ? "Simpan Data" : "Simpan Perubahan")
+                        .appButtonStyle(.primary)
                     }
-                    .appButtonStyle(.primary)
-
+                    .padding(.horizontal, AppSpacing.md)
                 }
-                .padding(AppSpacing.md)
-            }
 
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                focusedField = nil
+            }
+            .scrollDismissesKeyboard(.interactively)
+        }
+        .fullScreenCover(isPresented: $isShowingCamera) {
+            CameraPicker(
+                image: $gambarCattle,
+                isPresented: $isShowingCamera,
+                onAccessDenied: {
+                    // Wait for the full-screen camera dismissal before presenting
+                    // the alert on the form underneath it.
+                    Task { @MainActor in
+                        try? await Task.sleep(for: .milliseconds(350))
+                        cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+                    }
+                }
+            )
+            .ignoresSafeArea()
+        }
+        .navigationTitle(cattle == nil ? "Tambah Sapi" : "Edit Sapi")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            viewModel.storeScanResult(displayedScanResult)
         }
         .alert("Data belum tersimpan", isPresented: Binding(
             get: { saveError != nil },
@@ -575,36 +715,26 @@ struct CattleFormView: View {
         } message: {
             Text("Isi jenis sapi dan jenis kelamin sapi terlebih dahulu.")
         }
-        .dismissibleKeyboard()
-        .fullScreenCover(isPresented: $isShowingCamera) {
-            CameraPicker(
-                image: $gambarCattle,
-                isPresented: $isShowingCamera
+        .alert(
+            "Akses Kamera Diperlukan",
+            isPresented: Binding(
+                get: { cameraPermissionError != nil },
+                set: { if !$0 { cameraPermissionError = nil } }
             )
-            .ignoresSafeArea()
-        }
-        .navigationTitle(cattle == nil ? "Tambah Sapi" : "Edit Sapi")
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            viewModel.storeScanResult(displayedScanResult)
-        }
-        .onChange(of: jenisCattle) { _, _ in
-            guard weightEntryMode == .camera else { return }
-            if let estimatedWeight = viewModel.estimatedWeight(
-                breed: jenisCattle,
-                gender: genderCattle
-            ) {
-                bobotCattle = estimatedWeight
+        ) {
+            Button("Buka Pengaturan") {
+                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                UIApplication.shared.open(url)
             }
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(cameraPermissionError ?? "Silakan izinkan akses kamera di Pengaturan.")
         }
-        .onChange(of: genderCattle) { _, _ in
-            guard weightEntryMode == .camera else { return }
-            if let estimatedWeight = viewModel.estimatedWeight(
-                breed: jenisCattle,
-                gender: genderCattle
-            ) {
-                bobotCattle = estimatedWeight
-            }
+        .onChange(of: jenisCattle) { _, newBreed in
+            syncEstimatedWeight(breed: newBreed, gender: genderCattle)
+        }
+        .onChange(of: genderCattle) { _, newGender in
+            syncEstimatedWeight(breed: jenisCattle, gender: newGender)
         }
     }
 
@@ -623,25 +753,6 @@ struct CattleFormView: View {
         viewModel.storeScanResult(result)
         gambarCattle = viewModel.squareCroppedImage(result.cattleImage)
         bobotCattle = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
-    }
-
-    private var estimatedWeightForScan: Double? {
-        viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
-            ?? bobotCattle
-    }
-
-    private var cattleImageForDisplay: UIImage {
-        gambarCattle
-            ?? UIImage(named: "CattlePlaceholder")
-            ?? UIImage()
-    }
-
-    private var isSaveDisabled: Bool {
-        namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            || jenisCattle == nil
-            || genderCattle == nil
-            || umurCattle == nil
-            || bobotCattle == nil
     }
 }
 

@@ -14,6 +14,8 @@ struct FeedCatalogView: View {
     
     @State private var nutritionFeed: FeedIngredient?
     
+    @FocusState private var isSearchFocused: Bool
+    
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
@@ -64,8 +66,13 @@ struct FeedCatalogView: View {
         }
         .padding(.horizontal, AppSpacing.md)
         .padding(.top, AppSpacing.md)
-        .background(AppColor.Surface.card)
-        .dismissibleKeyboard()
+        .background {
+            AppColor.Surface.card
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isSearchFocused = false
+                }
+        }
         .navigationTitle("Susunan Pakan")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -84,16 +91,9 @@ struct FeedCatalogView: View {
                 Text("Tambah pakan")
                     .font(AppFont.headline)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.md)
             }
-            .buttonStyle(.plain)
-            .foregroundStyle(AppColor.Button.Primary.foreground)
-            .background(
-                AppColor.Button.Primary.background,
-                in: Capsule()
-            )
-            .padding(AppSpacing.md)
-            .background(AppColor.Surface.card)
+            .appButtonStyle(.primary)
+            .padding(.horizontal, AppSpacing.md)
         }
         .task {
             rationVM.load()
@@ -116,7 +116,11 @@ struct FeedCatalogView: View {
             TextField("Cari bahan pakan", text: $rationVM.searchText)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
+                .focused($isSearchFocused)
                 .submitLabel(.search)
+                .onSubmit {
+                    isSearchFocused = false
+                }
         }
         .padding(.horizontal, AppSpacing.md)
         .frame(minHeight: 48)

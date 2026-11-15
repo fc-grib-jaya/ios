@@ -21,7 +21,8 @@ protocol ScanCapturing: AnyObject {
     /// `true` while a capture is being processed.
     var isBusy: Bool { get }
     /// Requests camera permission if needed and starts the AR session.
-    func start()
+    /// Calls `onAccessDenied` when the user declines camera access.
+    func start(onAccessDenied: @escaping () -> Void)
     /// Pauses the AR session and releases rendering resources.
     func stop()
     /// Copies the current RGB image and depth map into a `Capture`.

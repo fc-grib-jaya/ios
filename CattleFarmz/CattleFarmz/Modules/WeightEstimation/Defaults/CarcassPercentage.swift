@@ -42,6 +42,7 @@ struct Carcass {
     let femaleCarcassPercent: Double
     let nonCarcassPercent: [NonCarcassPart: Double]
     let meatPercentOfCarcass: Double
+    let reference: String
 
     func carcassPercent(for gender: CattleGender) -> Double {
         switch gender {
@@ -71,7 +72,8 @@ enum CarcassPercentage {
                     .pencernaan: 15.0,
                     .lemak: 5.0
                 ],
-                meatPercentOfCarcass: 75.0
+                meatPercentOfCarcass: 75.0,
+                reference: "Soeparno. (2011). Ilmu Nutrisi dan Teknologi Daging. Gadjah Mada University Press."
             )
             
         case .madura:
@@ -91,7 +93,8 @@ enum CarcassPercentage {
                     .pencernaan: 16.0,
                     .lemak: 5.0
                 ],
-                meatPercentOfCarcass: 72.0
+                meatPercentOfCarcass: 72.0,
+                reference: "Hafid, H. dan R. Priyanto. (2006). Pertumbuhan dan Distribusi Potongan Komersial Karkas Sapi Madura. J. Ilmiah Ilmu-Ilmu Peternakan, 9(2), 65-73."
             )
             
         case .limousin:
@@ -111,7 +114,8 @@ enum CarcassPercentage {
                     .pencernaan: 12.0,
                     .lemak: 4.0
                 ],
-                meatPercentOfCarcass: 80.0
+                meatPercentOfCarcass: 80.0,
+                reference: "Chambaz, A., et al. (2003). Meat quality of Angus, Simmental, Charolais and Limousin steers. Animal Science, 77, 119-129."
             )
             
         case .simmental:
@@ -131,7 +135,8 @@ enum CarcassPercentage {
                     .pencernaan: 12.5,
                     .lemak: 4.5
                 ],
-                meatPercentOfCarcass: 78.0
+                meatPercentOfCarcass: 78.0,
+                reference: "Chambaz, A., et al. (2003). Meat quality of Angus, Simmental, Charolais and Limousin steers. Animal Science, 77, 119-129."
             )
         
         case .brahman:
@@ -151,7 +156,8 @@ enum CarcassPercentage {
                     .pencernaan: 13.5,
                     .lemak: 4.0
                 ],
-                meatPercentOfCarcass: 77.0
+                meatPercentOfCarcass: 77.0,
+                reference: "Cole, J.W., et al. (1964). Effects of Type and Breed of British, Zebu and Dairy Cattle on Production, Carcass Composition and Palatability. J Animal Science, 23, 115-120."
             )
             
         case .peranakanOngole:
@@ -171,7 +177,8 @@ enum CarcassPercentage {
                     .pencernaan: 16.5,
                     .lemak: 5.5
                 ],
-                meatPercentOfCarcass: 70.0
+                meatPercentOfCarcass: 70.0,
+                reference: "Priyanto, R., et al. (1999). Karakteristik Karkas dan Non-Karkas Sapi Peranakan Ongole. Media Veteriner, 6(4), 13-17."
             )
             
         case .friesianHolstein:
@@ -191,7 +198,8 @@ enum CarcassPercentage {
                     .pencernaan: 15.0,
                     .lemak: 6.0
                 ],
-                meatPercentOfCarcass: 72.0
+                meatPercentOfCarcass: 72.0,
+                reference: "Purchas, R.W., et al. (2002). Effects of growth potential and growth path on tenderness of beef. J Animal Science, 80, 3211-3221."
             )
             
         case .aceh:
@@ -211,7 +219,8 @@ enum CarcassPercentage {
                     .pencernaan: 17.0,
                     .lemak: 5.5
                 ],
-                meatPercentOfCarcass: 68.0
+                meatPercentOfCarcass: 68.0,
+                reference: "Abdullah, M., et al. (2007). Karakteristik Karkas dan Non Karkas Sapi Aceh. J. Agripet, 7(1), 41-45."
             )
         }
     }

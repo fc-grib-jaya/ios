@@ -33,7 +33,7 @@ struct RationPlanningView0: View {
             }
         }
         .navigationTitle("Ration planning")
-        .dismissibleKeyboard()
+        .scrollDismissesKeyboard(.interactively)
         .sheet(isPresented: $showsFeedCatalog) {
             NavigationStack {
                 feedCatalog

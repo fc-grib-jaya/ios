@@ -81,7 +81,8 @@ struct ScanSessionView: View {
             makeMeasurement: { capture in
                 MeasurementViewModel(capture: capture, renderer: MockDepthRenderer())
             },
-            onFinish: { _ in }
+            onFinish: { _ in },
+            onCameraAccessDenied: {}
         )
     )
 }

@@ -112,6 +112,17 @@ final class CattlesViewModel {
         self.toast = toast
     }
 
+    /// True when another cattle already uses the same trimmed,
+    /// case-insensitive name, optionally ignoring one cattle (the one being edited).
+    func isNameTaken(_ name: String, excluding id: UUID? = nil) -> Bool {
+        let candidate = name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        guard !candidate.isEmpty else { return false }
+        return items.contains {
+            $0.id != id
+                && $0.name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == candidate
+        }
+    }
+
     func add(
         name: String,
         dateAcquired: Date,
@@ -289,6 +300,9 @@ final class CattlesViewModel {
     /// Applies edit-form values to the given cattle, then refreshes the list.
     /// Returns an error message when the save fails, `nil` on success.
     func editCattle(_ values: CattleFormValues, for cattle: Cattle) -> String? {
+        if isNameTaken(values.name, excluding: cattle.id) {
+            return "Nama sapi sudah digunakan, pilih nama lain."
+        }
         do {
             try update(
                 for: cattle,
@@ -306,6 +320,19 @@ final class CattlesViewModel {
             return nil
         } catch {
             return "Periksa kembali data yang dimasukkan."
+        }
+    }
+
+    /// Deletes the given cattle, then refreshes the list.
+    /// Returns an error message when the deletion fails, `nil` on success.
+    func deleteCattle(_ cattle: Cattle) -> String? {
+        do {
+            try repository.delete(cattle)
+            items = try repository.cattles()
+            toast.show("Sapi berhasil dihapus", icon: "trash", color: .red)
+            return nil
+        } catch {
+            return "Gagal menghapus data sapi."
         }
     }
 
@@ -327,6 +354,7 @@ final class CattlesViewModel {
         cattleImage: UIImage?,
         notes: String?
     ) throws {
+        guard !isNameTaken(name) else { throw CattleRepositoryError.duplicateName }
         let imageData = cattleImage?.jpegData(compressionQuality: 0.85)
         try add(
             name: name,

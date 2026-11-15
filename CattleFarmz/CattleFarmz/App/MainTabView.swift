@@ -69,6 +69,9 @@ struct MainTabView: View {
                             onOpenRation: { openPlan($0, plan: $homePlan, path: $coordinator.path) },
                             onEditTap: { cattle in
                                 coordinator.showEditCattle(cattleID: cattle.id.uuidString)
+                            },
+                            onDeleteTap: { _ in
+                                coordinator.path.removeAll()
                             }
                         )
                     case .rationForm, .rationAnalysis, .rationAnalysisDetail:
@@ -102,19 +105,23 @@ struct MainTabView: View {
                                 onScanSession: { onFinish in
                                     coordinator.showScanSession(onFinish: onFinish)
                                 },
-                                viewModel: container.makeCattleFormViewModel()
-                            ) { values in
-                                if let error = cattlesViewModel.editCattle(
-                                    values,
-                                    for: cattle
-                                ) {
-                                    throw NSError(
-                                        domain: "CattleForm",
-                                        code: 1,
-                                        userInfo: [NSLocalizedDescriptionKey: error]
-                                    )
+                                viewModel: container.makeCattleFormViewModel(),
+                                onSave: { values in
+                                    if let error = cattlesViewModel.editCattle(
+                                        values,
+                                        for: cattle
+                                    ) {
+                                        throw NSError(
+                                            domain: "CattleForm",
+                                            code: 1,
+                                            userInfo: [NSLocalizedDescriptionKey: error]
+                                        )
+                                    }
+                                },
+                                isNameTaken: {
+                                    cattlesViewModel.isNameTaken($0, excluding: cattle.id)
                                 }
-                            }
+                            )
                         } else {
                             ContentUnavailableView(
                                 "Sapi Tidak Ditemukan",

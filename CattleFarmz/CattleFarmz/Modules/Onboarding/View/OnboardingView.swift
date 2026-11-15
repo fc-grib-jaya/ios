@@ -4,7 +4,6 @@
 //
 
 import SwiftUI
-import UIKit
 
 /// Paged first-launch intro with the primary action pinned below the page dots.
 struct OnboardingView: View {
@@ -12,38 +11,65 @@ struct OnboardingView: View {
 
     init(viewModel: OnboardingViewModel) {
         _viewModel = State(initialValue: viewModel)
-
-        // Runs before the TabView builds its page control. Dots sit directly on
-        // the canvas with no backdrop, so they need explicit colors.
-        UIPageControl.appearance().currentPageIndicatorTintColor =
-            UIColor(AppColor.Primitive.Primary.shade500)
-        UIPageControl.appearance().pageIndicatorTintColor =
-            UIColor(AppColor.Text.muted)
     }
 
     var body: some View {
         ZStack {
-            AppColor.Surface.canvas
-                .ignoresSafeArea()
+            GeometryReader { geometry in
+                LinearGradient(
+                    colors: [
+                        AppColor.Primitive.Secondary.shade100,
+                        AppColor.Surface.canvas,
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .frame(height: geometry.size.height * 0.3)
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
+            .background(AppColor.Surface.canvas)
+            .ignoresSafeArea()
+
+            TabView(selection: $viewModel.index) {
+                ForEach(viewModel.pages) { page in
+                    OnboardingPageContent(
+                        page: page,
+                        isActive: page.id == viewModel.index
+                    )
+                    .tag(page.id)
+                }
+            }
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .padding(.top, 24)
 
             VStack(spacing: AppSpacing.xl) {
-                TabView(selection: $viewModel.index) {
-                    ForEach(viewModel.pages) { page in
-                        OnboardingPageContent(page: page)
-                            .tag(page.id)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .always))
-                // The canvas is near-white, so the system's default white dots
-                // need a tint; the appearance proxy keeps the dots native and
-                // lets them render without a background pill.
-                .indexViewStyle(.page(backgroundDisplayMode: .never))
+
+                Spacer()
 
                 Button(viewModel.buttonTitle) {
                     viewModel.primaryTapped()
                 }
                 .appButtonStyle(.primary)
                 .padding(.horizontal, AppSpacing.md)
+
+                // Custom page indicator: the active page is an elongated
+                // capsule, inactive pages stay circular dots.
+                HStack(spacing: AppSpacing.sm) {
+                    ForEach(viewModel.pages.indices, id: \.self) { i in
+                        Capsule()
+                            .fill(
+                                i == viewModel.index
+                                    ? AppColor.Primitive.Primary.shade500
+                                    : AppColor.Text.muted
+                            )
+                            .frame(
+                                width: i == viewModel.index ? 24 : 8,
+                                height: 8
+                            )
+                    }
+                }
+                .animation(.easeInOut(duration: 0.2), value: viewModel.index)
+
             }
             .padding(.top, AppSpacing.massive)
             .padding(.bottom, AppSpacing.xl)
@@ -53,32 +79,41 @@ struct OnboardingView: View {
 
 private struct OnboardingPageContent: View {
     let page: OnboardingPage
+    /// True while this page is the selected one; visuals use it to hold
+    /// their entrance until the page is actually shown.
+    let isActive: Bool
 
     var body: some View {
         VStack(spacing: AppSpacing.lg) {
-            Spacer()
+            Text(page.title)
+                .font(.custom("PlusJakartaSans-ExtraBold", size: 48))
+                .foregroundStyle(AppColor.Text.primary)
+                .multilineTextAlignment(.center)
 
-            Image(systemName: page.systemImage)
-                .font(AppFont.largeTitle)
-                .imageScale(.large)
-                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+            Text(page.subtitle)
+                .font(AppFont.body)
+                .foregroundStyle(AppColor.Text.secondary)
+                .multilineTextAlignment(.center)
 
-            VStack(spacing: AppSpacing.sm) {
-                Text(page.title)
-                    .font(AppFont.title)
-                    .foregroundStyle(AppColor.Text.primary)
-                    .multilineTextAlignment(.center)
-
-                Text(page.subtitle)
-                    .font(AppFont.body)
-                    .foregroundStyle(AppColor.Text.secondary)
-                    .multilineTextAlignment(.center)
-            }
+            // Per-page visual, pinned top-left so there is room beneath it.
+            pageVisual
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 16)
 
             Spacer()
         }
         .padding(.horizontal, AppSpacing.xl)
         .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder
+    private var pageVisual: some View {
+        switch page.id {
+        case 0: OnboardingWeightEstimationView()
+        case 1: OnboardingNutritionPlanningView(isActive: isActive)
+        case 2: OnboardingFeedPlanView()
+        default: OnboardingGrowthTrackingView()
+        }
     }
 }
 

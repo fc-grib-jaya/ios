@@ -23,12 +23,8 @@ struct NoRationCard: View {
                 
                 Button(action: onAddTap) {
                     Text("Hitung Pakan")
-                        .font(AppFont.body)
-                        .foregroundStyle(AppColor.Button.Primary.foreground)
-                        .padding(.vertical, AppSpacing.xs)
-                        .frame(maxWidth: .infinity)
-                        .glassEffect(.regular.tint(AppColor.Primitive.Primary.shade500))
                 }
+                .appButtonStyle(.primary)
                 .padding(.horizontal, AppSpacing.md)
             }
             .padding(.bottom, AppSpacing.md)

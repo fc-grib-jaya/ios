@@ -224,23 +224,57 @@ struct MainTabView: View {
         "\(cow.breed.rawValue) · \(cow.gender.rawValue) · \(cow.currentAge) bulan"
     }
 
-    private func openPlan(_ id: UUID, plan: Binding<Plan?>, path: Binding<[AppRoute]>) {
-        guard let cow = cattle.first(where: { $0.id == id }) else { return }
+    private func openPlan(
+        _ id: UUID,
+        plan: Binding<Plan?>,
+        path: Binding<[AppRoute]>
+    ) {
+        guard let cow = cattle.first(where: { $0.id == id }) else {
+            return
+        }
+
         let vm = container.makeRationPlanningViewModel()
+        var savedResult: RationCalculationResult?
+
         if let data = cow.savedRation {
             do {
-                vm.restore(try JSONDecoder().decode(RationCalculationResult.self, from: data))
+                let result = try JSONDecoder().decode(
+                    RationCalculationResult.self,
+                    from: data
+                )
+
+                vm.restore(result)
+                savedResult = result
             } catch {
-                saveError = "Susunan tersimpan gagal dibaca. " + error.localizedDescription
+                saveError = "Susunan tersimpan gagal dibaca. "
+                    + error.localizedDescription
                 return
             }
         } else {
             vm.selectSex(cow.gender == .male ? .male : .female)
-            vm.selectStage(cow.currentAge < 6 ? .calf : cow.currentAge <= 12 ? .growing : .adult)
-            vm.bodyWeightText = (cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)).map { String($0) } ?? ""
+
+            vm.selectStage(
+                cow.currentAge < 6
+                    ? .calf
+                    : cow.currentAge <= 12 ? .growing : .adult
+            )
+
+            vm.bodyWeightText = (
+                cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)
+            ).map { String($0) } ?? ""
         }
-        plan.wrappedValue = Plan(cattle: cow, viewModel: vm)
-        path.wrappedValue.append(.rationForm)
+
+        plan.wrappedValue = Plan(
+            cattle: cow,
+            viewModel: vm,
+            result: savedResult
+        )
+
+        if savedResult != nil {
+            path.wrappedValue.append(.rationAnalysis)
+        } else {
+            path.wrappedValue.append(.rationForm)
+        }
     }
 
     @ViewBuilder
@@ -254,11 +288,30 @@ struct MainTabView: View {
                 }
             case .rationAnalysis:
                 if let result = current.result {
-                    RationAnalysisView(result: result, onShowDetails: {
-                        path.wrappedValue.append(.rationAnalysisDetail)
-                    }, cattleName: current.cattle.name, onSave: {
-                        savePlan(result, for: current.cattle, path: path)
-                    })
+                    RationAnalysisView(
+                        result: result,
+                        onShowDetails: {
+                            path.wrappedValue.append(.rationAnalysisDetail)
+                        },
+                        cattleName: current.cattle.name,
+                        onSave: {
+                            savePlan(result, for: current.cattle, path: path)
+                        },
+                        onEdit: {
+                            guard path.wrappedValue.last == .rationAnalysis else {
+                                return
+                            }
+
+                            let previousRoute = path.wrappedValue.dropLast().last
+
+                            if previousRoute == .rationForm {
+                                path.wrappedValue.removeLast()
+                            } else {
+                                path.wrappedValue.removeLast()
+                                path.wrappedValue.append(.rationForm)
+                            }
+                        }
+                    )
                 }
             case .rationAnalysisDetail:
                 if let result = current.result {

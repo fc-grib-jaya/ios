@@ -61,7 +61,7 @@ final class ScanSessionViewModel {
             ScanResult(
                 lengthCM: result.lengthCM,
 //                girth: result.girth,
-                girth: profile.lengthCM,
+                girth: profile.lengthCM.map { $0 * 2 },
                 cattleImage: UIImage(cgImage: measurement!.capture.image)
             )
         )

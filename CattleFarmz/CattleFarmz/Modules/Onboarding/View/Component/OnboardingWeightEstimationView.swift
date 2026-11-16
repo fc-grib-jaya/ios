@@ -83,25 +83,42 @@ struct OnboardingWeightEstimationView: View {
             )
     }
 
-    /// Empty glass card in front of the image card.
+    /// Glass card with an estimated-weight readout, in front of the image
+    /// card.
     private var backCard: some View {
-        Color.clear
-            .frame(width: cardSize, height: cardSize)
-            .glassEffect(
-                .regular.tint(Color.gray.opacity(0.5)),
-                in: RotatedRoundedRectangle(cornerRadius: 28, angle: backAngle)
-            )
-            .shadow(
-                color: Color(
-                    red: 0.000,
-                    green: 0.000,
-                    blue: 0.000,
-                    opacity: 0.05
-                ),
-                radius: 5,
-                x: 0,
-                y: 4
-            )
+        VStack(spacing: AppSpacing.md) {
+            Text("Estimasi")
+                .font(.custom("PlusJakartaSans-Bold", size: 24))
+                .foregroundStyle(AppColor.Text.secondary)
+
+            Image(systemName: "scalemass.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 44, height: 44)
+                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+
+            Text("400kg")
+                .font(.custom("PlusJakartaSans-ExtraBold", size: 36))
+                .foregroundStyle(AppColor.Text.primary)
+        }
+        .frame(width: cardSize, height: cardSize)
+        // Rotate with the card so content and glass stay aligned.
+        .rotationEffect(backAngle)
+        .glassEffect(
+            .regular.tint(Color.gray.opacity(0.5)),
+            in: RotatedRoundedRectangle(cornerRadius: 28, angle: backAngle)
+        )
+        .shadow(
+            color: Color(
+                red: 0.000,
+                green: 0.000,
+                blue: 0.000,
+                opacity: 0.05
+            ),
+            radius: 5,
+            x: 0,
+            y: 4
+        )
     }
 }
 

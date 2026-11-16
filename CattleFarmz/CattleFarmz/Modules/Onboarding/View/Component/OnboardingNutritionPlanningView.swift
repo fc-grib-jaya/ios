@@ -16,11 +16,17 @@ struct OnboardingNutritionPlanningView: View {
     /// Bounds the visual so it does not stretch to the full screen height.
     private let containerHeight: CGFloat = 320
     private let imageSize: CGFloat = 144
-    private let cardSize = CGSize(width: 150, height: 210)
+    private let cardSize = CGSize(width: 240, height: 180)
     private let cardCornerRadius: CGFloat = 24
 
     /// Drives the entrance: hidden until the page becomes active.
     @State private var appeared = false
+
+    /// Smaller iPhone screens (under 880pt tall, i.e. not Plus / Pro Max)
+    /// get the visual pushed down slightly; bigger screens are unchanged.
+    private var extraTopOffset: CGFloat {
+        UIScreen.main.bounds.height < 880 ? 32 : 0
+    }
 
     var body: some View {
         ZStack {
@@ -31,6 +37,7 @@ struct OnboardingNutritionPlanningView: View {
         .frame(maxWidth: .infinity)
         .frame(height: containerHeight)
         .padding(.top, 48)
+        .offset(y: extraTopOffset)
         .opacity(appeared ? 1 : 0)
         .scaleEffect(appeared ? 1 : 0.8)
         .onAppear { syncAppeared() }
@@ -118,29 +125,76 @@ struct OnboardingNutritionPlanningView: View {
             )
     }
 
-    /// Empty rounded rectangle with a secondary-tinted glass effect.
+    /// Wider glass card showing a feed nutrition readout.
     private var centerCard: some View {
-        RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous)
-            .fill(Color.clear)
-            .frame(width: cardSize.width, height: cardSize.height)
-            .glassEffect(
-                .regular.tint(AppColor.Primitive.Secondary.shade500),
-                in: RoundedRectangle(
-                    cornerRadius: cardCornerRadius,
-                    style: .continuous
-                )
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text("Ampas Tahu")
+                .font(.custom("PlusJakartaSans-ExtraBold", size: 22))
+                .foregroundStyle(AppColor.Primitive.Base.white)
+
+            nutritionRow("Protein", value: "50%", meetsNeed: false)
+            nutritionRow("TDN", value: "56%", meetsNeed: true)
+            nutritionRow("Calcium", value: "12%", meetsNeed: true)
+        }
+        .padding(AppSpacing.lg)
+        .frame(
+            width: cardSize.width,
+            height: cardSize.height,
+            alignment: .topLeading
+        )
+        .glassEffect(
+            .regular.tint(AppColor.Primitive.Secondary.shade500),
+            in: RoundedRectangle(
+                cornerRadius: cardCornerRadius,
+                style: .continuous
             )
-            .shadow(
-                color: Color(
-                    red: 0.000,
-                    green: 0.000,
-                    blue: 0.000,
-                    opacity: 0.05
-                ),
-                radius: 5,
-                x: 0,
-                y: 4
-            )
+        )
+        .shadow(
+            color: Color(
+                red: 0.000,
+                green: 0.000,
+                blue: 0.000,
+                opacity: 0.05
+            ),
+            radius: 5,
+            x: 0,
+            y: 4
+        )
+    }
+
+    /// One nutrition row: label on the left, value plus a status symbol on
+    /// the right. `meetsNeed` picks a green checkmark or a red cross.
+    private func nutritionRow(
+        _ label: String,
+        value: String,
+        meetsNeed: Bool
+    ) -> some View {
+        HStack(spacing: AppSpacing.xs) {
+            Text(label)
+                .font(.custom("PlusJakartaSans-Medium", size: 15))
+                .foregroundStyle(AppColor.Primitive.Base.white.opacity(0.85))
+
+            Spacer()
+
+            Text(value)
+                .font(.custom("PlusJakartaSans-Bold", size: 15))
+                .foregroundStyle(AppColor.Primitive.Base.white)
+
+            statusSymbol(meetsNeed: meetsNeed)
+        }
+    }
+
+    /// Small colored circle with a white mark, drawn as separate circle and
+    /// glyph so the mark stays white on both colors.
+    private func statusSymbol(meetsNeed: Bool) -> some View {
+        ZStack {
+            Circle()
+                .fill(meetsNeed ? Color.green : Color.red)
+            Image(systemName: meetsNeed ? "checkmark" : "xmark")
+                .font(.system(size: 9, weight: .bold))
+                .foregroundStyle(AppColor.Primitive.Base.white)
+        }
+        .frame(width: 18, height: 18)
     }
 }
 

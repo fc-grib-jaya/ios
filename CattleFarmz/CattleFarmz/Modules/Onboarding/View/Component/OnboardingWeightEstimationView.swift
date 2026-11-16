@@ -18,6 +18,13 @@ struct OnboardingWeightEstimationView: View {
     /// with a slight overshoot.
     @State private var appeared = false
 
+    /// Larger iPhone screens (Plus / Pro Max, 880pt+ tall) get the visual
+    /// pushed down slightly so it does not sit too high; other sizes are
+    /// unchanged.
+    private var extraTopOffset: CGFloat {
+        UIScreen.main.bounds.height >= 880 ? 32 : 0
+    }
+
     var body: some View {
         ZStack(alignment: .topTrailing) {
             frontCard
@@ -31,7 +38,7 @@ struct OnboardingWeightEstimationView: View {
                 // Enters from the bottom-right edge.
                 .offset(x: appeared ? 0 : 450, y: appeared ? 0 : 450)
         }
-        .offset(x: -64, y: 0)
+        .offset(x: -64, y: extraTopOffset)
         .onAppear {
             // Damping fraction below 1 gives the slight overshoot.
             withAnimation(.spring(response: 0.6, dampingFraction: 0.65)) {

@@ -16,7 +16,7 @@ struct OnboardingFeedPlanView: View {
     var isActive: Bool = false
 
     /// Bounds the visual so it does not stretch to the full screen height.
-    private let containerHeight: CGFloat = 320
+    private let containerHeight: CGFloat = 400
     /// Shared width; every image renders at exactly this width, so the
     /// next card behind never appears at a different size.
     private let cardWidth: CGFloat = 300
@@ -133,7 +133,8 @@ struct OnboardingFeedPlanView: View {
     /// height, top-aligned so the image content is cropped only at the
     /// bottom, where the container gradient fades it out.
     private func card(_ name: String) -> some View {
-        Image(name)
+        let shape = RoundedRectangle(cornerRadius: 36, style: .continuous)
+        return Image(name)
             .resizable()
             .scaledToFill()
             .frame(
@@ -141,8 +142,32 @@ struct OnboardingFeedPlanView: View {
                 height: containerHeight,
                 alignment: .top
             )
-            .clipShape(
-                RoundedRectangle(cornerRadius: 36, style: .continuous)
+            .clipShape(shape)
+            // Gradient shadow: a blurred rounded rect behind the card,
+            // masked so it is only visible toward the top and fades out
+            // toward the bottom.
+            .background(
+                shape
+                    .fill(Color.black.opacity(0.05))
+                    .blur(radius: 5)
+                    .offset(y: 4)
+                    .mask(
+                        LinearGradient(
+                            stops: [
+                                Gradient.Stop(color: .white, location: 0),
+                                Gradient.Stop(
+                                    color: .white,
+                                    location: 0.5
+                                ),
+                                Gradient.Stop(
+                                    color: .clear,
+                                    location: 1
+                                ),
+                            ],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
             )
     }
 }

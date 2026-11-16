@@ -29,10 +29,11 @@ nonisolated struct OnboardingPage: Identifiable, Hashable {
             title: "Susun rencana pakan",
             subtitle: "Hitung kebutuhan nutrisi harian dari pakan yang tersedia."
         ),
-        OnboardingPage(
-            id: 3,
-            title: "Pantau pertumbuhan",
-            subtitle: "Lihat riwayat bobot dan data sapi kapan saja."
-        )
+        // Hidden for now; the ration planning page is the last slide.
+        // OnboardingPage(
+        //     id: 3,
+        //     title: "Pantau pertumbuhan",
+        //     subtitle: "Lihat riwayat bobot dan data sapi kapan saja."
+        // )
     ]
 }

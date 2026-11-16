@@ -111,8 +111,10 @@ private struct OnboardingPageContent: View {
         switch page.id {
         case 0: OnboardingWeightEstimationView()
         case 1: OnboardingNutritionPlanningView(isActive: isActive)
-        case 2: OnboardingFeedPlanView(isActive: isActive)
-        default: OnboardingGrowthTrackingView()
+        default: OnboardingFeedPlanView(isActive: isActive)
+            // Hidden for now; the ration planning page is the last slide.
+            // case 2: OnboardingFeedPlanView(isActive: isActive)
+            // default: OnboardingGrowthTrackingView()
         }
     }
 }

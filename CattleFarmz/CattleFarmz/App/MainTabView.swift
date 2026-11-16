@@ -77,11 +77,11 @@ struct MainTabView: View {
                     case .rationForm, .rationAnalysis, .rationAnalysisDetail:
                         planDestination(route, plan: $homePlan, path: $coordinator.path)
                     case .addCattle:
-                        CattleFormView(
+                        FormView(
                             onScanSession: { onFinish in
                                 coordinator.showScanSession(onFinish: onFinish)
                             },
-                            viewModel: container.makeCattleFormViewModel()
+                            viewModel: FormViewModel()
                         ) { values in
                             try cattlesViewModel.addCattle(
                                 name: values.name,

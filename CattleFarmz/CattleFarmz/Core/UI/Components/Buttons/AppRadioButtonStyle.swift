@@ -7,8 +7,8 @@ struct AppRadioButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         let shape = RoundedRectangle(cornerRadius: AppRadius.full)
         let isPressed = configuration.isPressed && isEnabled
-        let foreground = isSelected ? AppColor.Button.Primary.background : AppColor.Text.primary
-        let background = (isPressed || isSelected) ? AppColor.Primitive.Primary.shade100 : AppColor.Surface.canvas
+        let foreground = isSelected ? AppColor.Button.Primary.background : AppColor.Primitive.Primary.shade500
+        let background = (isPressed || isSelected) ? AppColor.Primitive.Primary.shade100 : AppColor.Surface.canvas.opacity(0.1)
 
         configuration.label
             .font(AppFont.body)
@@ -21,7 +21,7 @@ struct AppRadioButtonStyle: ButtonStyle {
             }
             .overlay {
                 if !isSelected {
-                    shape.strokeBorder(AppColor.Border.default, lineWidth: 1)
+                    shape.strokeBorder(AppColor.Primitive.Primary.shade400, lineWidth: 1)
                         .allowsHitTesting(false)
                 }
             }

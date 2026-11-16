@@ -111,7 +111,7 @@ private struct OnboardingPageContent: View {
         switch page.id {
         case 0: OnboardingWeightEstimationView()
         case 1: OnboardingNutritionPlanningView(isActive: isActive)
-        case 2: OnboardingFeedPlanView()
+        case 2: OnboardingFeedPlanView(isActive: isActive)
         default: OnboardingGrowthTrackingView()
         }
     }

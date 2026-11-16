@@ -3,73 +3,103 @@ import SwiftUI
 struct NutrientReviewCard: View {
     let result: RationCalculationResult
     let onShowDetails: () -> Void
+
+    private var rows: [NutrientComparison] {
+        NutrientComparison.rows(for: result)
+    }
     
-    private var rows: [NutrientComparison] { NutrientComparison.rows(for: result) }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.md) {
-            ForEach(rows) { row in
-                HStack {
-                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                        Text(row.name).font(AppFont.headline)
-                        Text("\(formattedValue(row.actual, unit: row.unit)) · Referensi \(formattedValue(row.minimum, unit: row.unit))")
-                            .font(AppFont.body)
-                    }
-                    Spacer()
-                    Text(row.coverage.map { evaluationNumber($0 * 100, digits: 0) + "%" } ?? "—")
-                        .font(AppFont.headline)
-                        .padding(AppSpacing.sm)
-                        .foregroundStyle(AppColor.Primitive.Neutral.shade950)
-                        .background(
-                            badgeBackground(for: row.coverage),
-                            in: RoundedRectangle(cornerRadius: AppRadius.small)
-                        )
-                    
-                }
-                Divider()
+    private var hasDeficiency: Bool {
+        rows.contains { nutrient in
+            guard let coverage = nutrient.coverage else {
+                return false
             }
+
+            return coverage < 1
+        }
+    }
+
+    private var headerColors: [Color] {
+        if hasDeficiency {
+            return [
+                AppColor.Primitive.Secondary.shade400,
+                AppColor.Primitive.Secondary.shade600
+            ]
+        }
+
+        return [
+            AppColor.Primitive.Primary.shade400,
+            AppColor.Primitive.Primary.shade600
+        ]
+    }
+
+    private var remainingCount: Int {
+        max(0, rows.count - 2)
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
             Button(action: onShowDetails) {
                 HStack(spacing: AppSpacing.md) {
                     Image(systemName: "chart.xyaxis.line")
-                        .font(.system(size: 25))
-                        .foregroundStyle(AppColor.Primitive.Neutral.shade400)
+                        .font(AppFont.title)
+
                     Text("Lihat detail analisis")
-                        .font(AppFont.mediumBody)
-                        
-                    
+                        .font(AppFont.headline)
+
                     Spacer()
-                    
+
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(AppColor.Primitive.Neutral.shade400)
+                        .font(AppFont.headline)
                 }
+                .foregroundStyle(AppColor.Button.Primary.foreground)
+                .padding(AppSpacing.Card.compact)
+                .padding(.bottom, AppSpacing.md)
+                .frame(maxWidth: .infinity, minHeight: 64)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            
 
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                Text("Ringkasan nutrisi")
+                    .font(AppFont.title)
 
+                ForEach(rows.prefix(2)) { nutrient in
+                    NutrientAdequacyCard(nutrient: nutrient)
+                }
+
+                Divider()
+
+                Text("+ \(remainingCount) nutrisi lainnya pada detail analisis")
+                    .font(AppFont.body)
+                    .foregroundStyle(AppColor.Text.secondary)
+            }
+            .padding(AppSpacing.Card.compact)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                AppColor.Card.background,
+                in: RoundedRectangle(cornerRadius: AppRadius.large)
+            )
+            .padding(.top, -AppSpacing.md)
         }
-        .evaluationCard()
-    }
-    private func badgeBackground(for coverage: Double?) -> Color {
-        guard let coverage else { return AppColor.Primitive.Neutral.shade100 }
-        return coverage >= 1 ? AppColor.Primitive.Primary.shade50 : AppColor.Primitive.Secondary.shade100
-    }
-
-    private func formattedValue(_ value: Double?, unit: String) -> String {
-        guard let value else { return "Tidak tersedia" }
-        let suffix = unit.trimmingCharacters(in: .whitespaces)
-        let number = value.formatted(
-            .number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(0...2))
+        .background {
+            LinearGradient(
+                colors: headerColors,
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        }
+        .clipShape(
+            RoundedRectangle(cornerRadius: AppRadius.large)
         )
-        return number + (suffix == "%" ? "%" : " " + suffix)
     }
-    
 }
 
 #if DEBUG
 #Preview {
-    NutrientReviewCard(result: RationEvaluationPreviewData.result, onShowDetails: {})
-        .padding(AppSpacing.md)
+    NutrientReviewCard(
+        result: RationEvaluationPreviewData.result,
+        onShowDetails: {}
+    )
+    .padding(AppSpacing.md)
 }
 #endif

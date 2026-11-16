@@ -3,4 +3,6 @@ enum AppButtonVariant: CaseIterable {
     case primary
     case secondary
     case text
+    case goldPrimary
+    case goldSecondary
 }

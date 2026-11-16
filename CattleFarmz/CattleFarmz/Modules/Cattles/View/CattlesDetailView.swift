@@ -86,7 +86,25 @@ struct CattlesDetailView: View {
                     .padding(.vertical, AppSpacing.xs)
                     
                     if detailView == 1 {
-                        NoRationCard { onOpenRation(cattle.id) }
+                        if cattle.savedRation != nil {
+                            FeedPlanCard(
+                                entry: FeedHomeEntry(
+                                    id: cattle.id,
+                                    name: cattle.name,
+                                    details: "\(cattle.breed.rawValue) · \(cattle.gender.rawValue) · \(cattle.currentAge) bulan",
+                                    photo: cattle.cattleImage,
+                                    updated: cattle.rationUpdatedAt,
+                                    adg: cattle.rationTargetADG
+                                ),
+                                onOpen: {
+                                    onOpenRation(cattle.id)
+                                }
+                            )
+                        } else {
+                            NoRationCard {
+                                onOpenRation(cattle.id)
+                            }
+                        }
                     } else {
                         CarcassView(breakdown: breakdown, breed: cattle.breed)
                     }

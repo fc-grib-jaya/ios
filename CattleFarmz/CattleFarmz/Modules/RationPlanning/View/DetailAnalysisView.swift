@@ -10,7 +10,14 @@ struct DetailAnalysisView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 RationProfileCard(profile: result.profile, cattleName: cattleName)
-                AnalysisSectionPicker(selection: $section)
+                AppSegmentedControl(
+                    "Bagian analisis",
+                    options: AnalysisSection.allCases,
+                    selection: $section
+                ) { option in
+                    Text(option.rawValue)
+                }
+                .frame(minHeight: 44)
                 switch section {
                 case .adequacy:
                     NutrientAdequacySummary(nutrients: nutrients)

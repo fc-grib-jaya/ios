@@ -81,21 +81,21 @@ struct MainTabView: View {
                             onScanSession: { onFinish in
                                 coordinator.showScanSession(onFinish: onFinish)
                             },
-                            viewModel: container.makeCattleFormViewModel(),
-                            onSave: { values in
-                                try cattlesViewModel.addCattle(
-                                    name: values.name,
-                                    dateAcquired: values.dateAcquired,
-                                    breed: values.breed,
-                                    gender: values.gender,
-                                    recordedAge: values.recordedAge,
-                                    bodyWeight: values.bodyWeight,
-                                    cattleImage: values.cattleImage,
-                                    notes: values.notes
-                                )
-                            },
-                            isNameTaken: { cattlesViewModel.isNameTaken($0) }
-                        )
+                            viewModel: container.makeCattleFormViewModel()
+                        ) { values in
+                            try cattlesViewModel.addCattle(
+                                name: values.name,
+                                dateAcquired: values.dateAcquired,
+                                breed: values.breed,
+                                gender: values.gender,
+                                recordedAge: values.recordedAge,
+                                chestGirth: values.chestGirth,
+                                bodyLength: values.bodyLength,
+                                bodyWeight: values.bodyWeight,
+                                cattleImage: values.cattleImage,
+                                notes: values.notes
+                            )
+                        }
                     case .editCattle(let id):
                         if let cattle = cattlesViewModel.items.first(
                             where: { $0.id.uuidString == id }

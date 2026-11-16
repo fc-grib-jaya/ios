@@ -348,6 +348,8 @@ final class CattlesViewModel {
         breed: CattleBreed,
         gender: CattleGender,
         recordedAge: Int,
+        chestGirth: Double?,
+        bodyLength: Double?,
         bodyWeight: Double?,
         cattleImage: UIImage?,
         notes: String?
@@ -360,8 +362,8 @@ final class CattlesViewModel {
             breed: breed,
             gender: gender,
             recordedAge: recordedAge,
-            chestGirth: nil,
-            bodyLength: nil,
+            chestGirth: chestGirth,
+            bodyLength: bodyLength,
             bodyWeight: bodyWeight,
             cattleImage: imageData,
             notes: notes

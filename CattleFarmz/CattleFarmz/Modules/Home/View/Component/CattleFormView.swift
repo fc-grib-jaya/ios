@@ -32,6 +32,8 @@ struct CattleFormValues {
     let gender: CattleGender
     let recordedAge: Int
     let bodyWeight: Double?
+    let chestGirth: Double?
+    let bodyLength: Double?
     let cattleImage: UIImage?
     let notes: String?
 }
@@ -50,7 +52,7 @@ struct CattleFormView: View {
     @Environment(\.dismiss) var cancel
     /// Starts one scan session. `onFinish` receives the measurement, or `nil` when the user cancelled.
     let onScanSession: (@escaping (ScanResult?) -> Void) -> Void
-    let viewModel: CattleFormViewModel
+    @State private var viewModel: CattleFormViewModel
     let onSave: (CattleFormValues) async throws -> Void
     /// Duplicate-name check injected by the caller; defaults to never-taken
     /// so previews and other call sites compile unchanged.
@@ -78,7 +80,7 @@ struct CattleFormView: View {
     ) {
         self.cattle = cattle
         self.onScanSession = onScanSession
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
         self.onSave = onSave
         self.isNameTaken = isNameTaken
         _namaCattle = State(initialValue: cattle?.name ?? "")
@@ -109,9 +111,6 @@ struct CattleFormView: View {
         _weightEntryMode = State(
             initialValue: cattle == nil ? .camera : .manual
         )
-        if let existingScan {
-            viewModel.storeScanResult(existingScan)
-        }
 
     }
 
@@ -142,10 +141,9 @@ struct CattleFormView: View {
     }
 
     private var bodyWeightForSave: Double? {
-        // Always calculate from the latest breed and gender before saving.
-        // This prevents a scan from keeping the factors used by the first
-        // selection in the form.
-        viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
+        // Keep manual entries; camera estimates use the latest breed and gender.
+        guard weightEntryMode == .camera else { return bobotCattle }
+        return viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
             ?? bobotCattle
     }
 
@@ -153,6 +151,7 @@ struct CattleFormView: View {
         breed: CattleBreed?,
         gender: CattleGender?
     ) {
+        guard weightEntryMode == .camera else { return }
         guard let estimatedWeight = viewModel.estimatedWeight(
             breed: breed,
             gender: gender
@@ -168,10 +167,9 @@ struct CattleFormView: View {
             || jenisCattle == nil
             || genderCattle == nil
             || umurCattle == nil
-            || (weightEntryMode == .manual && bobotCattle == nil)
-            || (weightEntryMode == .camera && bobotCattle == nil)
+            || bobotCattle == nil
     }
-    
+
     private enum Field: Hashable {
         case name, age, weight, notes
     }
@@ -288,7 +286,7 @@ struct CattleFormView: View {
                         Text("Bobot dan Foto Sapi")
                             .foregroundStyle(AppColor.Text.primary)
                             .font(AppFont.body)
-                    
+
                         VStack(alignment: .leading) {
                             AppSegmentedControl(
                                 "Cara mengisi bobot",
@@ -402,9 +400,6 @@ struct CattleFormView: View {
                                 )
                                 .font(AppFont.caption)
                                 .padding(.vertical, AppSpacing.sm)
-                                VStack {
-
-                                }
                                 VStack(alignment: .leading) {
                                     HStack {
                                         Text(
@@ -439,56 +434,11 @@ struct CattleFormView: View {
                                             dateAcquired: cattle?.dateAcquired
                                                 ?? .now
                                         ) {
-                                            onScanSession { result in
-                                                viewModel.storeScanResult(
-                                                    result
-                                                )
-                                                displayedScanResult = result
-                                                gambarCattle = result.flatMap {
-                                                    viewModel.squareCroppedImage(
-                                                        $0.cattleImage
-                                                    )
-                                                }
-                                                if let estimatedWeight =
-                                                    viewModel.estimatedWeight(
-                                                        breed: jenisCattle,
-                                                        gender: genderCattle
-                                                    )
-                                                {
-                                                    bobotCattle =
-                                                        estimatedWeight
-                                                }
-                                            }
+                                            startScan()
                                         }
                                     } else if displayedScanResult == nil {
                                         Button {
-                                            guard jenisCattle != nil,
-                                                genderCattle != nil
-                                            else {
-                                                showCameraValidationAlert = true
-                                                return
-                                            }
-
-                                            onScanSession { result in
-                                                viewModel.storeScanResult(
-                                                    result
-                                                )
-                                                displayedScanResult = result
-                                                gambarCattle = result.flatMap {
-                                                    viewModel.squareCroppedImage(
-                                                        $0.cattleImage
-                                                    )
-                                                }
-                                                if let estimatedWeight =
-                                                    viewModel.estimatedWeight(
-                                                        breed: jenisCattle,
-                                                        gender: genderCattle
-                                                    )
-                                                {
-                                                    bobotCattle =
-                                                        estimatedWeight
-                                                }
-                                            }
+                                            startScan()
                                         } label: {
                                             VStack {
                                                 Image(
@@ -528,7 +478,7 @@ struct CattleFormView: View {
                                             )
                                         }
                                         .buttonStyle(.plain)
-                                        
+
                                     } else if let scan = displayedScanResult {
                                         if let girth = scan.girth,
                                             let weight = estimatedWeightForScan
@@ -541,30 +491,7 @@ struct CattleFormView: View {
                                                 bodyLength: scan.lengthCM,
                                                 dateAcquired: Date()
                                             ) {
-                                                onScanSession { result in
-                                                    viewModel.storeScanResult(
-                                                        result
-                                                    )
-                                                    displayedScanResult = result
-                                                    gambarCattle =
-                                                        result.flatMap {
-                                                            viewModel
-                                                                .squareCroppedImage(
-                                                                    $0
-                                                                        .cattleImage
-                                                                )
-                                                        }
-                                                    if let estimatedWeight =
-                                                        viewModel
-                                                        .estimatedWeight(
-                                                            breed: jenisCattle,
-                                                            gender: genderCattle
-                                                        )
-                                                    {
-                                                        bobotCattle =
-                                                            estimatedWeight
-                                                    }
-                                                }
+                                                startScan()
                                             }
                                         } else {
                                             Text(
@@ -575,14 +502,7 @@ struct CattleFormView: View {
                                             )
 
                                             Button {
-                                                onScanSession { result in
-                                                    viewModel.storeScanResult(
-                                                        result
-                                                    )
-                                                    gambarCattle =
-                                                        result?.cattleImage
-                                                    //                                                syncEstimatedWeight()
-                                                }
+                                                startScan()
                                             } label: {
                                                 Text("Ambil Ulang")
                                                     .font(AppFont.body)
@@ -763,6 +683,9 @@ struct CattleFormView: View {
                                             gender: gender,
                                             recordedAge: umurCattle,
                                             bodyWeight: bodyWeightForSave,
+                                            chestGirth: displayedScanResult == nil
+                                                ? cattle?.chestGirth : displayedScanResult?.girth,
+                                            bodyLength: displayedScanResult?.lengthCM ?? cattle?.bodyLength,
                                             cattleImage: gambarCattle,
                                             notes: catatan.trimmingCharacters(
                                                 in: .whitespacesAndNewlines
@@ -809,6 +732,17 @@ struct CattleFormView: View {
         }
         .navigationTitle(cattle == nil ? "Tambah Sapi" : "Edit Sapi")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            viewModel.storeScanResult(displayedScanResult)
+        }
+        .alert("Data belum tersimpan", isPresented: Binding(
+            get: { saveError != nil },
+            set: { if !$0 { saveError = nil } }
+        )) {
+            Button("OK", role: .cancel) { saveError = nil }
+        } message: {
+            Text(saveError ?? "Gagal menyimpan data sapi.")
+        }
         .alert("Data Belum Lengkap", isPresented: $showCameraValidationAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -837,6 +771,22 @@ struct CattleFormView: View {
         }
     }
 
+    private func startScan() {
+        guard jenisCattle != nil, genderCattle != nil else {
+            showCameraValidationAlert = true
+            return
+        }
+        onScanSession(handleScanResult)
+    }
+
+    private func handleScanResult(_ result: ScanResult?) {
+        // Cancelling a retake keeps the last accepted scan and form values.
+        guard let result else { return }
+        displayedScanResult = result
+        viewModel.storeScanResult(result)
+        gambarCattle = viewModel.squareCroppedImage(result.cattleImage)
+        bobotCattle = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
+    }
 }
 
 #Preview {

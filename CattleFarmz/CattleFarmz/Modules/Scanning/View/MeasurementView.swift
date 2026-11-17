@@ -155,19 +155,13 @@ struct MeasurementView: View {
                     .font(AppFont.caption).foregroundStyle(.secondary)
 
                     if let result = model.result {
-                        resultCard(result)
+//                        resultCard(result)
                     }
                     if model.activePoint != nil && !model.canAdvance {
                         Text(model.currentDepthProblem ?? "Depth titik ini tidak valid. Geser ke area depth yang terbaca.")
                             .font(AppFont.caption)
                             .foregroundStyle(.orange)
                     }
-                case .results:
-                    Text("Hasil pengukuran").font(AppFont.mediumBody)
-                    Text(
-                        "Periksa titik dan kelayakan depth sebelum memakai estimasi ini."
-                    )
-                    .font(AppFont.caption).foregroundStyle(.secondary)
                 }
             }
         }
@@ -279,17 +273,15 @@ struct MeasurementView: View {
     
     private func resultCard(_ result: MeasurementResult) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Estimasi eksperimental · belum tervalidasi")
-                .font(.caption).foregroundStyle(.orange)
             LabeledContent(
                 "Panjang badan",
                 value:
                     "\(result.lengthCM.formatted(.number.precision(.fractionLength(1)))) cm"
             )
             if let profile = result.profile {
-                LabeledContent("Lingkar bagian terbaca", value: profile.lengthCM.map {
-                    $0.formatted(.number.precision(.fractionLength(1))) + " cm"
-                } ?? "Belum tersedia")
+//                LabeledContent("Lingkar bagian terbaca", value: profile.lengthCM.map {
+//                    $0.formatted(.number.precision(.fractionLength(1))) + " cm"
+//                } ?? "Belum tersedia")
                 LabeledContent("Lingkar Dada", value: profile.lengthCM.map {
                     ($0*2).formatted(.number.precision(.fractionLength(1))) + " cm"
                 } ?? "Belum tersedia")

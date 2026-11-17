@@ -14,16 +14,34 @@ struct CameraView: View {
     @State private var viewModel: CameraViewModel
     @Environment(\.scenePhase) private var scenePhase
     private let onClose: () -> Void
-
+    
     init(viewModel: CameraViewModel, onClose: @escaping () -> Void) {
         _viewModel = State(initialValue: viewModel)
         self.onClose = onClose
     }
-
+    
     var body: some View {
         ScanHelpOverlay(initiallyVisible: true) { isHelpVisible in
             ScanViewport { previewSize in
                 CameraPreview(session: viewModel.previewSession)
+                    .overlay {
+                        Color.black
+                            .opacity(0.6)
+                            .overlay{
+                                RoundedRectangle(cornerRadius: 24)
+                                    .frame(maxWidth: 533, maxHeight: 348)
+                                    .foregroundStyle(.white)
+                                    .blendMode(.destinationOut)
+                            }
+                            .compositingGroup()
+                            .allowsHitTesting(false)
+                        
+                        RoundedRectangle(cornerRadius: 24)
+                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [32,16]))
+                            .frame(maxWidth: 533, maxHeight: 348)
+                            .foregroundStyle(.white)
+                            .allowsHitTesting(false)
+                    }
                     .overlay(alignment: .trailing) {
                         shutterButton(viewportSize: previewSize)
                     }
@@ -52,7 +70,7 @@ struct CameraView: View {
             if phase != .active { viewModel.stop() }
         }
     }
-
+    
     private func shutterButton(viewportSize: CGSize) -> some View {
         Button {
             viewModel.takePhoto(viewportSize: viewportSize)
@@ -61,11 +79,11 @@ struct CameraView: View {
                 Circle()
                     .stroke(.white, lineWidth: 4)
                     .frame(width: 74, height: 74)
-
+                
                 Circle()
                     .fill(.white)
                     .frame(width: 60, height: 60)
-
+                
                 if viewModel.isBusy {
                     ProgressView()
                         .tint(.teal)
@@ -78,18 +96,18 @@ struct CameraView: View {
         .disabled(!viewModel.isReady || viewModel.isBusy)
         .padding(.trailing, 24)
     }
-
+    
     private var statusOverlay: some View {
         ScanInstructionCard {
             HStack(spacing: AppSpacing.sm) {
                 Image(systemName: "info.circle")
                     .font(AppFont.title)
                     .accessibilityHidden(true)
-
+                
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text("Foto sapi dari samping")
                         .font(AppFont.mediumBody)
-
+                    
                     Text("Pastikan pengambilan foto simetris")
                         .font(AppFont.mediumSubheadline)
                         .foregroundStyle(AppColor.Text.secondary)
@@ -97,7 +115,7 @@ struct CameraView: View {
             }
         }
     }
-
+    
 }
 
 #Preview {

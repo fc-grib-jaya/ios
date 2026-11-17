@@ -21,13 +21,13 @@ struct CameraView: View {
     }
 
     var body: some View {
-        ScanHelpOverlay(initiallyVisible: false) { isHelpVisible in
+        ScanHelpOverlay(initiallyVisible: true) { isHelpVisible in
             ScanViewport { previewSize in
                 CameraPreview(session: viewModel.previewSession)
                     .overlay(alignment: .trailing) {
                         shutterButton(viewportSize: previewSize)
                     }
-                    .overlay(alignment: .bottomLeading) {
+                    .overlay(alignment: .bottom) {
                         if isHelpVisible {
                             statusOverlay
                                 .frame(width: min(340, max(1, previewSize.width - 2 * AppSpacing.lg)))

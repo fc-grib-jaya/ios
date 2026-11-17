@@ -60,7 +60,12 @@ struct MainTabView: View {
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
-                        ProfileView(viewModel: container.makeProfileViewModel())
+                        ProfileView(
+                            viewModel: container.makeProfileViewModel(),
+                            onEditTap: { coordinator.showEditProfile() }
+                        )
+                    case .editProfile:
+                        profileEditDestination(path: $coordinator.path)
                     case .cattleDetail(let id):
                         // Shares the list instance: editing from the detail
                         // screen mutates the same data the home list shows.
@@ -78,11 +83,11 @@ struct MainTabView: View {
                     case .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
                         planDestination(route, plan: $homePlan, path: $coordinator.path)
                     case .addCattle:
-                        CattleFormView(
+                        FormView(
                             onScanSession: { onFinish in
                                 coordinator.showScanSession(onFinish: onFinish)
                             },
-                            viewModel: container.makeCattleFormViewModel()
+                            viewModel: FormViewModel()
                         ) { values in
                             try cattlesViewModel.addCattle(
                                 name: values.name,
@@ -161,10 +166,23 @@ struct MainTabView: View {
                 Label("Pakan", systemImage: "leaf")
             }
 
-            ProfileView(viewModel: container.makeProfileViewModel())
-                .tabItem {
-                    Label("Profil", systemImage: "person")
+            NavigationStack(path: $coordinator.profilePath) {
+                ProfileView(
+                    viewModel: container.makeProfileViewModel(),
+                    onEditTap: { coordinator.showEditProfile() }
+                )
+                .navigationDestination(for: AppRoute.self) { route in
+                    switch route {
+                    case .editProfile:
+                        profileEditDestination(path: $coordinator.profilePath)
+                    default:
+                        EmptyView()
+                    }
                 }
+            }
+            .tabItem {
+                Label("Profil", systemImage: "person")
+            }
         }
         .toast(manager: container.toastManager)
         .alert("Pakan", isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
@@ -215,10 +233,23 @@ struct MainTabView: View {
 
         switch route {
         case .addCattle, .editCattle, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
+        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail:
             return true
         default:
             return false
         }
+    }
+
+    /// Builds the edit-profile destination; pops the given path after a
+    /// successful save.
+    private func profileEditDestination(path: Binding<[AppRoute]>) -> ProfileEditView {
+        ProfileEditView(
+            viewModel: container.makeProfileEditViewModel(
+                onSaved: {
+                    path.wrappedValue.removeAll()
+                }
+            )
+        )
     }
 
     private func cattleDetails(_ cow: Cattle) -> String {

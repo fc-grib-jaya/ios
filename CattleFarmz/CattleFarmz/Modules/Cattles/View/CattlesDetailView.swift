@@ -68,7 +68,7 @@ struct CattlesDetailView: View {
                         name: cattle.name,
                         breed: cattle.breed,
                         gender: cattle.gender,
-                        age: cattle.recordedAge,
+                        age: cattle.currentAge,
                         weight: breakdown.bodyWeight,
                         updatedDate: cattle.dateAcquired,
                         chestGirth: cattle.chestGirth,

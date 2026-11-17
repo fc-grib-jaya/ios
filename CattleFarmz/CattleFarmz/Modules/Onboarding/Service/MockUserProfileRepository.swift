@@ -26,4 +26,22 @@ final class MockUserProfileRepository: UserProfileRepository {
             stored = UserProfileConfiguration(name: name)
         }
     }
+
+    func updateProfile(
+        name: String,
+        farmName: String,
+        profileImage: Data?
+    ) throws {
+        if let stored {
+            stored.name = name
+            stored.farmName = farmName
+            stored.profileImage = profileImage
+        } else {
+            stored = UserProfileConfiguration(
+                name: name,
+                farmName: farmName,
+                profileImage: profileImage
+            )
+        }
+    }
 }

@@ -10,6 +10,8 @@
 enum AppRoute: Hashable {
     /// Profile screen.
     case profile
+    /// Edit-profile form screen.
+    case editProfile
     case cattleDetail(id: String)
     /// Add-cattle form screen.
     case addCattle

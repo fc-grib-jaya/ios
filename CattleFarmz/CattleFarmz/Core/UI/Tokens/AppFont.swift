@@ -19,6 +19,7 @@ enum AppFont {
 
     /// Screen-level headline, for example on the splash screen.
     static let largeTitle = Font.custom(Face.bold, size: 34, relativeTo: .largeTitle)
+    static let formTitle = Font.custom(Face.bold, size: 28, relativeTo: .largeTitle)
 
     /// Section or page title.
     static let title = Font.custom(Face.semibold, size: 22, relativeTo: .title2)

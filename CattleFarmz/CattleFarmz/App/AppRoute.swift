@@ -20,6 +20,7 @@ enum AppRoute: Hashable {
     case rationForm
     case rationAnalysis
     case rationAnalysisDetail
+    case rationRecommendation
 }
 
 enum AppSheet: Identifiable {

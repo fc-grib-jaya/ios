@@ -191,7 +191,7 @@ struct ManualRationCalculatorTests {
     }
     
     @Test
-    func keepsMissingMineralDataUnknown() throws {
+    func missingMineralsContributeZeroWithoutDroppingKnownContributions() throws {
         let source = try feed(id: "cattle-source-001")
         
         let incompleteFeed = FeedIngredient(
@@ -227,7 +227,7 @@ struct ManualRationCalculatorTests {
             ]
         )
         
-        #expect(incompleteResult.nutrients.calciumPercent == nil)
+        #expect(approximately(incompleteResult.nutrients.calciumPercent, 0.25))
         
         let zeroAmountResult = try calculator.calculate(
             profile: CattleRationProfile(),

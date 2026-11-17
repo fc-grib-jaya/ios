@@ -122,7 +122,7 @@ struct CattlesDetailView: View {
                 )
             }
         }
-        .navigationTitle(currentCattle?.name ?? "Detail Sapi")
+        .navigationTitle("Detail Sapi")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             if let cattle = currentCattle {

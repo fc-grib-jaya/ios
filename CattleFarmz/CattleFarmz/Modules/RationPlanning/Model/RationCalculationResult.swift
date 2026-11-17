@@ -44,10 +44,10 @@ struct RationCalculationResult: Codable {
         }
     }
 
-    var tdnKilogramsPerAnimalPerDay: Double {
-        items.reduce(0) {
-            $0 + $1.kilogramsPerAnimalPerDay
-                * ($1.ingredient.nutrients.totalDigestibleNutrientsPercent / 100)
+    var tdnKilogramsPerAnimalPerDay: Double? {
+        items.reduce(0) { total, item in
+            let tdn = item.ingredient.nutrients.totalDigestibleNutrientsPercent ?? 0
+            return total + item.kilogramsPerAnimalPerDay * (tdn / 100)
         }
     }
 

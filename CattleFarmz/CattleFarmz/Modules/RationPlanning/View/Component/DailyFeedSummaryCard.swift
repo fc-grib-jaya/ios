@@ -12,17 +12,24 @@ struct DailyFeedSummaryCard: View {
                 .font(AppFont.caption)
             HStack(spacing: AppSpacing.xs) {
                 metric("Protein kasar", value: result.proteinKilogramsPerAnimalPerDay)
-                metric("TDN", value: result.tdnKilogramsPerAnimalPerDay)
+                metric(
+                    result.nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "TDN",
+                    value: result.tdnKilogramsPerAnimalPerDay
+                )
             }
         }
         .evaluationCard()
     }
 
-    private func metric(_ title: String, value: Double) -> some View {
+    private func metric(_ title: String, value: Double?) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(title).font(AppFont.caption)
-            Text(value.formatted(.number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(2))))
-                .font(AppFont.title) + Text(" kg/hari").font(AppFont.caption)
+            if let value {
+                Text(value.formatted(.number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(2))))
+                    .font(AppFont.title) + Text(" kg/hari").font(AppFont.caption)
+            } else {
+                Text("Data belum tersedia").font(AppFont.caption)
+            }
         }
         .padding(AppSpacing.sm)
         .frame(maxWidth: .infinity, alignment: .leading)

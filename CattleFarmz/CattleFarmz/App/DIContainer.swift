@@ -97,7 +97,9 @@ final class DIContainer {
             weightCalculation: WeightCalculator(),
             feedProvider: {
                 let text = try BundledFeedCSVReader().read()
-                return try FeedCSVParser().parse(text)
+                let parser = FeedCSVParser()
+                return try parser.parse(text)
+                    + parser.parseConcentrates(BundledFeedCSVReader().readConcentrates())
             },
             rationCalculator: makeRationCalculator()
         )

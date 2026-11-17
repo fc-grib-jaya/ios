@@ -7,7 +7,7 @@
 
 struct NutrientContent: Codable, Equatable {
     let crudeProteinPercent: Double
-    let totalDigestibleNutrientsPercent: Double
+    let totalDigestibleNutrientsPercent: Double?
 
     let calciumPercent: Double?
     let phosphorusPercent: Double?
@@ -16,4 +16,7 @@ struct NutrientContent: Codable, Equatable {
     let ironPPM: Double?
     let copperPPM: Double?
     let zincPPM: Double?
+
+    var totalDigestibleNutrientsIsMinimum: Bool? = nil
+    var totalDigestibleNutrientsIsPartial: Bool? = nil
 }

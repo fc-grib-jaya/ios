@@ -18,13 +18,13 @@ struct NutrientAdequacyCard: View {
             HStack(alignment: .firstTextBaseline) {
                 Text(nutrient.name).font(AppFont.headline)
                 Spacer()
-                Text(nutrient.coverage.map { evaluationNumber($0 * 100, digits: 0) + "%" } ?? "—")
+                Text(nutrient.coverage.map { (nutrient.actualIsMinimum ? "≥ " : "") + evaluationNumber($0 * 100, digits: 0) + "%" } ?? "—")
                     .font(AppFont.title)
             }
             HStack(alignment: .firstTextBaseline) {
                 Text("Referensi minimum " + formatted(nutrient.minimum))
                 Spacer()
-                Text(formatted(nutrient.actual))
+                Text((nutrient.actualIsMinimum ? "≥ " : "") + formatted(nutrient.actual))
             }
             .font(AppFont.caption)
             .foregroundStyle(AppColor.Text.secondary)

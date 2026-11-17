@@ -3,6 +3,8 @@ struct NutrientComparison: Identifiable {
     let actual: Double?
     let minimum: Double?
     let unit: String
+    var actualIsMinimum: Bool = false
+    var actualIsPartial: Bool = false
     var id: String { name }
     var coverage: Double? {
         guard let actual, let minimum, minimum > 0 else { return nil }
@@ -14,7 +16,7 @@ struct NutrientComparison: Identifiable {
         let m = result.requirements
         return [
             Self(name: "Protein kasar", actual: a.crudeProteinPercent, minimum: m.crudeProteinPercent, unit: "%"),
-            Self(name: "TDN", actual: a.totalDigestibleNutrientsPercent, minimum: m.totalDigestibleNutrientsPercent, unit: "%"),
+            Self(name: "TDN", actual: a.totalDigestibleNutrientsPercent, minimum: m.totalDigestibleNutrientsPercent, unit: "%", actualIsMinimum: a.totalDigestibleNutrientsIsMinimum == true, actualIsPartial: a.totalDigestibleNutrientsIsPartial == true),
             Self(name: "Kalsium", actual: a.calciumPercent, minimum: m.calciumPercent, unit: "%"),
             Self(name: "Fosfor", actual: a.phosphorusPercent, minimum: m.phosphorusPercent, unit: "%"),
             Self(name: "Magnesium", actual: a.magnesiumPercent, minimum: m.magnesiumPercent, unit: "%"),

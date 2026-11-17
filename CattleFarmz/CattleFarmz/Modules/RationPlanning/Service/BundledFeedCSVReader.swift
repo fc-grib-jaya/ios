@@ -11,6 +11,11 @@ import Foundation
 @MainActor
 protocol FeedCSVReading {
     func read() throws -> String
+    func readConcentrates() throws -> String
+}
+
+extension FeedCSVReading {
+    func readConcentrates() throws -> String { "" }
 }
 
 struct BundledFeedCSVReader: FeedCSVReading {
@@ -21,17 +26,18 @@ struct BundledFeedCSVReader: FeedCSVReading {
     }
 
     func read() throws -> String {
-        guard let url = bundle.url(
-            forResource: "tabeldatapakan",
-            withExtension: "csv"
-        ) else {
+        try readResource("tabeldatapakan")
+    }
+
+    func readConcentrates() throws -> String {
+        try readResource("lemoo_konsentrat")
+    }
+
+    private func readResource(_ name: String) throws -> String {
+        guard let url = bundle.url(forResource: name, withExtension: "csv") else {
             throw ReadError.fileNotFound
         }
-
-        return try String(
-            contentsOf: url,
-            encoding: .utf8
-        )
+        return try String(contentsOf: url, encoding: .utf8)
     }
 
     enum ReadError: LocalizedError {

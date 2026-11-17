@@ -23,14 +23,13 @@ struct HomeCard: View {
             HStack(alignment: .bottom) {
                 Text(
                     """
-                    Selamat 
                     \(Calendar.current.component(.hour, from: Date()) < 11
                         ? "Pagi"
                         : Calendar.current.component(.hour, from: Date()) < 15
                             ? "Siang"
                             : Calendar.current.component(.hour, from: Date()) < 19
                                 ? "Sore"
-                                : "Malam") \(Farmer)!
+                                : "Malam"), \n\(Farmer)!
                     """
                 )
                 .font(AppFont.title)

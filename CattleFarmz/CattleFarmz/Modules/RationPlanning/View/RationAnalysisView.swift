@@ -1,12 +1,14 @@
 import SwiftUI
 
 struct RationAnalysisView: View {
-    @Environment(\.dismiss) private var dismiss
     let result: RationCalculationResult
     let onShowDetails: () -> Void
     var cattleName: String? = nil
     var onSave: (() -> Void)? = nil
     var onEdit: (() -> Void)? = nil
+    var rationVM: RationPlanningViewModel? = nil
+    var onReviewRecommendation: ((RationRecommendation) -> Void)? = nil
+
 
     var body: some View {
         let comparisons = NutrientComparison.rows(for: result)
@@ -20,6 +22,9 @@ struct RationAnalysisView: View {
                                     unknown: comparisons.filter { $0.coverage == nil }.count,
                                     total: comparisons.count)
                 NutrientReviewCard(result: result, onShowDetails: onShowDetails)
+                if let rationVM, let onReviewRecommendation {
+                    RationRecommendationsSection(result: result, viewModel: rationVM, onCompare: onReviewRecommendation)
+                }
                 ReviewedFeedsCard(result: result)
 
                 Button {

@@ -232,8 +232,7 @@ struct MainTabView: View {
         guard let route = path.last else { return false }
 
         switch route {
-        case .addCattle, .editCattle, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
-        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail:
+        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
             return true
         default:
             return false

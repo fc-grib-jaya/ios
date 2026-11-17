@@ -17,73 +17,77 @@ struct CattlesFilterView: View {
         ZStack {
             AppColor.Primitive.Base.white
                 .ignoresSafeArea()
-
-            VStack(alignment: .leading, spacing: AppSpacing.md) {
-                VStack(alignment: .leading) {
-                    Text("Jenis Sapi")
-                        .font(AppFont.body)
-                    FilterBulletsView(
-                        options: CattleBreed.allCases.map(\.rawValue),
-                        selectedOptions: $selectedBreed
-                    )
-                    .padding(.bottom, AppSpacing.sm)
-                    Divider()
-                }
-
-                VStack(alignment: .leading) {
-                    Text("Jenis Kelamin Sapi")
-                        .font(AppFont.body)
-                    FilterBulletsView(
-                        options: CattleGender.allCases.map(\.rawValue),
-                        selectedOptions: $selectedGender
-                    )
-                    .padding(.bottom, AppSpacing.sm)
-                    Divider()
-                }
-                
-                VStack(alignment: .leading) {
-                    Text("Usia Sapi")
-                        .font(AppFont.body)
-                    FilterBulletsView(
-                        options: CattleAgeRange.allCases.map(\.rawValue),
-                        selectedOptions: $selectedAgeRange
-                    )
-                }
-                
-                Spacer()
-                
-                VStack(spacing: AppSpacing.sm) {
-                    Button {
-                        filter()
-                    } label: {
-                        Text("Terapkan Filter")
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
+                    VStack(alignment: .leading) {
+                        Text("Jenis Sapi")
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.Primitive.Base.white)
-                            .padding(.vertical, AppSpacing.sm)
-                            .frame(maxWidth: .infinity)
-                            .glassEffect(
-                                .regular
-                                    .tint(AppColor.Primitive.Primary.shade500)
-                            )
+                        FilterBulletsView(
+                            options: CattleBreed.allCases.map(\.rawValue),
+                            selectedOptions: $selectedBreed
+                        )
+                        .padding(.bottom, AppSpacing.sm)
+                        Divider()
                     }
                     
-                    Button {
-                        selectedBreed.removeAll()
-                        selectedGender.removeAll()
-                        selectedAgeRange.removeAll()
-                        filter()
-                    } label: {
-                        Text("Hapus Filter")
+                    VStack(alignment: .leading) {
+                        Text("Jenis Kelamin Sapi")
                             .font(AppFont.body)
-                            .foregroundStyle(AppColor.Primitive.Primary.shade500)
-                            .padding(.vertical, AppSpacing.xxs)
-                            .frame(maxWidth: .infinity)
+                        FilterBulletsView(
+                            options: CattleGender.allCases.map(\.rawValue),
+                            selectedOptions: $selectedGender
+                        )
+                        .padding(.bottom, AppSpacing.sm)
+                        Divider()
+                    }
+                    
+                    VStack(alignment: .leading) {
+                        Text("Usia Sapi")
+                            .font(AppFont.body)
+                        FilterBulletsView(
+                            options: CattleAgeRange.allCases.map(\.rawValue),
+                            selectedOptions: $selectedAgeRange
+                        )
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(spacing: AppSpacing.sm) {
+                        Button {
+                            filter()
+                        } label: {
+                            Text("Terapkan Filter")
+                                .font(AppFont.body)
+                                .foregroundStyle(AppColor.Primitive.Base.white)
+                                .padding(.vertical, AppSpacing.sm)
+                                .frame(maxWidth: .infinity)
+                                .glassEffect(
+                                    .regular
+                                        .tint(AppColor.Primitive.Primary.shade500)
+                                )
+                        }
+                        .accessibilityLabel("Terapkan Filter")
+                        
+                        Button {
+                            selectedBreed.removeAll()
+                            selectedGender.removeAll()
+                            selectedAgeRange.removeAll()
+                            filter()
+                        } label: {
+                            Text("Hapus Filter")
+                                .font(AppFont.body)
+                                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+                                .padding(.vertical, AppSpacing.xxs)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .accessibilityLabel("Hapus Filter")
                     }
                 }
+                .padding(AppSpacing.md)
             }
-            .padding(AppSpacing.md)
         }
         .navigationTitle("Filter")
+        .accessibilityLabel("Filter")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(content: {
             ToolbarItem(placement: .topBarLeading) {
@@ -95,6 +99,7 @@ struct CattlesFilterView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
+                .accessibilityLabel("Tutup Filter")
             }
         })
     }

@@ -38,6 +38,7 @@ struct RationRecommendationCard: View {
                 Spacer()
                 Text(percent(before.actual)).font(AppFont.headline)
                 Image(systemName: "arrow.right").foregroundStyle(AppColor.Text.secondary)
+                    .accessibilityLabel("Panah Kanan")
                 Text((after.actualIsMinimum ? "≥ " : "") + percent(after.actual)).font(AppFont.headline)
             }
             Divider()
@@ -45,6 +46,7 @@ struct RationRecommendationCard: View {
                 Text(recommendation.removedIngredient.name)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Image(systemName: "arrow.right").foregroundStyle(AppColor.Text.secondary)
+                    .accessibilityLabel("Panah Kanan")
                 Text(recommendation.addedIngredient.name)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }

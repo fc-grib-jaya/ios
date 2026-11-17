@@ -160,6 +160,7 @@ final class CattlesViewModel {
         chestGirth: Double?,
         bodyLength: Double?,
         bodyWeight: Double?,
+        cattleImage: UIImage?,
         notes: String?
     ) throws {
         try repository.update(
@@ -172,6 +173,7 @@ final class CattlesViewModel {
             chestGirth: chestGirth,
             bodyLength: bodyLength,
             bodyWeight: bodyWeight,
+            cattleImage: cattleImage?.jpegData(compressionQuality: 0.85),
             notes: notes
         )
         items = try repository.cattles()
@@ -311,9 +313,10 @@ final class CattlesViewModel {
                 breed: values.breed,
                 gender: values.gender,
                 recordedAge: values.recordedAge,
-                chestGirth: cattle.chestGirth,
-                bodyLength: cattle.bodyLength,
+                chestGirth: values.chestGirth,
+                bodyLength: values.bodyLength,
                 bodyWeight: values.bodyWeight,
+                cattleImage: values.cattleImage,
                 notes: values.notes
             )
             toast.show("Perubahan berhasil disimpan")

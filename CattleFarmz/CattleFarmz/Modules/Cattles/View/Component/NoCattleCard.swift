@@ -13,6 +13,7 @@ struct NoCattleCard: View {
         VStack {
             Image(.cattle)
                 .padding(.vertical, AppSpacing.lg)
+                .accessibilityLabel("Sapi")
             
             VStack (spacing: AppSpacing.sm){
                 Text(copy)

@@ -256,7 +256,7 @@ struct FeedCatalogView: View {
         return [
             feed.name,
             "Protein kasar: \(formatted(nutrients.crudeProteinPercent, unit: "%"))",
-            "TDN: \(formatted(nutrients.totalDigestibleNutrientsPercent, unit: "%"))",
+            "TDN: \(nutrients.totalDigestibleNutrientsIsMinimum == true ? "Minimum " : "")\(formatted(nutrients.totalDigestibleNutrientsPercent, unit: "%"))",
             "Kalsium: \(formatted(nutrients.calciumPercent, unit: "%"))",
             "Fosfor: \(formatted(nutrients.phosphorusPercent, unit: "%"))",
             "Magnesium: \(formatted(nutrients.magnesiumPercent, unit: "%"))",

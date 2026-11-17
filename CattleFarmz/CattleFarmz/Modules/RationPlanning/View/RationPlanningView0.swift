@@ -334,7 +334,7 @@ struct RationPlanningView0: View {
 
                     LabeledContent(
                         "TDN per animal",
-                        value: "\(resultNumber(item.kilogramsPerAnimalPerDay * (item.ingredient.nutrients.totalDigestibleNutrientsPercent / 100))) kg"
+                        value: "\(resultNumber(item.ingredient.nutrients.totalDigestibleNutrientsPercent.map { item.kilogramsPerAnimalPerDay * $0 / 100 })) kg"
                     )
                 }
             }
@@ -485,8 +485,9 @@ struct RationPlanningView0: View {
         }
     }
 
-    private func resultNumber(_ value: Double) -> String {
-        value.formatted(
+    private func resultNumber(_ value: Double?) -> String {
+        guard let value else { return "Data belum tersedia" }
+        return value.formatted(
             .number.precision(.fractionLength(2))
         )
     }

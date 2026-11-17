@@ -36,6 +36,8 @@ struct CattlesViewModelNameUniquenessTests {
             gender: .male,
             recordedAge: 12,
             bodyWeight: 350,
+            chestGirth: nil,
+            bodyLength: nil,
             cattleImage: nil,
             notes: nil
         )
@@ -52,6 +54,8 @@ struct CattlesViewModelNameUniquenessTests {
                 breed: .aceh,
                 gender: .male,
                 recordedAge: 12,
+                chestGirth: nil,
+                bodyLength: nil,
                 bodyWeight: nil,
                 cattleImage: nil,
                 notes: nil
@@ -69,6 +73,8 @@ struct CattlesViewModelNameUniquenessTests {
                 breed: .aceh,
                 gender: .male,
                 recordedAge: 12,
+                chestGirth: nil,
+                bodyLength: nil,
                 bodyWeight: nil,
                 cattleImage: nil,
                 notes: nil
@@ -86,6 +92,8 @@ struct CattlesViewModelNameUniquenessTests {
                 breed: .aceh,
                 gender: .male,
                 recordedAge: 12,
+                chestGirth: nil,
+                bodyLength: nil,
                 bodyWeight: nil,
                 cattleImage: nil,
                 notes: nil
@@ -102,6 +110,8 @@ struct CattlesViewModelNameUniquenessTests {
             breed: .bali,
             gender: .female,
             recordedAge: 10,
+            chestGirth: nil,
+            bodyLength: nil,
             bodyWeight: nil,
             cattleImage: nil,
             notes: nil

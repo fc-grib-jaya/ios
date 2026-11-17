@@ -162,12 +162,6 @@ struct MeasurementView: View {
                             .font(AppFont.caption)
                             .foregroundStyle(.orange)
                     }
-                case .results:
-                    Text("Hasil pengukuran").font(AppFont.mediumBody)
-                    Text(
-                        "Periksa titik dan kelayakan depth sebelum memakai estimasi ini."
-                    )
-                    .font(AppFont.caption).foregroundStyle(.secondary)
                 }
             }
         }

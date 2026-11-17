@@ -41,12 +41,22 @@ struct CattlesWeightForm: View {
                     TextField(
                         value: $bobotCattle,
                         format: .number,
-                        prompt: Text("Contoh: \"190,64\"").italic()
+                        prompt: Text("Contoh: \"190,64\"").italic().accessibilityLabel("Tuliskan Bobot Sapi")
                     ) {
                         Text("Bobot Sapi (kg)")
                     }
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.center)
+                    .onChange(of: bobotCattle) { _, value in
+                        guard let value else { return }
+
+                        let bounded = min(max(value, 0), 9_999)
+                        let rounded = (bounded * 100).rounded() / 100
+
+                        if value != rounded {
+                            bobotCattle = rounded
+                        }
+                    }
                     .focused($focusedField, equals: .weight)
 
                     Divider()
@@ -70,6 +80,7 @@ struct CattlesWeightForm: View {
                     .frame(maxWidth: .infinity)
             }
             .appButtonStyle(.goldPrimary)
+            .accessibilityLabel("Estimasi Bobot")
             .padding(.horizontal, AppSpacing.xl)
             .padding(.bottom, AppSpacing.xs)
 
@@ -86,6 +97,7 @@ struct CattlesWeightForm: View {
                             .frame(maxWidth: .infinity)
                     }
                     .appButtonStyle(.goldSecondary)
+                    .accessibilityLabel("Ambil foto profil sapi")
                 }
             }
             .padding(.horizontal, AppSpacing.xl)
@@ -149,16 +161,36 @@ struct CattlesWeightForm: View {
     }
 
     private func startScan() {
-        onScanSession(handleScanResult)
+        focusedField = nil
+
+        Task { @MainActor in
+            await Task.yield()
+            onScanSession(handleScanResult)
+        }
     }
 
     private func handleScanResult(_ result: ScanResult?) {
         guard let result else { return }
 
-        scanResult = result
-        bobotCattle = estimatedWeight(for: result)
-        pendingScanPhoto = result.cattleImage
-        isAskingToUseScanPhoto = true
+        let croppedImage = result.cattleImage.cattleSquareCropped()
+            ?? result.cattleImage
+        let normalizedResult = ScanResult(
+            lengthCM: result.lengthCM,
+            girth: result.girth,
+            cattleImage: croppedImage
+        )
+        scanResult = normalizedResult
+        bobotCattle = estimatedWeight(for: normalizedResult)
+        pendingScanPhoto = croppedImage
+        isAskingToUseScanPhoto = false
+
+        // The LiDAR cover is dismissed after the scan callback. Delay the alert
+        // until that dismissal finishes so SwiftUI can present it on the form.
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(500))
+            guard isActive, pendingScanPhoto != nil else { return }
+            isAskingToUseScanPhoto = true
+        }
     }
 
     private func estimatedWeight(for result: ScanResult) -> Double? {
@@ -178,13 +210,19 @@ struct CattlesWeightForm: View {
     }
 
     private func requestCameraAccess() {
+        focusedField = nil
+
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
-            isShowingCamera = true
+            Task { @MainActor in
+                await Task.yield()
+                isShowingCamera = true
+            }
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 Task { @MainActor in
                     if granted {
+                        await Task.yield()
                         isShowingCamera = true
                     } else {
                         cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."

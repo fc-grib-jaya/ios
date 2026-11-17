@@ -60,6 +60,7 @@ final class MockCattleRepository: CattleRepository {
         chestGirth: Double?,
         bodyLength: Double?,
         bodyWeight: Double?,
+        cattleImage: Data?,
         notes: String?
     ) throws {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -80,6 +81,7 @@ final class MockCattleRepository: CattleRepository {
         cattle.chestGirth = chestGirth
         cattle.bodyLength = bodyLength
         cattle.bodyWeight = bodyWeight
+        cattle.cattleImage = cattleImage
         cattle.notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 

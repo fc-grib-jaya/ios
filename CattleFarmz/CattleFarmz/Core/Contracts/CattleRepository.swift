@@ -43,6 +43,7 @@ protocol CattleRepository {
         chestGirth: Double?,
         bodyLength: Double?,
         bodyWeight: Double?,
+        cattleImage: Data?,
         notes: String?
     ) throws
     

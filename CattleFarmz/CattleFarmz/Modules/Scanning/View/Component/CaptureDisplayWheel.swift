@@ -60,6 +60,11 @@ struct CaptureDisplayWheel: View {
         // Match the first layout to the model, including the last (Gabungan) option.
         .defaultScrollAnchor(initialAnchor, for: .initialOffset)
         .scrollPosition(id: $centeredOption, anchor: .center)
+        .onAppear {
+            // Align the ring to the current selection (last option by default)
+            // once the lazy stack has materialized its items.
+            centeredOption = selection
+        }
         .frame(width: 88, height: viewportHeight)
         .overlay {
             Circle()

@@ -59,7 +59,12 @@ struct MainTabView: View {
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .profile:
-                        ProfileView(viewModel: container.makeProfileViewModel())
+                        ProfileView(
+                            viewModel: container.makeProfileViewModel(),
+                            onEditTap: { coordinator.showEditProfile() }
+                        )
+                    case .editProfile:
+                        profileEditDestination(path: $coordinator.path)
                     case .cattleDetail(let id):
                         // Shares the list instance: editing from the detail
                         // screen mutates the same data the home list shows.
@@ -69,16 +74,19 @@ struct MainTabView: View {
                             onOpenRation: { openPlan($0, plan: $homePlan, path: $coordinator.path) },
                             onEditTap: { cattle in
                                 coordinator.showEditCattle(cattleID: cattle.id.uuidString)
+                            },
+                            onDeleteTap: { _ in
+                                coordinator.path.removeAll()
                             }
                         )
                     case .rationForm, .rationAnalysis, .rationAnalysisDetail:
                         planDestination(route, plan: $homePlan, path: $coordinator.path)
                     case .addCattle:
-                        CattleFormView(
+                        FormView(
                             onScanSession: { onFinish in
                                 coordinator.showScanSession(onFinish: onFinish)
                             },
-                            viewModel: container.makeCattleFormViewModel()
+                            viewModel: FormViewModel()
                         ) { values in
                             try cattlesViewModel.addCattle(
                                 name: values.name,
@@ -102,19 +110,23 @@ struct MainTabView: View {
                                 onScanSession: { onFinish in
                                     coordinator.showScanSession(onFinish: onFinish)
                                 },
-                                viewModel: container.makeCattleFormViewModel()
-                            ) { values in
-                                if let error = cattlesViewModel.editCattle(
-                                    values,
-                                    for: cattle
-                                ) {
-                                    throw NSError(
-                                        domain: "CattleForm",
-                                        code: 1,
-                                        userInfo: [NSLocalizedDescriptionKey: error]
-                                    )
+                                viewModel: container.makeCattleFormViewModel(),
+                                onSave: { values in
+                                    if let error = cattlesViewModel.editCattle(
+                                        values,
+                                        for: cattle
+                                    ) {
+                                        throw NSError(
+                                            domain: "CattleForm",
+                                            code: 1,
+                                            userInfo: [NSLocalizedDescriptionKey: error]
+                                        )
+                                    }
+                                },
+                                isNameTaken: {
+                                    cattlesViewModel.isNameTaken($0, excluding: cattle.id)
                                 }
-                            }
+                            )
                         } else {
                             ContentUnavailableView(
                                 "Sapi Tidak Ditemukan",
@@ -153,10 +165,23 @@ struct MainTabView: View {
                 Label("Pakan", systemImage: "leaf")
             }
 
-            ProfileView(viewModel: container.makeProfileViewModel())
-                .tabItem {
-                    Label("Profil", systemImage: "person")
+            NavigationStack(path: $coordinator.profilePath) {
+                ProfileView(
+                    viewModel: container.makeProfileViewModel(),
+                    onEditTap: { coordinator.showEditProfile() }
+                )
+                .navigationDestination(for: AppRoute.self) { route in
+                    switch route {
+                    case .editProfile:
+                        profileEditDestination(path: $coordinator.profilePath)
+                    default:
+                        EmptyView()
+                    }
                 }
+            }
+            .tabItem {
+                Label("Profil", systemImage: "person")
+            }
         }
         .toast(manager: container.toastManager)
         .alert("Pakan", isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
@@ -206,34 +231,80 @@ struct MainTabView: View {
         guard let route = path.last else { return false }
 
         switch route {
-        case .addCattle, .editCattle, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail:
+        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail:
             return true
         default:
             return false
         }
     }
 
+    /// Builds the edit-profile destination; pops the given path after a
+    /// successful save.
+    private func profileEditDestination(path: Binding<[AppRoute]>) -> ProfileEditView {
+        ProfileEditView(
+            viewModel: container.makeProfileEditViewModel(
+                onSaved: {
+                    path.wrappedValue.removeAll()
+                }
+            )
+        )
+    }
+
     private func cattleDetails(_ cow: Cattle) -> String {
         "\(cow.breed.rawValue) · \(cow.gender.rawValue) · \(cow.currentAge) bulan"
     }
 
-    private func openPlan(_ id: UUID, plan: Binding<Plan?>, path: Binding<[AppRoute]>) {
-        guard let cow = cattle.first(where: { $0.id == id }) else { return }
+    private func openPlan(
+        _ id: UUID,
+        plan: Binding<Plan?>,
+        path: Binding<[AppRoute]>
+    ) {
+        guard let cow = cattle.first(where: { $0.id == id }) else {
+            return
+        }
+
         let vm = container.makeRationPlanningViewModel()
+        var savedResult: RationCalculationResult?
+
         if let data = cow.savedRation {
             do {
-                vm.restore(try JSONDecoder().decode(RationCalculationResult.self, from: data))
+                let result = try JSONDecoder().decode(
+                    RationCalculationResult.self,
+                    from: data
+                )
+
+                vm.restore(result)
+                savedResult = result
             } catch {
-                saveError = "Susunan tersimpan gagal dibaca. " + error.localizedDescription
+                saveError = "Susunan tersimpan gagal dibaca. "
+                    + error.localizedDescription
                 return
             }
         } else {
             vm.selectSex(cow.gender == .male ? .male : .female)
-            vm.selectStage(cow.currentAge < 6 ? .calf : cow.currentAge <= 12 ? .growing : .adult)
-            vm.bodyWeightText = (cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)).map { String($0) } ?? ""
+
+            vm.selectStage(
+                cow.currentAge < 6
+                    ? .calf
+                    : cow.currentAge <= 12 ? .growing : .adult
+            )
+
+            vm.bodyWeightText = (
+                cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)
+            ).map { String($0) } ?? ""
         }
-        plan.wrappedValue = Plan(cattle: cow, viewModel: vm)
-        path.wrappedValue.append(.rationForm)
+
+        plan.wrappedValue = Plan(
+            cattle: cow,
+            viewModel: vm,
+            result: savedResult
+        )
+
+        if savedResult != nil {
+            path.wrappedValue.append(.rationAnalysis)
+        } else {
+            path.wrappedValue.append(.rationForm)
+        }
     }
 
     @ViewBuilder
@@ -247,11 +318,30 @@ struct MainTabView: View {
                 }
             case .rationAnalysis:
                 if let result = current.result {
-                    RationAnalysisView(result: result, onShowDetails: {
-                        path.wrappedValue.append(.rationAnalysisDetail)
-                    }, cattleName: current.cattle.name, onSave: {
-                        savePlan(result, for: current.cattle, path: path)
-                    })
+                    RationAnalysisView(
+                        result: result,
+                        onShowDetails: {
+                            path.wrappedValue.append(.rationAnalysisDetail)
+                        },
+                        cattleName: current.cattle.name,
+                        onSave: {
+                            savePlan(result, for: current.cattle, path: path)
+                        },
+                        onEdit: {
+                            guard path.wrappedValue.last == .rationAnalysis else {
+                                return
+                            }
+
+                            let previousRoute = path.wrappedValue.dropLast().last
+
+                            if previousRoute == .rationForm {
+                                path.wrappedValue.removeLast()
+                            } else {
+                                path.wrappedValue.removeLast()
+                                path.wrappedValue.append(.rationForm)
+                            }
+                        }
+                    )
                 }
             case .rationAnalysisDetail:
                 if let result = current.result {

@@ -6,6 +6,7 @@ struct RationAnalysisView: View {
     let onShowDetails: () -> Void
     var cattleName: String? = nil
     var onSave: (() -> Void)? = nil
+    var onEdit: (() -> Void)? = nil
 
     var body: some View {
         let comparisons = NutrientComparison.rows(for: result)
@@ -32,11 +33,19 @@ struct RationAnalysisView: View {
             }
             .padding(AppSpacing.Screen.compact)
         }
-//        .font(AppFont.body)
-//        .foregroundStyle(AppColor.Text.primary)
-//        .background(AppColor.Surface.canvas)
         .navigationTitle("Evaluasi pakan")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if let onEdit {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button{
+                        onEdit()
+                    } label: {
+                        Image(systemName: "pencil")
+                    }
+                }
+            }
+        }
     }
 
 }

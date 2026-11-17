@@ -157,6 +157,17 @@ struct MeasurementView: View {
                     if let result = model.result {
                         resultCard(result)
                     }
+                    if model.activePoint != nil && !model.canAdvance {
+                        Text(model.currentDepthProblem ?? "Depth titik ini tidak valid. Geser ke area depth yang terbaca.")
+                            .font(AppFont.caption)
+                            .foregroundStyle(.orange)
+                    }
+                case .results:
+                    Text("Hasil pengukuran").font(AppFont.mediumBody)
+                    Text(
+                        "Periksa titik dan kelayakan depth sebelum memakai estimasi ini."
+                    )
+                    .font(AppFont.caption).foregroundStyle(.secondary)
                 }
             }
         }

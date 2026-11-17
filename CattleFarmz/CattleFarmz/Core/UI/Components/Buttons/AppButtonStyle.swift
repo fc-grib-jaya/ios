@@ -11,12 +11,14 @@ struct AppButtonStyle: ButtonStyle {
         let shape = Capsule()
 
         let label = configuration.label
-            .font(AppFont.body)
+            .font(AppFont.mediumBody)
             .foregroundStyle(foregroundColor(isPressed: isPressed))
             .padding(.horizontal, AppSpacing.Button.horizontal)
             .padding(.vertical, AppSpacing.md)
             .frame(maxWidth: .infinity)
             .contentShape(shape)
+        
+        let hasGoldGradient = variant == .goldPrimary && !isPressed
 
         Group {
             if variant == .text {
@@ -24,7 +26,27 @@ struct AppButtonStyle: ButtonStyle {
                 label
             } else {
                 label
-                    .glassEffect(.regular.tint(backgroundColor(isPressed: isPressed)), in: shape)
+                    .background {
+                        if hasGoldGradient {
+                            shape.fill(
+                                LinearGradient(
+                                    colors: [
+                                        AppColor.Primitive.Secondary.shade500,
+                                        AppColor.Primitive.Secondary.shade400
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
+                        }
+                        else {
+                            Color.clear
+                                .glassEffect(
+                                    .regular.tint(backgroundColor(isPressed: isPressed)),
+                                    in: shape
+                                )
+                        }
+                    }
                     .overlay {
                         // White preserves the underlying glass in multiply blending;
                         // only the native inner shadow darkens its inside edge.
@@ -36,7 +58,14 @@ struct AppButtonStyle: ButtonStyle {
                         if variant == .primary {
                             shape.strokeBorder(AppColor.Primitive.Primary.shade400, lineWidth: 0.5)
                                 .allowsHitTesting(false)
+                        } else if variant == .goldSecondary && !isPressed {
+                            shape.strokeBorder(
+                                AppColor.Primitive.Secondary.shade100,
+                                lineWidth: 1
+                            )
+                            .allowsHitTesting(false)
                         }
+
                     }
             }
         }
@@ -49,17 +78,35 @@ struct AppButtonStyle: ButtonStyle {
             isPressed ? AppColor.Button.Primary.pressedForeground : AppColor.Button.Primary.foreground
         case .secondary, .text:
             isPressed ? AppColor.Button.Secondary.pressedForeground : AppColor.Primitive.Primary.shade500
+        case .goldPrimary :
+            isPressed ? AppColor.Button.Secondary.pressedForeground : AppColor.Button.Primary.foreground
+        case .goldSecondary :
+            isPressed ? AppColor.Button.Secondary.pressedForeground : AppColor.Primitive.Secondary.shade800
         }
     }
 
     private func backgroundColor(isPressed: Bool) -> Color {
         switch variant {
         case .primary:
-            isPressed ? AppColor.Button.Primary.pressedBackground : AppColor.Button.Primary.background
+            isPressed
+                ? AppColor.Button.Primary.pressedBackground
+                : AppColor.Button.Primary.background
+
         case .secondary:
-            isPressed ? AppColor.Button.Secondary.pressedBackground : AppColor.Primitive.Primary.shade100
+            isPressed
+                ? AppColor.Button.Secondary.pressedBackground
+                : AppColor.Primitive.Primary.shade100
+
         case .text:
             .clear
+
+        case .goldPrimary:
+            AppColor.Button.Secondary.pressedBackground
+            
+        case .goldSecondary:
+            isPressed
+                ? AppColor.Button.Secondary.pressedBackground
+                : AppColor.Primitive.Base.white
         }
     }
 }

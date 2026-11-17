@@ -31,4 +31,26 @@ final class SwiftDataUserProfileRepository: UserProfileRepository {
 
         try context.save()
     }
+
+    func updateProfile(
+        name: String,
+        farmName: String,
+        profileImage: Data?
+    ) throws {
+        if let profile = try profile() {
+            profile.name = name
+            profile.farmName = farmName
+            profile.profileImage = profileImage
+        } else {
+            context.insert(
+                UserProfileConfiguration(
+                    name: name,
+                    farmName: farmName,
+                    profileImage: profileImage
+                )
+            )
+        }
+
+        try context.save()
+    }
 }

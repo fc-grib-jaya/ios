@@ -135,6 +135,22 @@ final class DIContainer {
     func makeProfileViewModel() -> ProfileViewModel {
         ProfileViewModel(repository: userProfileRepository)
     }
+
+    /// Creates the edit-profile form view model seeded with the stored
+    /// profile.
+    func makeProfileEditViewModel(
+        onSaved: @escaping () -> Void = {}
+    ) -> ProfileEditViewModel {
+        let profile = try? userProfileRepository.profile()
+        return ProfileEditViewModel(
+            repository: userProfileRepository,
+            toast: toastManager,
+            initialName: profile?.name ?? "",
+            initialFarmName: profile?.farmName ?? "",
+            initialImage: profile?.profileImage,
+            onSaved: onSaved
+        )
+    }
     
     /// Creates the cattles screen view model.
     func makeCattlesViewModel() -> CattlesViewModel {

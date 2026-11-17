@@ -46,6 +46,8 @@ struct CattleFormView: View {
     @State private var umurCattle: Int?
     @State private var bobotCattle: Double?
     @State private var gambarCattle: UIImage?
+    @State private var pendingScanPhoto: UIImage?
+    @State private var isAskingToUseScanPhoto = false
     @State private var displayedScanResult: ScanResult?
     @State private var catatan: String
 
@@ -88,7 +90,10 @@ struct CattleFormView: View {
         _genderCattle = State(initialValue: cattle?.gender)
         _umurCattle = State(initialValue: cattle?.recordedAge)
         _bobotCattle = State(initialValue: cattle?.bodyWeight)
-        let existingImage = cattle?.cattleImage.flatMap(UIImage.init(data:))
+        let existingImageData = cattle?.cattleImage.flatMap(UIImage.init(data:))
+        let existingImage = existingImageData.flatMap { image in
+            image.cattleSquareCropped() ?? image
+        }
         _gambarCattle = State(initialValue: existingImage)
         _catatan = State(initialValue: cattle?.notes ?? "")
 
@@ -394,6 +399,7 @@ struct CattleFormView: View {
                                     )
                                 }
                                 .buttonStyle(.plain)
+                                .accessibilityLabel("Gambar")
                             } else {
                                 Text(
                                     "Estimasi bobot dengan kamera. Foto yang sama digunakan sebagai foto profil sapi."
@@ -749,6 +755,20 @@ struct CattleFormView: View {
             Text("Isi jenis sapi dan jenis kelamin sapi terlebih dahulu.")
         }
         .alert(
+            "Pakai foto hasil LiDAR?",
+            isPresented: $isAskingToUseScanPhoto
+        ) {
+            Button("Ya, pakai sebagai profil") {
+                gambarCattle = pendingScanPhoto
+                pendingScanPhoto = nil
+            }
+            Button("Tidak", role: .cancel) {
+                pendingScanPhoto = nil
+            }
+        } message: {
+            Text("Apakah foto yang diambil saat pemindaian LiDAR ingin digunakan sebagai foto profil sapi?")
+        }
+        .alert(
             "Akses Kamera Diperlukan",
             isPresented: Binding(
                 get: { cameraPermissionError != nil },
@@ -782,9 +802,17 @@ struct CattleFormView: View {
     private func handleScanResult(_ result: ScanResult?) {
         // Cancelling a retake keeps the last accepted scan and form values.
         guard let result else { return }
-        displayedScanResult = result
-        viewModel.storeScanResult(result)
-        gambarCattle = viewModel.squareCroppedImage(result.cattleImage)
+        let croppedImage = viewModel.squareCroppedImage(result.cattleImage)
+            ?? result.cattleImage
+        let normalizedResult = ScanResult(
+            lengthCM: result.lengthCM,
+            girth: result.girth,
+            cattleImage: croppedImage
+        )
+        displayedScanResult = normalizedResult
+        viewModel.storeScanResult(normalizedResult)
+        pendingScanPhoto = croppedImage
+        isAskingToUseScanPhoto = true
         bobotCattle = viewModel.estimatedWeight(breed: jenisCattle, gender: genderCattle)
     }
 }

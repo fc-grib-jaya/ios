@@ -49,11 +49,21 @@ final class AppCoordinator {
     /// Independent navigation state for the Feed tab.
     var rationPath: [AppRoute] = []
 
+    /// Independent navigation state for the Profile tab.
+    var profilePath: [AppRoute] = []
+
     /// Pushes the profile screen onto the Home navigation stack.
     func showProfile() {
         guard path.last != .profile else { return }
 
         path.append(.profile)
+    }
+
+    /// Pushes the edit-profile form onto the Profile navigation stack.
+    func showEditProfile() {
+        guard profilePath.last != .editProfile else { return }
+
+        profilePath.append(.editProfile)
     }
     
     func goToCattleDetail(cattleID: String) {

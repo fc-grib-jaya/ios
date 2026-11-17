@@ -12,4 +12,10 @@ protocol UserProfileRepository {
     func profile() throws -> UserProfileConfiguration?
     /// Creates the profile, or updates the existing row, and marks onboarding complete.
     func completeOnboarding(name: String) throws
+    /// Updates the editable profile fields shown on the profile page.
+    func updateProfile(
+        name: String,
+        farmName: String,
+        profileImage: Data?
+    ) throws
 }

@@ -12,11 +12,12 @@ enum GuidedReviewStage: Equatable, Sendable {
 }
 
 /// UI-independent manual flow. A point counts only after the user presses
-/// Continue. Editing invalidates that step and those after it.
+/// Continue for its first confirmation. Valid edits preserve that confirmation.
 struct GuidedReviewFlow: Sendable {
     let pointIDs: [String]
     private(set) var stage: GuidedReviewStage = .inspection
     private(set) var reviewedIDs: Set<String> = []
+    private var confirmedIDs: Set<String> = []
 
     init(pointIDs: [String]) {
         precondition(!pointIDs.isEmpty && Set(pointIDs).count == pointIDs.count)
@@ -32,24 +33,54 @@ struct GuidedReviewFlow: Sendable {
 
     mutating func begin() {
         reviewedIDs.removeAll()
+        confirmedIDs.removeAll()
         stage = .point(0)
     }
 
     mutating func inspect() {
         reviewedIDs.removeAll()
+        confirmedIDs.removeAll()
         stage = .inspection
     }
 
-    mutating func invalidateCurrentAndFollowing() {
-        guard let index = currentIndex else { return }
-        reviewedIDs.subtract(pointIDs[index...])
+    mutating func invalidateCurrent() {
+        guard let id = currentID else { return }
+        reviewedIDs.remove(id)
+        confirmedIDs.remove(id)
+    }
+
+    /// A confirmed point can pass through invalid depth during a drag and recover
+    /// its checkmark when it reaches valid depth again, without another Continue.
+    mutating func updateCurrentValidity(hasUsablePoint: Bool) {
+        guard let id = currentID else { return }
+        if hasUsablePoint && confirmedIDs.contains(id) {
+            reviewedIDs.insert(id)
+        } else {
+            reviewedIDs.remove(id)
+        }
+    }
+
+    @discardableResult
+    mutating func selectPoint(at index: Int) -> Bool {
+        guard stage != .inspection, pointIDs.indices.contains(index) else { return false }
+        stage = .point(index)
+        return true
     }
 
     @discardableResult
     mutating func advance(hasUsablePoint: Bool) -> Bool {
         guard let index = currentIndex, hasUsablePoint else { return false }
+        confirmedIDs.insert(pointIDs[index])
         reviewedIDs.insert(pointIDs[index])
-        stage = index + 1 < pointIDs.count ? .point(index + 1) : .results
+        if allReviewed {
+            stage = .results
+        } else {
+            // Continue to the next unconfirmed point, wrapping after the last one.
+            let next = (1...pointIDs.count)
+                .map { (index + $0) % pointIDs.count }
+                .first { !reviewedIDs.contains(pointIDs[$0]) }!
+            stage = .point(next)
+        }
         return true
     }
 
@@ -62,18 +93,13 @@ struct GuidedReviewFlow: Sendable {
                 inspect()
             } else {
                 stage = .point(index - 1)
-                invalidateCurrentAndFollowing()
             }
         case .results:
             stage = .point(pointIDs.count - 1)
-            invalidateCurrentAndFollowing()
         }
     }
 
     mutating func edit(from index: Int) {
-        guard pointIDs.indices.contains(index) else { return }
-        // Earlier steps remain reviewed only when they have actually been reviewed.
-        reviewedIDs.subtract(pointIDs[index...])
-        stage = .point(index)
+        selectPoint(at: index)
     }
 }

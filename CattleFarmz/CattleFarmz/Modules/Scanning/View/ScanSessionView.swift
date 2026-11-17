@@ -40,37 +40,37 @@ struct ScanSessionView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .topTrailing) {
-                MeasurementProgressBar(
-                    currentStep: scanSessionStep,
-                    icons: [
-                        "camera.fill",
-                        "slider.horizontal.3",
-                        "waveform"
-                    ]
-                )
-                .frame(width: 44, height: progressHeight)
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.top, progressTop)
-            }
+//            .overlay(alignment: .topTrailing) {
+//                MeasurementProgressBar(
+//                    currentStep: scanSessionStep,
+//                    icons: [
+//                        "camera.fill",
+//                        "slider.horizontal.3",
+//                        "waveform"
+//                    ]
+//                )
+//                .frame(width: 44, height: progressHeight)
+//                .padding(.horizontal, AppSpacing.md)
+//                .padding(.top, progressTop)
+//            }
         }
         .ignoresSafeArea()
     }
 
     /// The camera and measurement screens share the same scan flow.
     /// Deriving progress from its stage also handles Back and Retake.
-    private var scanSessionStep: Int {
-        guard let measurement = viewModel.measurement else { return 0 }
-
-        switch measurement.flow.stage {
-        case .inspection:
-            return 0
-        case .point:
-            return 1
-        case .results:
-            return 2
-        }
-    }
+//    private var scanSessionStep: Int {
+//        guard let measurement = viewModel.measurement else { return 0 }
+//
+//        switch measurement.flow.stage {
+//        case .inspection:
+//            return 0
+//        case .point:
+//            return 1
+//        case .results:
+//            return 2
+//        }
+//    }
 }
 
 #Preview {

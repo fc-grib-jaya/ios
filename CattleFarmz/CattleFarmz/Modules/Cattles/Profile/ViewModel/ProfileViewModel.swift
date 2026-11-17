@@ -10,11 +10,23 @@ import Observation
 @Observable
 @MainActor
 final class ProfileViewModel {
-    /// Name captured during onboarding.
-    private(set) var name: String
+    /// Display name shown under the avatar.
+    private(set) var name: String = "Tamu"
+    /// Farm name shown as the subtitle; empty when not set.
+    private(set) var farmName: String = ""
 
-    /// Reads the stored name once; the profile screen is rebuilt per appearance.
+    private let repository: any UserProfileRepository
+
     init(repository: any UserProfileRepository) {
-        name = (try? repository.profile())?.name ?? "Tamu"
+        self.repository = repository
+    }
+
+    /// Re-reads the stored profile; called when the screen appears so edits
+    /// made on the edit page are reflected without recreating the view
+    /// (the tab's `@State` survives across re-renders).
+    func load() {
+        let profile = try? repository.profile()
+        name = profile?.name ?? "Tamu"
+        farmName = profile?.farmName ?? ""
     }
 }

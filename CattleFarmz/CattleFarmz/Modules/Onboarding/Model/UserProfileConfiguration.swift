@@ -12,7 +12,7 @@ final class UserProfileConfiguration {
     /// Display name entered during onboarding or edited on the profile page.
     var name: String
     /// Name of the user's farm, edited on the profile page.
-    var farmName: String
+    var farmName: String?
     /// Profile picture chosen on the profile page, as JPEG data.
     var profileImage: Data?
     /// True once onboarding finished. Read once at launch.

@@ -17,7 +17,7 @@ final class StoredFeedIngredient {
     var categoryRawValue: String
 
     var crudeProteinPercent: Double
-    var totalDigestibleNutrientsPercent: Double
+    var totalDigestibleNutrientsPercent: Double?
 
     var calciumPercent: Double?
     var phosphorusPercent: Double?
@@ -26,6 +26,7 @@ final class StoredFeedIngredient {
     var ironPPM: Double?
     var copperPPM: Double?
     var zincPPM: Double?
+    var totalDigestibleNutrientsIsMinimum: Bool?
 
     var triggersGossypolWarning: Bool
 
@@ -47,6 +48,7 @@ final class StoredFeedIngredient {
         ironPPM = ingredient.nutrients.ironPPM
         copperPPM = ingredient.nutrients.copperPPM
         zincPPM = ingredient.nutrients.zincPPM
+        totalDigestibleNutrientsIsMinimum = ingredient.nutrients.totalDigestibleNutrientsIsMinimum
 
         triggersGossypolWarning =
             ingredient.triggersGossypolWarning
@@ -72,7 +74,8 @@ final class StoredFeedIngredient {
                 magnesiumPercent: magnesiumPercent,
                 ironPPM: ironPPM,
                 copperPPM: copperPPM,
-                zincPPM: zincPPM
+                zincPPM: zincPPM,
+                totalDigestibleNutrientsIsMinimum: totalDigestibleNutrientsIsMinimum
             ),
             triggersGossypolWarning: triggersGossypolWarning
         )

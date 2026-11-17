@@ -12,26 +12,37 @@ struct RationPlanningView: View {
     @State private var showsFeedCatalog = false
     let cattleName: String
     let cattleDetails: String
+    let cattleBreed: String
     
+    private var adgReference: ADGReference? {
+        ADGReferenceEngine.reference(
+            breedName: cattleBreed,
+            sex: rationVM.profile.sex,
+            stage: rationVM.profile.stage
+        )
+    }
+
     private let onShowAnalysis: (RationCalculationResult) -> Void
 
     init(
         rationVM: RationPlanningViewModel,
         cattleName: String = "Profil sapi",
         cattleDetails: String = "",
+        cattleBreed: String = "",
         onShowAnalysis: @escaping (RationCalculationResult) -> Void
     ) {
         _rationVM = Bindable(wrappedValue: rationVM)
         self.cattleName = cattleName
         self.cattleDetails = cattleDetails
+        self.cattleBreed = cattleBreed
         self.onShowAnalysis = onShowAnalysis
     }
-    
     var body: some View {
         ScrollView {
             VStack(spacing: AppSpacing.md) {
                 ADGCard(
                     cattleName: cattleName,
+                    cattleBreed: cattleBreed,
                     cattleDetails: cattleDetails,
                     estimatedWeightKilograms: Double(rationVM.bodyWeightText.replacingOccurrences(of: ",", with: ".")),
                     targetADG: Binding(
@@ -40,14 +51,9 @@ struct RationPlanningView: View {
                     ),
                     targetRange: 0.2...2,
                     targetStep: 0.1,
-                    referenceADG: nil
+                    referenceADG: adgReference?.kilogramsPerDay
                 )
-                
-                HStack {
-                    Text("Bobot sapi (kg)")
-                    Spacer()
-                    Text(rationVM.bodyWeightText)
-                }
+
                 FeedAmountsCard(
                     rationVM: rationVM,
                     onTap: {showsFeedCatalog = true}

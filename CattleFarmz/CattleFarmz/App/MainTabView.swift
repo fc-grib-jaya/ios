@@ -13,6 +13,7 @@ struct MainTabView: View {
         let cattle: Cattle
         let viewModel: RationPlanningViewModel
         var result: RationCalculationResult?
+        var recommendationReview: RationRecommendationViewModel? = nil
     }
 
     @State private var homePlan: Plan?
@@ -74,7 +75,7 @@ struct MainTabView: View {
                                 coordinator.path.removeAll()
                             }
                         )
-                    case .rationForm, .rationAnalysis, .rationAnalysisDetail:
+                    case .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
                         planDestination(route, plan: $homePlan, path: $coordinator.path)
                     case .addCattle:
                         CattleFormView(
@@ -146,7 +147,7 @@ struct MainTabView: View {
                 }, onOpen: { openPlan($0, plan: $feedPlan, path: $coordinator.rationPath) })
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
-                    case .rationForm, .rationAnalysis, .rationAnalysisDetail:
+                    case .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
                         planDestination(route, plan: $feedPlan, path: $coordinator.rationPath)
                     default: EmptyView()
                     }
@@ -213,7 +214,7 @@ struct MainTabView: View {
         guard let route = path.last else { return false }
 
         switch route {
-        case .addCattle, .editCattle, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail:
+        case .addCattle, .editCattle, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
             return true
         default:
             return false
@@ -262,6 +263,14 @@ struct MainTabView: View {
             vm.bodyWeightText = (
                 cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)
             ).map { String($0) } ?? ""
+
+            if let reference = ADGReferenceEngine.reference(
+                breedName: cow.breed.rawValue,
+                sex: vm.profile.sex,
+                stage: vm.profile.stage
+            ), let target = reference.kilogramsPerDay {
+                vm.dailyWeightGainText = String(target)
+            }
         }
 
         plan.wrappedValue = Plan(
@@ -282,7 +291,12 @@ struct MainTabView: View {
         if let current = plan.wrappedValue {
             switch route {
             case .rationForm:
-                RationPlanningView(rationVM: current.viewModel, cattleName: current.cattle.name, cattleDetails: cattleDetails(current.cattle)) { result in
+                RationPlanningView(
+                    rationVM: current.viewModel,
+                    cattleName: current.cattle.name,
+                    cattleDetails: cattleDetails(current.cattle),
+                    cattleBreed: current.cattle.breed.rawValue
+                ) { result in
                     plan.wrappedValue?.result = result
                     path.wrappedValue.append(.rationAnalysis)
                 }
@@ -310,8 +324,20 @@ struct MainTabView: View {
                                 path.wrappedValue.removeLast()
                                 path.wrappedValue.append(.rationForm)
                             }
+                        },
+                        rationVM: current.viewModel,
+                        onReviewRecommendation: { option in
+                            plan.wrappedValue?.recommendationReview = current.viewModel.makeRecommendationReview(for: option)
+                            path.wrappedValue.append(.rationRecommendation)
                         }
                     )
+                }
+            case .rationRecommendation:
+                if let review = current.recommendationReview {
+                    RationRecommendationView(viewModel: review) { updated in
+                        current.viewModel.restore(updated)
+                        plan.wrappedValue?.result = updated
+                    }
                 }
             case .rationAnalysisDetail:
                 if let result = current.result {

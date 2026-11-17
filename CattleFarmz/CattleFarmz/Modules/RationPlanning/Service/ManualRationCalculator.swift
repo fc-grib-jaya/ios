@@ -79,30 +79,19 @@ struct ManualRationCalculator: RationCalculating {
             }
         }
 
+        // Missing concentrations contribute zero; all active feed mass remains in the denominator.
         func optionalAverage(
             _ keyPath: KeyPath<NutrientContent, Double?>
-        ) -> Double? {
-            var total = 0.0
-
-            for item in activeItems {
-                guard let concentration = item.ingredient.nutrients[
-                    keyPath: keyPath
-                ] else {
-                    return nil
-                }
-
-                let share = item.kilogramsPerAnimalPerDay / totalAmount
-                total += share * concentration
+        ) -> Double {
+            activeItems.reduce(0) { total, item in
+                let concentration = item.ingredient.nutrients[keyPath: keyPath] ?? 0
+                return total + item.kilogramsPerAnimalPerDay / totalAmount * concentration
             }
-
-            return total
         }
 
-        let nutrients = NutrientContent(
+        var nutrients = NutrientContent(
             crudeProteinPercent: average(\.crudeProteinPercent),
-            totalDigestibleNutrientsPercent: average(
-                \.totalDigestibleNutrientsPercent
-            ),
+            totalDigestibleNutrientsPercent: optionalAverage(\.totalDigestibleNutrientsPercent),
             calciumPercent: optionalAverage(\.calciumPercent),
             phosphorusPercent: optionalAverage(\.phosphorusPercent),
             magnesiumPercent: optionalAverage(\.magnesiumPercent),
@@ -110,6 +99,15 @@ struct ManualRationCalculator: RationCalculating {
             copperPPM: optionalAverage(\.copperPPM),
             zincPPM: optionalAverage(\.zincPPM)
         )
+
+        if activeItems.contains(where: { $0.ingredient.nutrients.totalDigestibleNutrientsPercent == nil }) {
+            nutrients.totalDigestibleNutrientsIsPartial = true
+        }
+
+        if nutrients.totalDigestibleNutrientsPercent != nil,
+           activeItems.contains(where: { $0.ingredient.nutrients.totalDigestibleNutrientsIsMinimum == true }) {
+            nutrients.totalDigestibleNutrientsIsMinimum = true
+        }
 
         var warnings: [String] = []
 
@@ -161,9 +159,9 @@ struct ManualRationCalculator: RationCalculating {
         )
 
         guard result.proteinKilogramsPerAnimalPerDay.isFinite,
-              result.tdnKilogramsPerAnimalPerDay.isFinite,
+              result.tdnKilogramsPerAnimalPerDay.map({ $0.isFinite }) ?? true,
               nutrients.crudeProteinPercent.isFinite,
-              nutrients.totalDigestibleNutrientsPercent.isFinite,
+              nutrients.totalDigestibleNutrientsPercent.map({ $0.isFinite }) ?? true,
               result.estimatedDryMatterKilogramsPerAnimalPerDay.isFinite,
               result.estimatedDryMatterKilogramsPerHerdPerDay.isFinite
         else {
@@ -236,9 +234,7 @@ struct ManualRationCalculator: RationCalculating {
                   return isNonNegativeFinite(value)
                       && value <= 1_000_000
               }),
-              isNonNegativeFinite(
-                  nutrients.totalDigestibleNutrientsPercent
-              )
+              nutrients.totalDigestibleNutrientsPercent.map({ isNonNegativeFinite($0) }) ?? true
         else {
             throw RationCalculationError.invalidIngredient
         }

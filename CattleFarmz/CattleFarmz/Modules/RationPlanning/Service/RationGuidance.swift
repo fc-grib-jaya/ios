@@ -89,13 +89,7 @@ enum RationGuidance {
             )
         }
 
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone =
-            TimeZone(identifier: "Asia/Jakarta") ?? .gmt
-
-        let month = calendar.component(.month, from: date)
-
-        if [11, 12, 1, 2, 3, 4].contains(month) {
+        if RationSeason(date: date) == .wet {
             messages.append(
                 """
                 Pada musim hujan (November–April menurut acuan), lindungi stok pakan dari \

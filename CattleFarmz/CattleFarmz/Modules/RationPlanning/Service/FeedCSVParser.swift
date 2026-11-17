@@ -15,7 +15,10 @@ struct FeedCSVParser {
     ]
 
     func parse(_ text: String) throws -> [FeedIngredient] {
-        let records = try readRecords(text)
+        try parseRecords(readRecords(text))
+    }
+
+    private func parseRecords(_ records: [[String]]) throws -> [FeedIngredient] {
         guard let first = records.first else { throw ParseError.emptyFile }
         let header = first.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         guard Set(header).count == header.count,
@@ -57,10 +60,15 @@ struct FeedCSVParser {
             }
             // Keeps duplicate names as separate records, matching the original cattle-row order.
             // IDs are stable for the same CSV ordering; later dataset updates need an explicit ID policy.
-            let id = String(format: "cattle-source-%03d", feeds.count + 1)
-            let nutrients = try NutrientContent(
+            let id = indices["ID"] == nil
+                ? String(format: "cattle-source-%03d", feeds.count + 1)
+                : value("ID")
+            guard !id.isEmpty else {
+                throw ParseError.invalidRecord(recordNumber, "Feed ID must not be empty.")
+            }
+            var nutrients = try NutrientContent(
                 crudeProteinPercent: number("Protein (%)", maximum: 100)!,
-                totalDigestibleNutrientsPercent: number("TDN (%)")!,
+                totalDigestibleNutrientsPercent: number("TDN (%)", optional: true),
                 calciumPercent: number("Ca (%)", optional: true, maximum: 100),
                 phosphorusPercent: number("P (%)", optional: true, maximum: 100),
                 magnesiumPercent: number("Mg (%)", optional: true, maximum: 100),
@@ -68,12 +76,60 @@ struct FeedCSVParser {
                 copperPPM: number("Cu (ppm)", optional: true, maximum: 1_000_000),
                 zincPPM: number("Zn (ppm)", optional: true, maximum: 1_000_000)
             )
+            if indices["Keterangan TDN"] != nil {
+                let qualifier = value("Keterangan TDN")
+                guard qualifier.isEmpty || qualifier == "Minimum" else {
+                    throw ParseError.invalidRecord(recordNumber, "Unknown TDN qualifier.")
+                }
+                if qualifier == "Minimum" {
+                    guard nutrients.totalDigestibleNutrientsPercent != nil else {
+                        throw ParseError.invalidRecord(recordNumber, "Minimum TDN needs a value.")
+                    }
+                    nutrients.totalDigestibleNutrientsIsMinimum = true
+                }
+            }
             let warningNames: Set<String> = ["bungkil biji kapas", "biji kapuk"]
             feeds.append(FeedIngredient(id: id, name: name, category: category,
                 nutrients: nutrients, triggersGossypolWarning: warningNames.contains(name.lowercased())))
         }
+        guard Set(feeds.map(\.id)).count == feeds.count else {
+            throw ParseError.invalidHeader
+        }
         guard !feeds.isEmpty else { throw ParseError.emptyFile }
         return feeds
+    }
+
+    func parseConcentrates(_ text: String) throws -> [FeedIngredient] {
+        let records = try readRecords(text)
+        guard let first = records.first else { throw ParseError.emptyFile }
+        let header = first.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        let required = ["ID", "Merek", "Produsen", "Varian", "Jenis Hewan",
+                        "Kategori", "PK (%)", "TDN (%)", "Keterangan TDN"]
+        guard Set(header).count == header.count,
+              Set(required).isSubset(of: Set(header)) else {
+            throw ParseError.invalidHeader
+        }
+        let indices = Dictionary(uniqueKeysWithValues: header.enumerated().map { ($0.element, $0.offset) })
+        var normalized = [Self.requiredColumns + ["ID", "Keterangan TDN"]]
+        for (offset, record) in records.dropFirst().enumerated() {
+            guard record.count == header.count else {
+                throw ParseError.invalidRecord(offset + 2, "Column count does not match the header.")
+            }
+            func value(_ column: String) -> String {
+                record[indices[column]!].trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+            guard !value("Merek").isEmpty, !value("Varian").isEmpty,
+                  value("Kategori").lowercased() == "konsentrat" else {
+                throw ParseError.invalidRecord(offset + 2, "Invalid concentrate brand, variant or category.")
+            }
+            let name = value("Merek") + " " + value("Varian") + " - PK " + value("PK (%)") + "%"
+            normalized.append([
+                name, value("Jenis Hewan"), value("Kategori"), value("PK (%)"),
+                value("TDN (%)"), "", "", "", "", "", "",
+                value("ID"), value("Keterangan TDN")
+            ])
+        }
+        return try parseRecords(normalized)
     }
 
     /// Handles comma-separated fields, quoted fields, escaped quotes, and embedded newlines.

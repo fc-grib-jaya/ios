@@ -10,6 +10,7 @@ import SwiftUI
 struct ADGCard: View {
     
     let cattleName: String
+    let cattleBreed: String
     let cattleDetails: String
     let estimatedWeightKilograms: Double?
     
@@ -31,11 +32,12 @@ struct ADGCard: View {
                 Divider()
 
                 Text(
-                    "ADG ideal sapi: \(formatted(referenceADG)) kg/day"
+                    "ADG ideal sapi \(cattleBreed): \(formatted(referenceADG)) kg / hari"
                 )
                 .font(AppFont.caption)
                 .foregroundStyle(AppColor.Text.secondary)
             }
+
         }
         .padding(AppSpacing.Card.regular)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -62,7 +64,7 @@ struct ADGCard: View {
                 .foregroundStyle(AppColor.Text.primary)
             
             HStack(alignment: .firstTextBaseline) {
-                Text("Estimated weight")
+                Text("Estimasi bobot")
 //                    .font(AppFont.body)
                     .font(.subheadline)
                     .italic()
@@ -90,7 +92,7 @@ struct ADGCard: View {
                 Text(formatted(targetADG))
                     .font(AppFont.largeTitle)
                 
-                Text("kg/day")
+                Text("kg / hari")
                     .font(AppFont.body)
             }
             .foregroundStyle(AppColor.Text.primary)
@@ -131,11 +133,12 @@ struct ADGCard: View {
     
     ADGCard(
         cattleName: "Cattle #00001",
+        cattleBreed: "Simmental",
         cattleDetails: "Cross-breed · Male · 12 months",
         estimatedWeightKilograms: 544.5,
         targetADG: $targetADG,
         targetRange: 0.2...2.0,
         targetStep: 0.1,
-        referenceADG: 0.8
+        referenceADG: 1.0
     )
 }

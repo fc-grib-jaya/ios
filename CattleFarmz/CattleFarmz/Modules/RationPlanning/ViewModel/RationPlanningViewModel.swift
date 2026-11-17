@@ -60,6 +60,45 @@ final class RationPlanningViewModel {
 
     private(set) var result: RationCalculationResult?
     var errorMessage: String?
+    private(set) var repairOptions: [RationRecommendation] = []
+    private(set) var repairMessage: String?
+
+    func findRepairs(for snapshot: RationCalculationResult) {
+        load()
+        repairOptions = []
+        repairMessage = nil
+        guard hasLoaded else {
+            repairMessage = errorMessage
+            return
+        }
+        do {
+            repairOptions = try RationRecommendationEngine(calculator: calculator)
+                .recommend(for: snapshot, catalog: feeds, season: RationSeason(date: .now))
+            if repairOptions.isEmpty {
+                let rows = NutrientComparison.rows(for: snapshot).prefix(2)
+                let complete = rows.allSatisfy { ($0.coverage ?? 0) >= 1 }
+                repairMessage = complete
+                    ? "Protein dan TDN sudah mencapai acuan."
+                    : "Belum ditemukan perbaikan dengan penggantian satu bahan dari katalog yang tersedia."
+            }
+        } catch {
+            repairMessage = error.localizedDescription
+        }
+    }
+
+    func makeRecommendationReview(for option: RationRecommendation) -> RationRecommendationViewModel {
+        RationRecommendationViewModel(
+            recommendation: option,
+            alternatives: repairOptions.filter { $0.removedIngredient.id == option.removedIngredient.id },
+            engine: RationRecommendationEngine(calculator: calculator)
+        )
+    }
+
+    func clearRepairs() {
+        repairOptions = []
+        repairMessage = nil
+    }
+
 
     @ObservationIgnored
     private let feedProvider: () throws -> [FeedIngredient]
@@ -151,7 +190,7 @@ final class RationPlanningViewModel {
     }
 
     func amountText(for feed: FeedIngredient) -> String {
-        amountTexts[feed.id] ?? "0"
+        amountTexts[feed.id] ?? ""
     }
 
     func updateAmount(
@@ -163,6 +202,10 @@ final class RationPlanningViewModel {
     }
 
     func restore(_ saved: RationCalculationResult) {
+        load()
+        for item in saved.items where !feeds.contains(where: { $0.id == item.id }) {
+            feeds.append(item.ingredient)
+        }
         profile = saved.profile
         bodyWeightText = String(saved.profile.bodyWeightKilograms)
         dailyWeightGainText = String(saved.profile.targetDailyWeightGainKilograms)
@@ -231,6 +274,7 @@ final class RationPlanningViewModel {
     }
 
     private func clearResult() {
+        clearRepairs()
         result = nil
         errorMessage = nil
     }

@@ -33,7 +33,7 @@ struct WeightDetailCardDylan: View {
                     .foregroundStyle(AppColor.Primitive.Secondary.shade900)
                 }
                 
-                Text("Diperbaharui: \(formatDate(updated))")
+                Text("Diperbarui: \(formatDate(updated))")
                     .font(AppFont.caption)
                     .foregroundStyle(AppColor.Primitive.Neutral.shade500)
             }

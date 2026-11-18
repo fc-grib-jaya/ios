@@ -19,22 +19,36 @@ final class RationRecommendationViewModel {
         self.selected = recommendation
         var seen = Set<String>()
         self.alternatives = ([recommendation] + alternatives).filter {
-            $0.removedIngredient.id == recommendation.removedIngredient.id && seen.insert($0.id).inserted
+            $0.before.items == recommendation.before.items && seen.insert($0.id).inserted
         }
         self.engine = engine
-        // Recalculate from the displayed two-decimal amount, keeping it within the source quantity.
+        self.portionText = Self.suggestedPortion(recommendation)
+        recalculate()
+    }
+
+    var focusTarget: RationRecommendationTarget { selected.focusTarget }
+
+    var hasDifferentSources: Bool {
+        Set(alternatives.map { $0.removedIngredient.id }).count > 1
+    }
+
+    private static func suggestedPortion(_ recommendation: RationRecommendation) -> String {
         let available = recommendation.before.items.first { $0.id == recommendation.removedIngredient.id }?.kilogramsPerAnimalPerDay ?? 0
         var decimalAvailable = Decimal(available)
         var roundedAvailable = Decimal()
         NSDecimalRound(&roundedAvailable, &decimalAvailable, 2, .down)
         let amount = min(recommendation.replacedKilograms, NSDecimalNumber(decimal: roundedAvailable).doubleValue)
-        self.portionText = Self.formattedPortion(amount)
-        recalculate()
+        return formattedPortion(amount)
     }
 
     func select(_ option: RationRecommendation) {
-        guard alternatives.contains(where: { $0.id == option.id }) else { return }
+        guard let option = alternatives.first(where: { $0.id == option.id }) else { return }
+        let sourceChanged = selected.removedIngredient.id != option.removedIngredient.id
         selected = option
+        if sourceChanged {
+            // A different source has its own available quantity and suggested replacement.
+            portionText = Self.suggestedPortion(option)
+        }
         recalculate()
     }
 

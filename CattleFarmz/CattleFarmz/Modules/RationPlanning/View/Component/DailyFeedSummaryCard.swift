@@ -5,15 +5,15 @@ struct DailyFeedSummaryCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Total pemberian / ekor / hari").font(AppFont.headline)
+            Text("Total pemberian/ekor/hari").font(AppFont.headline)
             Text("\(evaluationNumber(result.kilogramsPerAnimalPerDay)) kg").font(AppFont.largeTitle)
             Divider()
-            LabeledContent("Bahan kering dari total tersebut", value: "Data belum tersedia")
-                .font(AppFont.caption)
+//            LabeledContent("Bahan kering dari total tersebut", value: "Data belum tersedia")
+//                .font(AppFont.caption)
             HStack(spacing: AppSpacing.xs) {
                 metric("Protein kasar", value: result.proteinKilogramsPerAnimalPerDay)
                 metric(
-                    result.nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "TDN",
+                    result.nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "Energi (TDN)",
                     value: result.tdnKilogramsPerAnimalPerDay
                 )
             }

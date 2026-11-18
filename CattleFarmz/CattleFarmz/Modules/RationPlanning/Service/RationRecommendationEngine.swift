@@ -5,10 +5,53 @@ struct RationRecommendationEngine {
     let calculator: any RationCalculating
     private let tolerance = 1e-9
 
+    /// Legacy flat selection; grouped UI uses recommendGroups instead.
     func recommend(
         for snapshot: RationCalculationResult,
         catalog: [FeedIngredient],
         season: RationSeason? = nil
+    ) throws -> [RationRecommendation] {
+        let proposals = try candidateProposals(for: snapshot, catalog: catalog)
+        return bestAlternatives(proposals, season: season)
+    }
+
+    /// Search every eligible pair before selecting up to three alternatives per deficient target.
+    func recommendGroups(
+        for snapshot: RationCalculationResult,
+        catalog: [FeedIngredient],
+        season: RationSeason? = nil
+    ) throws -> [RationRecommendationGroup] {
+        let proposals = try candidateProposals(for: snapshot, catalog: catalog)
+        guard let before = proposals.first?.before else { return [] }
+        let baseline = targets(before)
+        return RationRecommendationTarget.allCases.compactMap { target in
+            let index = target.comparisonIndex
+            guard let start = baseline[index], start < 1 - tolerance else { return nil }
+            let eligible = proposals.filter { proposal in
+                guard let end = targets(proposal.after)[index] else { return false }
+                return min(end, 1) > min(start, 1) + tolerance
+            }
+            let alternatives = bestAlternatives(eligible, season: season).map { proposal in
+                var labeled = proposal
+                labeled.target = target
+                return labeled
+            }
+            guard !alternatives.isEmpty else { return nil }
+            return RationRecommendationGroup(target: target, alternatives: alternatives)
+        }
+    }
+
+    private func bestAlternatives(
+        _ proposals: [RationRecommendation], season: RationSeason?
+    ) -> [RationRecommendation] {
+        var seenPairs = Set<String>()
+        return Array(proposals.sorted { isBetter($0, than: $1, season: season) }
+            .filter { seenPairs.insert($0.id).inserted }
+            .prefix(3))
+    }
+
+    private func candidateProposals(
+        for snapshot: RationCalculationResult, catalog: [FeedIngredient]
     ) throws -> [RationRecommendation] {
         // Recalculate saved snapshots against the current calculator and reference rules.
         let before = try calculator.calculate(profile: snapshot.profile, items: snapshot.items)
@@ -44,7 +87,6 @@ struct RationRecommendationEngine {
                     if crossing > 0 && crossing < 1 { fractions.append(crossing) }
                 }
 
-                var best: RationRecommendation?
                 for fraction in fractions {
                     let amount = source.kilogramsPerAnimalPerDay * fraction
                     guard amount > 0 else { continue }
@@ -59,12 +101,11 @@ struct RationRecommendationEngine {
                         removedIngredient: source.ingredient, addedIngredient: candidate,
                         replacedKilograms: amount, before: before, after: after
                     )
-                    if best.map({ isBetter(proposal, than: $0, season: season) }) ?? true { best = proposal }
+                    proposals.append(proposal)
                 }
-                if let best { proposals.append(best) }
             }
         }
-        return Array(proposals.sorted { isBetter($0, than: $1, season: season) }.prefix(3))
+        return proposals
     }
 
     enum SimulationError: Error {

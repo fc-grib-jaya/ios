@@ -75,7 +75,7 @@ struct CarcassView: View {
                     options: [0, 1],
                     selection: $weightView
                 ) { option in
-                    Text(option == 0 ? "kg" : "%")
+                    Text(option == 0 ? "%" : "kg")
                 }
                 .padding(.vertical, AppSpacing.xs)
                 .padding(.leading, AppSpacing.huge)
@@ -85,9 +85,9 @@ struct CarcassView: View {
             HorizontalSankeyChart(
                 data: carcassSankeyItems(
                     breakdown,
-                    asPercentage: weightView == 1
+                    asPercentage: weightView == 0
                 ),
-                valueSuffix: weightView == 1 ? " %" : " kg",
+                valueSuffix: weightView == 0 ? " %" : " kg",
                 levelSpacing: 120
             )
             .frame(height: 520)

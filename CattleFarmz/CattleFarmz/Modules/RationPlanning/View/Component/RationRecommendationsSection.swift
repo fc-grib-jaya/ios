@@ -8,9 +8,11 @@ struct RationRecommendationsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
             Text("Pilihan perbaikan nutrisi").font(AppFont.title)
-            ForEach(viewModel.repairOptions) { option in
-                RationRecommendationCard(recommendation: option) {
-                    onCompare(option)
+            ForEach(viewModel.repairGroups) { group in
+                if let option = group.best {
+                    RationRecommendationCard(recommendation: option) {
+                        onCompare(option)
+                    }
                 }
             }
             if let message = viewModel.repairMessage {

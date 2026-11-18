@@ -57,7 +57,7 @@ struct NutrientAdequacyCard: View {
 #Preview {
     VStack(spacing: AppSpacing.md) {
         NutrientAdequacyCard(nutrient: NutrientComparison(name: "Protein kasar", actual: 15.53, minimum: 10.5, unit: "%"))
-        NutrientAdequacyCard(nutrient: NutrientComparison(name: "TDN", actual: 57.12, minimum: 60, unit: "%"))
+        NutrientAdequacyCard(nutrient: NutrientComparison(name: "Energi (TDN)", actual: 57.12, minimum: 60, unit: "%"))
         NutrientAdequacyCard(nutrient: NutrientComparison(name: "Zinc", actual: nil, minimum: 40, unit: "ppm"))
     }
     .padding(AppSpacing.md)

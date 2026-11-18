@@ -8,8 +8,9 @@
 import SwiftUI
 
 struct RationPlanningView: View {
-    @Bindable private var rationVM: RationPlanningViewModel
     @State private var showsFeedCatalog = false
+    @Bindable private var rationVM: RationPlanningViewModel
+    @FocusState private var focusedFeedID: FeedIngredient.ID?
     let cattleName: String
     let cattleDetails: String
     let cattleBreed: String
@@ -56,9 +57,75 @@ struct RationPlanningView: View {
 
                 FeedAmountsCard(
                     rationVM: rationVM,
-                    onTap: {showsFeedCatalog = true}
+                    onTap: {
+                        showsFeedCatalog = true
+                    },
+                    focusedFeedID: $focusedFeedID
                 )
                 
+//                HStack {
+//                    Text("Total pemberian")
+//
+//                    Spacer()
+//
+//                    if let total = rationVM.totalFeedKilogramsPerAnimalPerDay {
+//                        Text(
+//                            total.formatted(
+//                                .number.precision(.fractionLength(0...2))
+//                            )
+//                        )
+//                        .font(AppFont.largeTitle)
+//                        Text("kg / hari")
+//                    } else {
+//                        Text("Periksa jumlah pakan")
+//                    }
+//                }
+//                .padding(AppSpacing.md)
+//                .background{
+//                    // MARK: belum make AppRadius
+//                    RoundedRectangle(cornerRadius: 16)
+//                        .fill(AppColor.Card.background)
+//                        .shadow(
+//                            color: .black.opacity(0.1),
+//                            radius: 5,
+//                            x: 0,
+//                            y: 2
+//                        )
+//                }
+//                
+//                Button {
+//                    focusedFeedID = nil
+//                    rationVM.calculate()
+//                    if let result = rationVM.result {
+//                        onShowAnalysis(result)
+//                    }
+//                } label: {
+//                    Text("Evaluasi pakan")
+//                }
+//                .appButtonStyle(.primary)
+//                .disabled(rationVM.selectedFeeds.isEmpty)
+//                
+                if let error = rationVM.errorMessage {
+                    Text(error)
+                        .font(AppFont.caption)
+                        .foregroundStyle(AppColor.Text.secondary)
+                }
+            }
+            .padding(.horizontal, AppSpacing.md)
+        }
+        .navigationTitle("Pakan Sapi")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showsFeedCatalog, content: {
+            NavigationStack {
+                FeedCatalogView(rationVM: rationVM)
+                    .presentationDragIndicator(.visible)
+            }
+        })
+        .task {
+            rationVM.load()
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            VStack(spacing: AppSpacing.md) {
                 HStack {
                     Text("Total pemberian")
 
@@ -90,6 +157,7 @@ struct RationPlanningView: View {
                 }
                 
                 Button {
+                    focusedFeedID = nil
                     rationVM.calculate()
                     if let result = rationVM.result {
                         onShowAnalysis(result)
@@ -100,24 +168,8 @@ struct RationPlanningView: View {
                 .appButtonStyle(.primary)
                 .disabled(rationVM.selectedFeeds.isEmpty)
                 
-                if let error = rationVM.errorMessage {
-                    Text(error)
-                        .font(AppFont.caption)
-                        .foregroundStyle(AppColor.Text.secondary)
-                }
             }
             .padding(.horizontal, AppSpacing.md)
-        }
-        .navigationTitle("Pakan Sapi")
-        .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showsFeedCatalog, content: {
-            NavigationStack {
-                FeedCatalogView(rationVM: rationVM)
-                    .presentationDragIndicator(.visible)
-            }
-        })
-        .task {
-            rationVM.load()
         }
     }
 }

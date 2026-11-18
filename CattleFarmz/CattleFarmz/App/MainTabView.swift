@@ -147,8 +147,16 @@ struct MainTabView: View {
             
             NavigationStack(path: $coordinator.rationPath) {
                 FeedHomeView(entries: cattle.map { cow in
-                    FeedHomeEntry(id: cow.id, name: cow.name, details: cattleDetails(cow),
-                                  photo: cow.cattleImage, updated: cow.rationUpdatedAt, adg: cow.rationTargetADG)
+                    FeedHomeEntry(
+                        id: cow.id,
+                        name: cow.name,
+                        breed: cow.breed.rawValue,
+                        gender: cow.gender.rawValue,
+                        ageInMonths: cow.currentAge,
+                        photo: cow.cattleImage,
+                        updated: cow.rationUpdatedAt,
+                        adg: cow.rationTargetADG
+                    )
                 }, onOpen: { openPlan($0, plan: $feedPlan, path: $coordinator.rationPath) })
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -338,9 +346,15 @@ struct MainTabView: View {
                             path.wrappedValue.append(.rationAnalysisDetail)
                         },
                         cattleName: current.cattle.name,
-                        onSave: {
-                            savePlan(result, for: current.cattle, path: path)
-                        },
+                        onSave: hasRationChanges(result, for: current.cattle)
+                            ? {
+                                savePlan(
+                                    result,
+                                    for: current.cattle,
+                                    path: path
+                                )
+                            }
+                            : nil,
                         onEdit: {
                             guard path.wrappedValue.last == .rationAnalysis else {
                                 return
@@ -367,6 +381,8 @@ struct MainTabView: View {
                     RationRecommendationView(viewModel: review) { updated in
                         current.viewModel.restore(updated)
                         plan.wrappedValue?.result = updated
+                        
+                        container.toastManager.show("susunan pakan diperbarui")
                     }
                 }
             case .rationAnalysisDetail:
@@ -379,6 +395,23 @@ struct MainTabView: View {
         }
     }
 
+    private func hasRationChanges(
+        _ result: RationCalculationResult,
+        for cow: Cattle
+    ) -> Bool {
+        guard let data = cow.savedRation,
+              let saved = try? JSONDecoder().decode(
+                  RationCalculationResult.self,
+                  from: data
+              ) else {
+            return true
+        }
+
+        return result.profile != saved.profile
+            || result.items.sorted { $0.id < $1.id }
+                != saved.items.sorted { $0.id < $1.id }
+    }
+    
     private func savePlan(_ result: RationCalculationResult, for cow: Cattle, path: Binding<[AppRoute]>) {
         let previous = (cow.savedRation, cow.rationUpdatedAt, cow.rationTargetADG)
         do {
@@ -386,6 +419,9 @@ struct MainTabView: View {
             cow.rationUpdatedAt = .now
             cow.rationTargetADG = result.profile.targetDailyWeightGainKilograms
             try context.save()
+            
+            container.toastManager.show("Pakan berhasil disimpan")
+            
             if let index = path.wrappedValue.lastIndex(of: .rationForm) {
                 path.wrappedValue.removeSubrange(index...)
             }

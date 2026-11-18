@@ -15,7 +15,7 @@ struct RationProfileCard: View {
     private var profileSummary: String {
         let weight = "Bobot \(evaluationNumber(profile.bodyWeightKilograms)) kg"
         guard profile.usesWeightGainTarget else { return weight }
-        return weight + " · Target ADG \(evaluationNumber(profile.targetDailyWeightGainKilograms)) kg/hari"
+        return weight + " • Target ADG \(evaluationNumber(profile.targetDailyWeightGainKilograms)) kg/hari"
     }
 
 }

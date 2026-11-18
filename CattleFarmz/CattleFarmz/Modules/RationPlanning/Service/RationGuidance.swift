@@ -34,7 +34,7 @@ enum RationGuidance {
                     messages.append(
                         """
                         Untuk target kenaikan bobot di atas 0,8 kg/hari, acuan menyarankan protein kasar \
-                        12–14% dan TDN 65–70%. Kenaikan bobot aktual dapat berbeda.
+                        12–14% dan Energi (TDN) 65–70%. Kenaikan bobot aktual dapat berbeda.
                         """
                     )
                 }

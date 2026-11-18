@@ -91,7 +91,9 @@ struct CattlesDetailView: View {
                                 entry: FeedHomeEntry(
                                     id: cattle.id,
                                     name: cattle.name,
-                                    details: "\(cattle.breed.rawValue) · \(cattle.gender.rawValue) · \(cattle.currentAge) bulan",
+                                    breed: cattle.breed.rawValue,
+                                    gender: cattle.gender.rawValue,
+                                    ageInMonths: cattle.currentAge,
                                     photo: cattle.cattleImage,
                                     updated: cattle.rationUpdatedAt,
                                     adg: cattle.rationTargetADG
@@ -145,7 +147,7 @@ struct CattlesDetailView: View {
             }
         }
         .alert(
-            "Hapus Sapi?",
+            "Apakah anda yakin?",
             isPresented: $isDeleteConfirmationPresented
         ) {
             Button("Batal", role: .cancel) {}
@@ -157,7 +159,7 @@ struct CattlesDetailView: View {
                 }
             }
         } message: {
-            Text("Data sapi akan dihapus secara permanen.")
+            Text("Data sapi akan terhapus secara permanen")
         }
         .task {
             await viewModel.load()

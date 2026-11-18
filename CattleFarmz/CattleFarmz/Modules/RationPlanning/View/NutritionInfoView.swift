@@ -74,7 +74,7 @@ struct NutritionInfoView: View {
             Divider()
             
             nutrientRow(
-                nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "TDN",
+                nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "Energi (TDN)",
                 value: nutrients.totalDigestibleNutrientsPercent,
                 unit: "%"
             )

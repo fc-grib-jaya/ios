@@ -133,7 +133,7 @@ struct OnboardingNutritionPlanningView: View {
                 .foregroundStyle(AppColor.Primitive.Base.white)
 
             nutritionRow("Protein", value: "50%", meetsNeed: false)
-            nutritionRow("TDN", value: "56%", meetsNeed: true)
+            nutritionRow("Energi (TDN)", value: "56%", meetsNeed: true)
             nutritionRow("Calcium", value: "12%", meetsNeed: true)
         }
         .padding(AppSpacing.lg)

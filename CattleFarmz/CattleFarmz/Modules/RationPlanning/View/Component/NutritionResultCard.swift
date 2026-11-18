@@ -1,11 +1,9 @@
 import SwiftUI
 
 struct NutritionResultCard: View {
-    let below: Int
-    let unknown: Int
-    let total: Int
+    let status: NutritionResultStatus
 
-    private var complete: Bool { below == 0 && unknown == 0 }
+    private var complete: Bool { status.complete }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.md) {
@@ -19,13 +17,13 @@ struct NutritionResultCard: View {
                     .frame(width: 92)
                     .accessibilityHidden(true)
             }
-            if below > 0 {
-                Text("**\(below) dari \(total) nutrisi** pakan berada di bawah nilai minimum referensi.")
+            if let message = status.belowMessage {
+                Text(LocalizedStringKey(message))
             } else if complete {
-                Text("Seluruh \(total) nutrisi mencapai nilai minimum referensi.")
+                Text("Seluruh 2 nutrisi mencapai nilai minimum referensi.")
             }
-            if unknown > 0 {
-                Text("**\(unknown) nutrisi** belum dapat dibandingkan karena data belum lengkap.")
+            if let message = status.unavailableMessage {
+                Text(LocalizedStringKey(message))
             }
         }
         .font(AppFont.body)
@@ -36,17 +34,27 @@ struct NutritionResultCard: View {
     }
 }
 
-#Preview("Perlu ditinjau") {
-    NutritionResultCard(below: 4, unknown: 0, total: 8)
+#Preview("TDN di bawah referensi") {
+    NutritionResultCard(status: NutritionResultStatus(proteinCoverage: 1.2, tdnCoverage: 0.9))
+        .padding(AppSpacing.md)
+}
+
+#Preview("Protein di bawah referensi") {
+    NutritionResultCard(status: NutritionResultStatus(proteinCoverage: 0.9, tdnCoverage: 1.1))
+        .padding(AppSpacing.md)
+}
+
+#Preview("Protein dan TDN di bawah referensi") {
+    NutritionResultCard(status: NutritionResultStatus(proteinCoverage: 0.9, tdnCoverage: 0.9))
         .padding(AppSpacing.md)
 }
 
 #Preview("Minimum terpenuhi") {
-    NutritionResultCard(below: 0, unknown: 0, total: 8)
+    NutritionResultCard(status: NutritionResultStatus(proteinCoverage: 1, tdnCoverage: 1))
         .padding(AppSpacing.md)
 }
 
 #Preview("Data belum lengkap") {
-    NutritionResultCard(below: 0, unknown: 2, total: 8)
+    NutritionResultCard(status: NutritionResultStatus(proteinCoverage: 1, tdnCoverage: nil))
         .padding(AppSpacing.md)
 }

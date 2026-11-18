@@ -11,30 +11,24 @@ struct RationAnalysisView: View {
 
 
     var body: some View {
-        let comparisons = NutrientComparison.rows(for: result)
-        let below = comparisons.filter { ($0.coverage ?? 1) < 1 }
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
                 RationProfileCard(profile: result.profile, cattleName: cattleName)
-                    .padding(.bottom, -AppSpacing.xs)
 
-                NutritionResultCard(below: below.count,
-                                    unknown: comparisons.filter { $0.coverage == nil }.count,
-                                    total: comparisons.count)
+                NutritionResultCard(status: NutritionResultStatus(result: result))
                 NutrientReviewCard(result: result, onShowDetails: onShowDetails)
                 if let rationVM, let onReviewRecommendation {
                     RationRecommendationsSection(result: result, viewModel: rationVM, onCompare: onReviewRecommendation)
                 }
                 ReviewedFeedsCard(result: result)
 
-                Button {
-                    onSave?()
-                } label: {
-                    Text("Simpan")
-                        .foregroundStyle(.white)
+                if let onSave {
+                    Button(action: onSave) {
+                        Text("Simpan")
+                            .foregroundStyle(.white)
+                    }
+                    .appButtonStyle(.primary)
                 }
-                .disabled(onSave == nil)
-                .appButtonStyle(.primary)
             }
             .padding(AppSpacing.Screen.compact)
         }

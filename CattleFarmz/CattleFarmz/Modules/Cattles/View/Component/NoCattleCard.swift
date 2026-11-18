@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct NoCattleCard: View {
-    let copy: String
+    let title: String
+    let subtitle: String
+    
     var body: some View {
         VStack {
             Image(.cattle)
@@ -16,11 +18,12 @@ struct NoCattleCard: View {
                 .accessibilityLabel("Sapi")
             
             VStack (spacing: AppSpacing.sm){
-                Text(copy)
+                Text(title)
                     .font(AppFont.headline)
-                Text("Isi data untuk menambahkan sapi")
+                Text(subtitle)
                     .font(AppFont.body)
             }
+            .multilineTextAlignment(.center)
             .padding(.bottom, AppSpacing.md)
         }
         .padding(AppSpacing.md)
@@ -37,5 +40,5 @@ struct NoCattleCard: View {
 }
 
 #Preview {
-    NoCattleCard(copy: "Belum ada sapi")
+    NoCattleCard(title: "Belum ada sapi", subtitle: "Isi data untuk menambahkan sapi")
 }

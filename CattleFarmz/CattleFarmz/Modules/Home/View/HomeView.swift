@@ -63,7 +63,7 @@ struct HomeView: View {
                     if !(cattlesViewModel.hasNoVisibleCattle
                             || cattlesViewModel.filteredItems.isEmpty) {
                     HStack {
-                        Text("Sapi-Sapi Anda")
+                        Text("Sapi Anda")
                             .font(AppFont.mediumBody)
                             .foregroundStyle(
                                 AppColor.Primitive.Secondary.shade900
@@ -144,11 +144,11 @@ struct HomeView: View {
                     }
 
                     if cattlesViewModel.hasNoVisibleCattle {
-                        NoCattleCard(copy: "Belum ada sapi")
+                        NoCattleCard(title: "Belum ada sapi", subtitle: "Isi data untuk menambahkan sapi")
                             .padding(AppSpacing.md)
                         Spacer()
                     } else if cattlesViewModel.filteredItems.isEmpty {
-                        NoCattleCard(copy: "Tidak ada sapi yang sesuai")
+                        NoCattleCard(title: "Tidak ada sapi yang cocok", subtitle: "Coba ubah atau hapus filter untuk melihat lebih banyak sapi.")
                             .padding(AppSpacing.md)
                     } else {
                         CattlesView(

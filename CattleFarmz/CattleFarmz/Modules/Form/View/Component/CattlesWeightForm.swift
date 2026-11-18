@@ -76,7 +76,7 @@ struct CattlesWeightForm: View {
             Button {
                 startScan()
             } label: {
-                Text("\(Image(systemName: "scalemass.fill"))  Estimasi Bobot")
+                Text("\(Image(systemName: "scalemass.fill"))  Ukur bobot dengan kamera")
                     .frame(maxWidth: .infinity)
             }
             .appButtonStyle(.goldPrimary)

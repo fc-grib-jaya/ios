@@ -40,5 +40,5 @@ struct NoCattleCard: View {
 }
 
 #Preview {
-    NoCattleCard(title: "Belum ada sapi", subtitle: "Isi data untuk menambahkan sapi")
+    NoCattleCard(title: "Belum ada sapi", subtitle: "Tambahkan sapi untuk mencatat bobot dan rencana pakannya.")
 }

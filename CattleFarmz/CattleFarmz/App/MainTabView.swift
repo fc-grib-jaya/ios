@@ -252,7 +252,12 @@ struct MainTabView: View {
     }
 
     private func cattleDetails(_ cow: Cattle) -> String {
-        "\(cow.breed.rawValue) · \(cow.gender.rawValue) · \(cow.currentAge) bulan"
+        let breedText = Text(cow.breed.rawValue).font(AppFont.body)
+        let genderText = Text(cow.gender.rawValue).font(AppFont.body)
+        let ageText = Text("\(cow.currentAge) bulan").font(AppFont.body)
+        let separator = Text(" • ").font(.caption)
+
+        return "\(breedText)\(separator)\(genderText)\(separator)\(ageText)"
     }
 
     private func openPlan(

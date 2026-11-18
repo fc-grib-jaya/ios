@@ -144,11 +144,11 @@ struct HomeView: View {
                     }
 
                     if cattlesViewModel.hasNoVisibleCattle {
-                        NoCattleCard(title: "Belum ada sapi", subtitle: "Isi data untuk menambahkan sapi")
+                        NoCattleCard(title: "Belum ada sapi", subtitle: "Tambahkan sapi untuk mencatat bobot dan rencana pakannya")
                             .padding(AppSpacing.md)
                         Spacer()
                     } else if cattlesViewModel.filteredItems.isEmpty {
-                        NoCattleCard(title: "Tidak ada sapi yang cocok", subtitle: "Coba ubah atau hapus filter untuk melihat lebih banyak sapi.")
+                        NoCattleCard(title: "Tidak ada sapi yang cocok", subtitle: "Coba ubah atau hapus filter untuk melihat lebih banyak sapi")
                             .padding(AppSpacing.md)
                     } else {
                         CattlesView(

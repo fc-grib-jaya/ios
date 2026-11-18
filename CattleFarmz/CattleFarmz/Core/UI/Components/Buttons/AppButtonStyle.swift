@@ -70,6 +70,7 @@ struct AppButtonStyle: ButtonStyle {
             }
         }
         .opacity(isEnabled ? 1 : 0.45)
+        .glassEffect()
     }
 
     private func foregroundColor(isPressed: Bool) -> Color {

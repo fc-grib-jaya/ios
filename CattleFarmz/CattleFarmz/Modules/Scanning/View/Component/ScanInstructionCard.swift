@@ -32,35 +32,9 @@ struct ScanInstructionCard<Content: View>: View {
     .background(AppColor.Surface.canvas)
 }
 
-#Preview("Camera instructions2", traits: .sizeThatFitsLayout) {
-    let bagian = "Punuk"
-    ScanInstructionCard {
-        VStack(spacing: AppSpacing.md){
-            VStack(spacing: 10){
-                Image("Punuk")
-                
-                Text("Tandai Bagian \(bagian)")
-                    .font(AppFont.headline)
-                
-                Text("Cari garis tepat di belakang kaki ketuk tepi atas punuk")
-            }
-            
-            Button {
-
-            } label: {
-                Text("Lanjutkan Estimasi")
-                    .padding(.vertical, AppSpacing.sm)
-                    .padding(.horizontal, AppSpacing.huge)
-                    .foregroundStyle(AppColor.Primitive.Primary.shade500)
-                    .background(AppColor.Primitive.Primary.shade50)
-                    .contentShape(Capsule())
-            }
-        }
-        .frame(maxWidth: 268)
-        .multilineTextAlignment(.center)
-        .frame(maxWidth: .infinity, alignment: .center)
-    }
-    .frame(width: 370)
-    .padding(AppSpacing.md)
-    .background(.black)
+#Preview("Camera instructions2", traits: .fixedLayout(width: 402, height: 402)) {
+    ScanInstructionCarousel(onContinue: {})
+        .frame(width: 370, height: 370)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.black)
 }

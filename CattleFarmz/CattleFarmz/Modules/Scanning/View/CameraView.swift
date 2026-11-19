@@ -24,7 +24,6 @@ struct CameraView: View {
     var body: some View {
         GeometryReader { geometry in
             let spacing = AppSpacing.md
-//            let previewSize = ScanViewportLayout.previewSize(in: geometry.size)
             let previewSize = CGSize(
                 width: geometry.size.width * 728 / 874,
                 height: geometry.size.height
@@ -52,12 +51,15 @@ struct CameraView: View {
                             ScanGuideFrame()
                                 .frame(width: guideWidth, height: guideHeight)
                         }
-                        .overlay(alignment: .bottom) {
+                        .overlay {
                             ScanHelpOverlay(isVisible: isHelpVisible) {
-                                statusOverlay
-                                    .frame(width: min(340, max(1, size.width - 2 * AppSpacing.lg)))
-                                    .padding(.leading, AppSpacing.lg)
-                                    .padding(.bottom, AppSpacing.lg)
+                                ScanInstructionCarousel {
+                                    isHelpVisible = false
+                                }
+                                .frame(
+                                    width: min(370, max(1, size.width - 2 * AppSpacing.md)),
+                                    height: min(370, max(1, size.height - 2 * AppSpacing.md))
+                                )
                             }
                         }
                         .overlay(alignment: .bottomLeading) {
@@ -120,25 +122,7 @@ struct CameraView: View {
         .padding(.trailing, 24)
     }
     
-    private var statusOverlay: some View {
-        ScanInstructionCard {
-            HStack(spacing: AppSpacing.sm) {
-                Image(systemName: "info.circle")
-                    .font(AppFont.title)
-                    .accessibilityHidden(true)
-                
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text("Foto sapi dari samping")
-                        .font(AppFont.mediumBody)
-                    
-                    Text("Pastikan pengambilan foto simetris")
-                        .font(AppFont.mediumSubheadline)
-                        .foregroundStyle(AppColor.Text.secondary)
-                }
-            }
-        }
-    }
-    
+
 }
 
 #Preview("CameraView", traits: .fixedLayout(width: 874, height: 402)) {

@@ -51,9 +51,14 @@ struct MeasurementView: View {
                     )
                     .overlay {
                         ScanHelpOverlay(isVisible: isHelpVisible) {
-                            introduction
-                                .padding(.horizontal, AppSpacing.lg)
-                                .padding(.bottom, AppSpacing.lg)
+                            ScanInstructionCarousel {
+                                isHelpVisible = false
+                            }
+                            .frame(
+                                width: min(370, max(1, geometry.size.width - 2 * AppSpacing.md)),
+                                height: min(370, max(1, geometry.size.height - 2 * AppSpacing.md))
+                            )
+
                         }
                     }
                 }

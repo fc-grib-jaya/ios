@@ -216,6 +216,14 @@ struct MeasurementView: View {
                             .foregroundStyle(.orange)
                     }
 
+                    if let result = model.result {
+//                        resultCard(result)
+                    }
+                    if model.activePoint != nil && !model.canAdvance {
+                        Text(model.currentDepthProblem ?? "Depth titik ini tidak valid. Geser ke area depth yang terbaca.")
+                            .font(AppFont.caption)
+                            .foregroundStyle(.orange)
+                    }
                 }
             }
         }

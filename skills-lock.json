@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "skills": {
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "commit": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "ab1acb9fbd9eaee03da254abb8a8de228d1e7a07475fe959da4a5eefa34ea4b9"
+    },
+    "realitykit": {
+      "source": "dpearson2699/swift-ios-skills",
+      "commit": "8d90fd121a263355a4fb44fd082af1416a5c1c2a",
+      "sourceType": "github",
+      "skillPath": "skills/realitykit/SKILL.md",
+      "computedHash": "597092a2e0c35e8ab321b714f4b317a02c0a3b11271bfe9a3739aa0db284b825"
+    },
+    "swiftui-pro": {
+      "source": "twostraws/SwiftUI-Agent-Skill",
+      "commit": "f2920b63995263f57b3e198674e89a602efba6d2",
+      "sourceType": "github",
+      "skillPath": "swiftui-pro/SKILL.md",
+      "computedHash": "5ae476da16f2b0af60385b856cdcb121a4f4675ddc06c27e81259f12e987aeb1"
+    }
+  }
+}

@@ -19,9 +19,15 @@ struct HomeCard: View {
     }
     
     var body: some View {
-        VStack(spacing: AppSpacing.xs) {
-            HStack(alignment: .bottom) {
-                Text(
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            HStack(spacing: AppSpacing.sm) {
+                Image(.mainCattle)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 70)
+                
+                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                    Text(
                     """
                     \(Calendar.current.component(.hour, from: Date()) < 11
                         ? "Pagi"
@@ -29,27 +35,33 @@ struct HomeCard: View {
                             ? "Siang"
                             : Calendar.current.component(.hour, from: Date()) < 19
                                 ? "Sore"
-                                : "Malam"), \n\(Farmer)!
+                                : "Malam"), \(Farmer)!
                     """
-                )
-                .font(AppFont.title)
-                .foregroundStyle(AppColor.Primitive.Secondary.shade900)
-                
-                Spacer()
-                
-                Subtitle
-                    .font(AppFont.body)
-                    .multilineTextAlignment(.trailing)
+                    )
+                    .font(AppFont.formTitle)
+                    .foregroundStyle(AppColor.Primitive.Primary.shade900)
+                    
+                    Subtitle
+                        .font(AppFont.body)
+                        .multilineTextAlignment(.leading)
+                }
             }
             .padding(.top, AppSpacing.md)
             .padding(.horizontal, AppSpacing.md)
             
-//            AppButtons("+ Tambah Sapi", variant: .primary, action: onAddCattleTap)
-            
             AddCattleButton(onTap: onAddCattleTap)
                 .padding(.vertical, AppSpacing.md)
         }
-        .background(AppColor.Card.background)
+        .background(
+            LinearGradient(
+                colors: [
+                    AppColor.Primitive.Secondary.shade50,
+                    AppColor.Primitive.Secondary.shade200,
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
         .cornerRadius(AppSpacing.Card.compact)
         .padding(.horizontal, AppSpacing.md)
         .padding(.vertical, AppSpacing.md)
@@ -57,5 +69,5 @@ struct HomeCard: View {
 }
 
 #Preview {
-    HomeCard(Farmer: "Joni", Subtitle: Text("Apa aja"), onAddCattleTap: {})
+    HomeCard(Farmer: "Dylan", Subtitle: Text("Apa aja"), onAddCattleTap: {})
 }

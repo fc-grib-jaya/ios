@@ -26,7 +26,7 @@ final class FormViewModel {
     }
 
     var isLastPage: Bool { index >= pages.count - 1 }
-    var buttonTitle: String { isLastPage ? "Simpan" : "Lanjut" }
+    var buttonTitle: String { isLastPage ? "Simpan" : "Selanjutnya" }
 
     /// Advances one page, or opens the guest login sheet on the last page.
     func primaryTapped() {

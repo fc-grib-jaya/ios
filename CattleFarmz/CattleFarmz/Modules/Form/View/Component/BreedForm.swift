@@ -12,11 +12,15 @@ struct BreedForm: View {
     
     var body: some View {
         VStack {
-            Text("Jenis sapi")
-                .font(AppFont.formTitle)
-                .foregroundStyle(AppColor.Primitive.Secondary.shade950)
-                .multilineTextAlignment(.center)
-                .padding(.vertical, AppSpacing.xl)
+            HStack(spacing: 1) {
+                Text("Jenis sapi?")
+                    .foregroundStyle(AppColor.Primitive.Secondary.shade950)
+                Text("*")
+                    .foregroundStyle(Color.red)
+            }
+            .font(AppFont.formTitle)
+            .multilineTextAlignment(.center)
+            .padding(.vertical, AppSpacing.sm)
             
             CenteredFlowLayout(horizontalSpacing: 10, verticalSpacing: 18) {
                 ForEach(

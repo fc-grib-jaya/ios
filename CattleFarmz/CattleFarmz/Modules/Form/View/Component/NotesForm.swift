@@ -20,11 +20,11 @@ struct NotesForm: View {
     @FocusState private var focusedField: Field?
     var body: some View {
         VStack {
-            Text("Tambahkan catatan")
+            Text("Catatan")
                 .font(AppFont.formTitle)
                 .foregroundStyle(AppColor.Primitive.Secondary.shade950)
                 .multilineTextAlignment(.center)
-                .padding(.vertical, AppSpacing.xl)
+                .padding(.vertical, AppSpacing.sm)
             
             HStack {
                 TextField(
@@ -32,7 +32,7 @@ struct NotesForm: View {
                     text: notesText,
                     prompt: Text("Contoh: “Kandang ada di pojok.”").italic().accessibilityLabel("Tambahkan Catatan")
                 )
-                    .font(AppFont.body)
+                .font(AppFont.mediumBody).bold()
                     .autocorrectionDisabled()
                     .focused($focusedField, equals: .notes)
 
@@ -55,6 +55,10 @@ struct NotesForm: View {
                 .padding(.horizontal, AppSpacing.lg)
         }
         .padding(.horizontal, AppSpacing.md)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            focusedField = nil
+        }
     }
 }
 

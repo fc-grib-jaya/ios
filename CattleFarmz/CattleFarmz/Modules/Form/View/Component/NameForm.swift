@@ -13,11 +13,15 @@ struct NameForm: View {
     
     var body: some View {
         VStack {
-            Text("Nama sapi")
-                .font(AppFont.formTitle)
-                .foregroundStyle(AppColor.Primitive.Secondary.shade950)
-                .multilineTextAlignment(.center)
-                .padding(.vertical, AppSpacing.xl)
+            HStack(spacing: 1) {
+                Text("Nama sapi?")
+                    .foregroundStyle(AppColor.Primitive.Secondary.shade950)
+                Text("*")
+                    .foregroundStyle(Color.red)
+            }
+            .font(AppFont.formTitle)
+            .multilineTextAlignment(.center)
+            .padding(.vertical, AppSpacing.sm)
             
             HStack {
                 TextField("Tuliskan Nama Sapi", text: $namaCattle)
@@ -28,6 +32,7 @@ struct NameForm: View {
                             namaCattle = String(newValue.prefix(30))
                         }
                     }
+                    .font(AppFont.mediumBody).bold()
                     .focused($focusedField, equals: .name)
                 
                 if !namaCattle.isEmpty {

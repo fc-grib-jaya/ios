@@ -14,23 +14,27 @@ struct AgeForm: View {
     
     var body: some View {
         VStack {
-            Text("Usia sapi")
-                .font(AppFont.formTitle)
-                .foregroundStyle(AppColor.Primitive.Secondary.shade950)
-                .multilineTextAlignment(.center)
-                .padding(.vertical, AppSpacing.xl)
-
+            HStack(spacing: 1) {
+                Text("Usia sapi?")
+                    .foregroundStyle(AppColor.Primitive.Secondary.shade950)
+                Text("*")
+                    .foregroundStyle(Color.red)
+            }
+            .font(AppFont.formTitle)
+            .multilineTextAlignment(.center)
+            .padding(.vertical, AppSpacing.sm)
+            
             HStack {
                 VStack {
                     TextField(
                         value: $usiaSapi,
                         format: .number,
-                        prompt: Text("Contoh: \"19\"").italic().accessibilityLabel("Tuliskan Usia Sapi")
+                        prompt: Text("Contoh: 19").italic().accessibilityLabel("Tuliskan Usia Sapi")
                     ) {
                         Text("Usia Sapi (Bulan)")
                     }
                     .keyboardType(.numberPad)
-                    .font(AppFont.body)
+                    .font(AppFont.mediumBody).bold()
                     .multilineTextAlignment(.center)
                     .onChange(of: usiaSapi) { _, value in
                         guard let value else { return }
@@ -51,7 +55,7 @@ struct AgeForm: View {
             }
 
             .padding(.horizontal, AppSpacing.massive)
-            .padding(.horizontal, AppSpacing.xxl)
+            .padding(.horizontal, AppSpacing.lg)
         }
         .padding(.horizontal, AppSpacing.md)
         .contentShape(Rectangle())

@@ -102,6 +102,7 @@ struct MainTabView: View {
                                 notes: values.notes
                             )
                         }
+                        .navigationBarBackButtonHidden(true)
                     case .editCattle(let id):
                         if let cattle = cattlesViewModel.items.first(
                             where: { $0.id.uuidString == id }

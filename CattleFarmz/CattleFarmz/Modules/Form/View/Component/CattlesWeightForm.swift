@@ -23,115 +23,122 @@ struct CattlesWeightForm: View {
     @State private var cameraPermissionError: String?
     @State private var pendingScanPhoto: UIImage?
     @State private var isAskingToUseScanPhoto = false
-    
+    @State private var chestGirth = 0.0
+    @State private var bodyLength = 0.0
+    @State private var manual = false
+
     @FocusState private var focusedField: Field?
 
     var body: some View {
         VStack {
-            Text("Bobot sapi")
-                .font(AppFont.formTitle)
-                .foregroundStyle(AppColor.Primitive.Secondary.shade950)
-                .multilineTextAlignment(.center)
-                .padding(.vertical, AppSpacing.xl)
-
-            Spacer()
-
-            HStack {
-                VStack {
-                    TextField(
-                        value: $bobotCattle,
-                        format: .number,
-                        prompt: Text("Contoh: \"190,64\"").italic().accessibilityLabel("Tuliskan Bobot Sapi")
-                    ) {
-                        Text("Bobot Sapi (kg)")
-                    }
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.center)
-                    .onChange(of: bobotCattle) { _, value in
-                        guard let value else { return }
-
-                        let bounded = min(max(value, 0), 9_999)
-                        let rounded = (bounded * 100).rounded() / 100
-
-                        if value != rounded {
-                            bobotCattle = rounded
-                        }
-                    }
-                    .focused($focusedField, equals: .weight)
-
-                    Divider()
-                        .overlay(AppColor.Text.primary)
+            if !manual {
+                if scanResult != nil {
+                    Spacer()
                 }
+                
+                HStack(spacing: 1) {
+                    Text("Bobotnya berapa?")
+                        .foregroundStyle(AppColor.Primitive.Secondary.shade950)
+                    Text("*")
+                        .foregroundStyle(Color.red)
+                }
+                .font(AppFont.formTitle)
+                .multilineTextAlignment(.center)
+                .padding(.vertical, AppSpacing.lg)
 
-                Text("kg")
-                    .foregroundStyle(AppColor.Text.primary)
-            }
-            .padding(.vertical, AppSpacing.xxs)
-            .padding(.horizontal, AppSpacing.massive)
-
-            Text("Tidak tahu bobot?")
-                .font(AppFont.mediumBody.bold())
-                .padding(.vertical, AppSpacing.sm)
-
-            Button {
-                startScan()
-            } label: {
-                Text("\(Image(systemName: "scalemass.fill"))  Ukur bobot dengan kamera")
-                    .frame(maxWidth: .infinity)
-            }
-            .appButtonStyle(.goldPrimary)
-            .accessibilityLabel("Estimasi Bobot")
-            .padding(.horizontal, AppSpacing.xl)
-            .padding(.bottom, AppSpacing.xs)
-
-            Group {
-                if let cattlePhoto {
-                    CattlesPictureCard(
-                        cattleImage: Image(uiImage: cattlePhoto),
-                        action: requestCameraAccess,
-                        onRemove: { self.cattlePhoto = nil }
+                if scanResult?.girth != nil,
+                   let bobotCattleBinding = Binding($bobotCattle) {
+                    WeightResult(
+                        bobotCattle: bobotCattleBinding,
+                        chestGirth: $chestGirth,
+                        bodyLength: $bodyLength
                     )
-                } else {
-                    Button(action: requestCameraAccess) {
-                        Text("Ambil foto profil sapi")
-                            .frame(maxWidth: .infinity)
+                    .padding(.horizontal, AppSpacing.xl)
+                    Spacer()
+                    Button {
+                        startScan()
+                    } label: {
+                        Text(
+                            "\(Image(systemName: "arrow.clockwise"))  Ukur bobot ulang"
+                        )
+                        .frame(maxWidth: .infinity)
                     }
                     .appButtonStyle(.goldSecondary)
-                    .accessibilityLabel("Ambil foto profil sapi")
-                }
-            }
-            .padding(.horizontal, AppSpacing.xl)
+                    .accessibilityLabel("Estimasi Bobot")
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.vertical, AppSpacing.xs)
+                } else {
+                    Button {
+                        startScan()
+                    } label: {
+                        Text(
+                            "\(Image(systemName: "scalemass.fill"))  Ukur bobot dengan kamera"
+                        )
+                        .frame(maxWidth: .infinity)
+                    }
+                    .appButtonStyle(.goldPrimary)
+                    .accessibilityLabel("Estimasi Bobot")
+                    .padding(.horizontal, AppSpacing.xl)
+                    .padding(.vertical, AppSpacing.xs)
 
-            Spacer()
+                    Button {
+                        focusedField = nil
+                        manual = true
+                    } label: {
+                        Text("Isi bobot manual")
+                            .font(AppFont.mediumBody)
+                            .foregroundStyle(
+                                AppColor.Primitive.Secondary.shade700
+                            )
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Isi bobot manual")
+                    .padding(.horizontal, AppSpacing.xl)
+                }
+
+            } else {
+                ManualWeightForm(
+                    bobotCattle: $bobotCattle,
+                    scanResult: $scanResult,
+                    jenisSapi: $jenisSapi,
+                    genderSapi: $genderSapi,
+                    onScanSession: onScanSession,
+                    isActive: true
+                )
+            }
         }
-        .padding(.horizontal, AppSpacing.md)
         .contentShape(Rectangle())
         .onTapGesture {
             focusedField = nil
+            dismissKeyboard()
         }
         .onChange(of: isActive) { _, isActive in
             if !isActive {
                 focusedField = nil
             }
         }
-        .fullScreenCover(isPresented: $isShowingCamera) {
-            CameraPicker(
-                image: $cattlePhoto,
-                isPresented: $isShowingCamera,
-                onAccessDenied: {
-                    Task { @MainActor in
-                        try? await Task.sleep(for: .milliseconds(350))
-                        cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
-                    }
-                }
-            )
-            .ignoresSafeArea()
+        .onChange(of: jenisSapi) { _, _ in
+            recalculateWeight()
+        }
+        .onChange(of: genderSapi) { _, _ in
+            recalculateWeight()
+        }
+        .onChange(of: chestGirth) { _, _ in
+            recalculateWeight()
+        }
+        .onChange(of: bodyLength) { _, _ in
+            recalculateWeight()
+        }
+        .onAppear {
+            synchronizeMeasurementsFromScanResult()
+            recalculateWeight()
         }
         .alert(
-            "Pakai foto hasil LiDAR?",
+            "Foto sapi belum tersedia",
             isPresented: $isAskingToUseScanPhoto
         ) {
-            Button("Ya, pakai sebagai profil") {
+            Button("Ya, jadikan foto profil") {
                 cattlePhoto = pendingScanPhoto
                 pendingScanPhoto = nil
             }
@@ -139,7 +146,9 @@ struct CattlesWeightForm: View {
                 pendingScanPhoto = nil
             }
         } message: {
-            Text("Apakah foto yang diambil saat pemindaian LiDAR ingin digunakan sebagai foto profil sapi?")
+            Text(
+                "Apakah anda ingin menjadikan foto estimasi bobot menjadi foto profil sapi?"
+            )
         }
         .alert(
             "Akses Kamera Diperlukan",
@@ -149,15 +158,28 @@ struct CattlesWeightForm: View {
             )
         ) {
             Button("Buka Pengaturan") {
-                guard let url = URL(string: UIApplication.openSettingsURLString) else {
+                guard let url = URL(string: UIApplication.openSettingsURLString)
+                else {
                     return
                 }
                 UIApplication.shared.open(url)
             }
             Button("OK", role: .cancel) {}
         } message: {
-            Text(cameraPermissionError ?? "Silakan izinkan akses kamera di Pengaturan.")
+            Text(
+                cameraPermissionError
+                    ?? "Silakan izinkan akses kamera di Pengaturan."
+            )
         }
+    }
+
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
     }
 
     private func startScan() {
@@ -172,7 +194,8 @@ struct CattlesWeightForm: View {
     private func handleScanResult(_ result: ScanResult?) {
         guard let result else { return }
 
-        let croppedImage = result.cattleImage.cattleSquareCropped()
+        let croppedImage =
+            result.cattleImage.cattleSquareCropped()
             ?? result.cattleImage
         let normalizedResult = ScanResult(
             lengthCM: result.lengthCM,
@@ -180,60 +203,57 @@ struct CattlesWeightForm: View {
             cattleImage: croppedImage
         )
         scanResult = normalizedResult
-        bobotCattle = estimatedWeight(for: normalizedResult)
-        pendingScanPhoto = croppedImage
+        chestGirth = normalizedResult.girth ?? 0
+        bodyLength = normalizedResult.lengthCM
+        recalculateWeight()
+        pendingScanPhoto = cattlePhoto == nil ? croppedImage : nil
         isAskingToUseScanPhoto = false
 
         // The LiDAR cover is dismissed after the scan callback. Delay the alert
         // until that dismissal finishes so SwiftUI can present it on the form.
         Task { @MainActor in
             try? await Task.sleep(for: .milliseconds(500))
-            guard isActive, pendingScanPhoto != nil else { return }
+            guard isActive, cattlePhoto == nil, pendingScanPhoto != nil else {
+                return
+            }
             isAskingToUseScanPhoto = true
         }
     }
 
-    private func estimatedWeight(for result: ScanResult) -> Double? {
-        guard let girth = result.girth,
-              let jenisSapi,
-              let genderSapi
-        else {
-            return nil
+    private func synchronizeMeasurementsFromScanResult() {
+        guard let scanResult else {
+            return
         }
 
-        return WeightCalculator().cattleWeight(
-            chestGirth: girth,
-            bodyLength: result.lengthCM,
-            breed: jenisSapi,
-            gender: genderSapi
-        )
+        chestGirth = scanResult.girth ?? 0
+        bodyLength = scanResult.lengthCM
     }
 
-    private func requestCameraAccess() {
-        focusedField = nil
-
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            Task { @MainActor in
-                await Task.yield()
-                isShowingCamera = true
-            }
-        case .notDetermined:
-            AVCaptureDevice.requestAccess(for: .video) { granted in
-                Task { @MainActor in
-                    if granted {
-                        await Task.yield()
-                        isShowingCamera = true
-                    } else {
-                        cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
-                    }
-                }
-            }
-        case .denied, .restricted:
-            cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
-        @unknown default:
-            cameraPermissionError = "Akses kamera diperlukan. Silakan izinkan akses kamera di Pengaturan, lalu coba lagi."
+    private func recalculateWeight() {
+        guard scanResult != nil else {
+            return
         }
+
+        if let jenisSapi, let genderSapi {
+            bobotCattle = WeightCalculator().cattleWeight(
+                chestGirth: chestGirth,
+                bodyLength: bodyLength,
+                breed: jenisSapi,
+                gender: genderSapi
+            )
+        } else {
+            bobotCattle = nil
+        }
+
+        guard let currentScanResult = scanResult else {
+            return
+        }
+
+        scanResult = ScanResult(
+            lengthCM: bodyLength,
+            girth: chestGirth,
+            cattleImage: currentScanResult.cattleImage
+        )
     }
 }
 

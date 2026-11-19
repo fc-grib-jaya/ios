@@ -253,9 +253,18 @@ final class RationPlanningViewModel {
         animalCountText = String(saved.profile.animalCount)
         milkProductionText = String(saved.profile.dailyMilkProductionLiters)
         selectedFeedIDs = Set(saved.items.map { $0.id })
-        amountTexts = Dictionary(uniqueKeysWithValues: saved.items.map {
-            ($0.id, String($0.kilogramsPerAnimalPerDay))
-        })
+        amountTexts = Dictionary(
+            uniqueKeysWithValues: saved.items.map { item in
+                let text = item.kilogramsPerAnimalPerDay.formatted(
+                    .number
+                        .locale(Locale(identifier: "id_ID"))
+                        .grouping(.never)
+                        .precision(.fractionLength(0...2))
+                )
+
+                return (item.id, text)
+            }
+        )
     }
 
     func calculate() {

@@ -82,6 +82,7 @@ struct FeedCatalogView: View {
                 } label: {
                     Image(systemName: "xmark")
                 }
+                .accessibilityLabel("Tutup")
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {

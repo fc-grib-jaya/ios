@@ -80,7 +80,12 @@ struct FormView: View {
                             cattlePhoto: $cattlePhoto,
                             scanResult: $scanResult,
                             usiaSapi: $usiaSapi,
-                            onScanSession: onScanSession,
+                            onScanSession: { completion in
+                                onScanSession { result in
+                                    viewModel.index = 2
+                                    completion(result)
+                                }
+                            },
                             notes: $notes
                         )
                         .tag(page.id)
@@ -227,7 +232,7 @@ private struct FormPageContent: View {
                 onScanSession: onScanSession
             )
         default:
-            CattlesNotesForm(notes: $notes)
+            CattlesNotesForm(notes: $notes, isActive: isActive)
         }
     }
 }

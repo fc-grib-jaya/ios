@@ -90,10 +90,11 @@ struct CarcassView: View {
                 valueSuffix: weightView == 0 ? " %" : " kg",
                 levelSpacing: 120
             )
+            .accessibilityLabel("Diagram Informasi Distrubusi Bobot")
             .frame(height: 520)
             .padding(.bottom, AppSpacing.md)
             
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                 Text("Lebar aliran menunjukkan proporsi bobot pada sapi \(cattleBreed).")
 
                 Text("Sumber · \(carcassReference)")

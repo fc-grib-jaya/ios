@@ -228,6 +228,7 @@ struct HomeView: View {
                     selectedAgeRange: $cattlesViewModel.selectedAgeRanges
                 )
             }
+            .accessibilityLabel("Filter")
         }
     }
 }

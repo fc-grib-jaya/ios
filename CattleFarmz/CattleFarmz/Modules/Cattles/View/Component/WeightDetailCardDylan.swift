@@ -23,6 +23,7 @@ struct WeightDetailCardDylan: View {
                         .resizable()
                         .frame(width: AppSpacing.xxl, height: AppSpacing.xxl)
                         .foregroundStyle(AppColor.Primitive.Secondary.shade900)
+                        .accessibilityLabel("Bobot")
 
                     Text(
                         weight == nil

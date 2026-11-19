@@ -101,6 +101,7 @@ final class MeasurementViewModel {
     /// Points stay normalized against the full upright image, even when cropped on screen.
     func moveActivePoint(to point: Point2) {
         guard point.isValid, let step = currentStep else { return }
+        guard activePoint?.point != point else { return }
         landmarkVersion.advance()
         analysisTask?.cancel()
         analysisText = ""
@@ -111,7 +112,7 @@ final class MeasurementViewModel {
                 Landmark(id: step.id, label: step.label, point: point)
             )
         }
-        flow.invalidateCurrentAndFollowing()
+        flow.updateCurrentValidity(hasUsablePoint: canAdvance)
         result = nil
         message = nil
     }
@@ -145,7 +146,7 @@ final class MeasurementViewModel {
         analysisTask?.cancel()
         analysisText = ""
         landmarks.removeAll { $0.id == id }
-        flow.invalidateCurrentAndFollowing()
+        flow.invalidateCurrent()
         result = nil
         message = nil
     }
@@ -163,8 +164,11 @@ final class MeasurementViewModel {
     }
 
     func editPoints(from index: Int = 0) {
-        flow.edit(from: index)
-        result = nil
+        selectPoint(at: index)
+    }
+
+    func selectPoint(at index: Int) {
+        guard flow.currentIndex != index, flow.selectPoint(at: index) else { return }
         message = nil
     }
 

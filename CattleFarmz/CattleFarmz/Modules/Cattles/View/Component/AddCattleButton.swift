@@ -18,6 +18,7 @@ struct AddCattleButton: View {
         }
         .appButtonStyle(.primary)
         .padding(.horizontal, AppSpacing.md)
+        .accessibilityLabel("Tambah Sapi")
     }
 }
 

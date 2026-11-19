@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CattlesNotesForm: View {
     @Binding var notes: String?
+    let isActive: Bool
 
     private var notesText: Binding<String> {
         Binding(
@@ -34,7 +35,7 @@ struct CattlesNotesForm: View {
                     TextField(
                         "Catatan",
                         text: notesText,
-                        prompt: Text("Contoh: “Kandang ada di pojok.”").italic()
+                        prompt: Text("Contoh: “Kandang ada di pojok.”").italic().accessibilityLabel("Tambahkan Catatan")
                     )
                         .font(AppFont.body)
                         .autocorrectionDisabled()
@@ -66,11 +67,16 @@ struct CattlesNotesForm: View {
         .onTapGesture {
             focusedField = nil
         }
+        .onChange(of: isActive) { _, isActive in
+            if !isActive {
+                focusedField = nil
+            }
+        }
     }
 }
 
 #Preview {
     @Previewable @State var notes: String?
     
-    CattlesNotesForm(notes: $notes)
+    CattlesNotesForm(notes: $notes, isActive: true)
 }

@@ -106,4 +106,3 @@ struct RationRecommendationCard: View {
     ), onCompare: {}).padding(AppSpacing.md)
 }
 #endif
-

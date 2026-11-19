@@ -66,7 +66,7 @@ struct CattlesNameAgeForm: View {
                     TextField(
                         value: $usiaSapi,
                         format: .number,
-                        prompt: Text("Contoh: \"12\"").italic()
+                        prompt: Text("Contoh: \"12\"").italic().accessibilityLabel("Tuliskan Usia Sapi")
                     ) {
                         Text("Usia Sapi (Bulan)")
                     }

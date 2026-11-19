@@ -6,15 +6,11 @@ struct ScanViewport<Content: View>: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let width = min(
-                geometry.size.width * 734 / 874,
-                max(1, geometry.size.width - 2 * AppSpacing.lg)
-            )
-            let size = CGSize(width: width, height: geometry.size.height)
+            let size = CGSize(width: geometry.size.width, height: geometry.size.height)
 
             content(size)
                 .frame(width: size.width, height: size.height)
-                .clipShape(RoundedRectangle(cornerRadius: 40))
+//                .clipShape(RoundedRectangle(cornerRadius: 40))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }

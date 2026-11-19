@@ -10,7 +10,6 @@ struct ScanGuidePage: Identifiable {
     static let pages: [ScanGuidePage] = {
         let images = [
             "Chest": "Dada",
-            "shoulder": "Dada",
             "pin": "PangkalEkor",
             "chestTop": "Punuk",
             "chestBottom": "Ketiak"

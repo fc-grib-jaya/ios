@@ -8,6 +8,7 @@ import SwiftUI
 struct MeasurementView: View {
     @State private var model: MeasurementViewModel
     @State private var isHelpVisible = false
+    @State private var pointGuide = PointGuidePresentation()
     private let onExit: () -> Void
     private let onFinish: () -> Void
     private let onRetake: () -> Void
@@ -34,7 +35,7 @@ struct MeasurementView: View {
             let controlsWidth = max(0, geometry.size.width - previewSize.width - spacing)
 
             HStack {
-                ScanViewport(previewSize: previewSize) { _ in
+                ScanViewport(previewSize: previewSize) { size in
                     PhotoCanvas(
                         image: model.capture.image,
                         depthImage: model.depthPreview?.image,
@@ -46,19 +47,37 @@ struct MeasurementView: View {
                         onMove: model.moveActivePoint,
                         profile: model.result?.profile,
                         depthFrame: model.capture.metadata.depth,
-                        onPlacementBegan: model.beginPlacement(on:),
+                        onPlacementBegan: { id in
+                            pointGuide.dismiss()
+                            model.beginPlacement(on: id)
+                        },
                         onPlacementEnded: model.endPlacement(didMove:)
                     )
                     .overlay {
-                        ScanHelpOverlay(isVisible: isHelpVisible) {
-                            ScanInstructionCarousel {
-                                isHelpVisible = false
+                        if isInspectionStage {
+                            ScanHelpOverlay(isVisible: isHelpVisible) {
+                                ScanInstructionCarousel {
+                                    isHelpVisible = false
+                                }
+                                .frame(
+                                    width: min(370, max(1, size.width - 2 * AppSpacing.md)),
+                                    height: min(370, max(1, size.height - 2 * AppSpacing.md))
+                                )
                             }
-                            .frame(
-                                width: min(370, max(1, geometry.size.width - 2 * AppSpacing.md)),
-                                height: min(370, max(1, geometry.size.height - 2 * AppSpacing.md))
-                            )
+                        } else if let id = pointGuide.visibleStepID,
+                                  let page = ScanGuidePage.pages.first(where: { $0.id == id }) {
+                            ZStack {
+                                Color.black.opacity(0.55)
+                                    .accessibilityHidden(true)
 
+                                MeasurementPointGuide(page: page)
+                                    .frame(
+                                        width: min(300, size.width * 0.55),
+                                        height: min(330, max(1, size.height - 2 * AppSpacing.md))
+                                    )
+                                    .id(id)
+                            }
+                            .allowsHitTesting(false)
                         }
                     }
                 }
@@ -82,11 +101,16 @@ struct MeasurementView: View {
                         ScanIconButton(
                             systemImage: "questionmark.circle",
                             accessibilityLabel: "Petunjuk pemindaian",
-                            style: isHelpVisible ? .primary : .material
+                            style: isCurrentHelpVisible ? .primary : .material
                         ) {
-                            isHelpVisible.toggle()
+                            if let step = model.currentStep {
+                                pointGuide.toggle(stepID: step.id)
+                            } else {
+                                isHelpVisible.toggle()
+                            }
                         }
-                        .accessibilityValue(isHelpVisible ? "Ditampilkan" : "Disembunyikan")
+                        .disabled(model.isPlacing || model.isComputing)
+                        .accessibilityValue(isCurrentHelpVisible ? "Ditampilkan" : "Disembunyikan")
                         .padding(.vertical, AppSpacing.md)
                         .padding(.leading, AppSpacing.md)
                         
@@ -115,6 +139,13 @@ struct MeasurementView: View {
             Button("OK", role: .cancel) { model.dismissMessage() }
         } message: {
             Text(model.finishError ?? "Perbaiki titik pengukuran, lalu coba lagi.")
+        }
+        .onChange(of: model.flow.currentID, initial: true) { _, id in
+            if id != nil { isHelpVisible = false }
+            pointGuide.visit(
+                stepID: id,
+                alreadyPlaced: model.landmarks.contains { $0.id == id }
+            )
         }
         .task { model.prepare() }
         .forceLandscape()
@@ -153,6 +184,10 @@ struct MeasurementView: View {
             .padding(.vertical, AppSpacing.md)
         }
         .scrollIndicators(.hidden)
+    }
+
+    private var isCurrentHelpVisible: Bool {
+        isInspectionStage ? isHelpVisible : pointGuide.visibleStepID != nil
     }
 
     private var isInspectionStage: Bool { model.flow.stage == .inspection }

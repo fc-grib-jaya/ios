@@ -211,12 +211,17 @@ final class MeasurementViewModel {
         defer { isComputing = false }
 
         let points = Dictionary(uniqueKeysWithValues: landmarks.map { ($0.id, $0.point) })
-        guard let shoulder = points["shoulder"], let pin = points["pin"],
-              let top = points["chestTop"], let bottom = points["chestBottom"] else { return nil }
+        guard let chest = points["Chest"], let pin = points["pin"],
+              let top = points["chestTop"], let bottom = points["chestBottom"] else {
+            result = nil
+            message = "Data titik pengukuran belum lengkap. Periksa kembali keempat titik."
+            finishError = message
+            return nil
+        }
         let depth = capture.metadata.depth
         let version = landmarkVersion.value
         let outcome = await Task.detached {
-            Result { try MeasurementEngine.cattle(shoulder: shoulder, pin: pin, top: top, bottom: bottom, depth: depth) }
+            Result { try MeasurementEngine.cattle(shoulder: chest, pin: pin, top: top, bottom: bottom, depth: depth) }
         }.value
         guard !Task.isCancelled, landmarkVersion.accepts(version), flow.allReviewed else { return nil }
         switch outcome {

@@ -46,7 +46,7 @@ import SwiftUI
                     }
                 }.frame(width: size.width, height: size.height, alignment: .topLeading).clipped()
                     .offset(x: origin.x, y: origin.y)
-                if let a = landmarks.first(where: { $0.id == "shoulder" }),
+                if let a = landmarks.first(where: { $0.id == "Chest" }),
                     let b = landmarks.first(where: { $0.id == "pin" })
                 {
                     Path { path in

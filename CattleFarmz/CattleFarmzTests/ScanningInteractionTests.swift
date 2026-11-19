@@ -22,20 +22,20 @@ struct ScanningInteractionTests {
         var gesture = try #require(PointPlacementGesture(
             start: CGPoint(x: 42, y: 40),
             activeID: "chestTop",
-            markers: [(id: "shoulder", position: CGPoint(x: 40, y: 40))]
+            markers: [(id: "Chest", position: CGPoint(x: 40, y: 40))]
         ))
-        #expect(gesture.targetID == "shoulder")
+        #expect(gesture.targetID == "Chest")
         #expect(gesture.movedLocation(to: CGPoint(x: 42, y: 40)) == nil)
         #expect(!gesture.didMove)
         #expect(gesture.movedLocation(to: CGPoint(x: 52, y: 60)) == CGPoint(x: 50, y: 60))
         #expect(gesture.didMove)
-        #expect(gesture.targetID == "shoulder")
+        #expect(gesture.targetID == "Chest")
     }
 
     @Test func backgroundTapPlacesOnlyTheSelectedPoint() throws {
         var gesture = try #require(PointPlacementGesture(
             start: CGPoint(x: 200, y: 100), activeID: "chestTop",
-            markers: [(id: "shoulder", position: CGPoint(x: 40, y: 40))]
+            markers: [(id: "Chest", position: CGPoint(x: 40, y: 40))]
         ))
         #expect(gesture.targetID == "chestTop")
         #expect(gesture.movedLocation(to: CGPoint(x: 200, y: 100)) == CGPoint(x: 200, y: 100))
@@ -46,7 +46,7 @@ struct ScanningInteractionTests {
         let gesture = try #require(PointPlacementGesture(
             start: CGPoint(x: 48, y: 40), activeID: "chestTop",
             markers: [
-                (id: "shoulder", position: CGPoint(x: 40, y: 40)),
+                (id: "Chest", position: CGPoint(x: 40, y: 40)),
                 (id: "pin", position: CGPoint(x: 50, y: 40))
             ]
         ))
@@ -55,7 +55,7 @@ struct ScanningInteractionTests {
 
     @Test func newPointAdvancesOnlyAfterRelease() {
         let model = makeModel()
-        model.beginPlacement(on: "shoulder")
+        model.beginPlacement(on: "Chest")
         model.moveActivePoint(to: PreviewCattle.shoulder)
         #expect(model.flow.currentIndex == 0)
         #expect(model.flow.reviewedIDs.isEmpty)
@@ -63,7 +63,7 @@ struct ScanningInteractionTests {
         #expect(!model.canFinish)
         model.endPlacement(didMove: true)
         #expect(model.flow.currentIndex == 1)
-        #expect(model.flow.reviewedIDs == ["shoulder"])
+        #expect(model.flow.reviewedIDs == ["Chest"])
         #expect(!model.isPlacing)
     }
 
@@ -72,12 +72,12 @@ struct ScanningInteractionTests {
         place(0, in: model)
         place(1, in: model)
         let before = model.landmarks.map(\.point)
-        model.beginPlacement(on: "shoulder")
-        #expect(model.flow.currentID == "shoulder")
+        model.beginPlacement(on: "Chest")
+        #expect(model.flow.currentID == "Chest")
         model.endPlacement(didMove: false)
-        #expect(model.flow.currentID == "shoulder")
+        #expect(model.flow.currentID == "Chest")
         #expect(model.landmarks.map(\.point) == before)
-        #expect(model.flow.reviewedIDs == ["shoulder", "pin"])
+        #expect(model.flow.reviewedIDs == ["Chest", "pin"])
     }
 
     @Test func editingCompletedPointStaysSelectedAndPreservesOtherPoints() {
@@ -85,19 +85,19 @@ struct ScanningInteractionTests {
         place(0, in: model)
         place(1, in: model)
         let pin = model.landmarks.first { $0.id == "pin" }?.point
-        model.beginPlacement(on: "shoulder")
+        model.beginPlacement(on: "Chest")
         let edited = Point2(0.23, 0.53)
         model.moveActivePoint(to: edited)
         model.endPlacement(didMove: true)
-        #expect(model.flow.currentID == "shoulder")
-        #expect(model.flow.reviewedIDs == ["shoulder", "pin"])
+        #expect(model.flow.currentID == "Chest")
+        #expect(model.flow.reviewedIDs == ["Chest", "pin"])
         #expect(model.activePoint?.point == edited)
         #expect(model.landmarks.first { $0.id == "pin" }?.point == pin)
     }
 
     @Test func invalidDepthDoesNotAdvanceAndValidCorrectionDoes() {
         let model = makeModel()
-        model.beginPlacement(on: "shoulder")
+        model.beginPlacement(on: "Chest")
         model.moveActivePoint(to: Point2(0, 0))
         model.endPlacement(didMove: true)
         #expect(model.flow.currentIndex == 0)
@@ -106,19 +106,19 @@ struct ScanningInteractionTests {
         #expect(!model.canFinish)
         place(0, in: model)
         #expect(model.flow.currentIndex == 1)
-        #expect(model.flow.reviewedIDs == ["shoulder"])
+        #expect(model.flow.reviewedIDs == ["Chest"])
     }
 
     @Test func draggingConfirmedPointThroughInvalidDepthRestoresCheckmark() {
         let model = makeModel()
         place(0, in: model)
-        model.beginPlacement(on: "shoulder")
+        model.beginPlacement(on: "Chest")
         model.moveActivePoint(to: Point2(0, 0))
-        #expect(!model.flow.reviewedIDs.contains("shoulder"))
+        #expect(!model.flow.reviewedIDs.contains("Chest"))
         model.moveActivePoint(to: PreviewCattle.shoulder)
         model.endPlacement(didMove: true)
-        #expect(model.flow.currentID == "shoulder")
-        #expect(model.flow.reviewedIDs.contains("shoulder"))
+        #expect(model.flow.currentID == "Chest")
+        #expect(model.flow.reviewedIDs.contains("Chest"))
     }
 
     @Test func lastPointPlacedFirstCannotFinishEarly() {
@@ -143,12 +143,12 @@ struct ScanningInteractionTests {
 
     @Test func selectionCannotChangeGestureTargetMidDrag() {
         let model = makeModel()
-        model.beginPlacement(on: "shoulder")
+        model.beginPlacement(on: "Chest")
         model.selectPoint(at: 2)
-        #expect(model.flow.currentID == "shoulder")
+        #expect(model.flow.currentID == "Chest")
         model.moveActivePoint(to: PreviewCattle.shoulder)
         model.endPlacement(didMove: true)
-        #expect(model.landmarks.map(\.id) == ["shoulder"])
+        #expect(model.landmarks.map(\.id) == ["Chest"])
     }
 
     @Test func calculationFailureLeavesSessionOpen() async {

@@ -23,7 +23,7 @@ enum PreviewCattle {
 
     static var landmarks: [String: Point2] {
         [
-            "shoulder": shoulder,
+            "Chest": shoulder,
             "pin": pin,
             "chestTop": chestTop,
             "chestBottom": chestBottom,

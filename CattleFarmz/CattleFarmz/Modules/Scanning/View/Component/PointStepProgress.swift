@@ -14,7 +14,7 @@ struct PointStepProgress: View {
     let onSelect: (Int) -> Void
 
     var body: some View {
-        HStack(spacing: AppSpacing.xxs) {
+        HStack(spacing: AppSpacing.sm) {
             ForEach(steps.indices, id: \.self) { index in
                 let step = steps[index]
                 let isActive = activeID == step.id
@@ -23,20 +23,21 @@ struct PointStepProgress: View {
                 Button {
                     onSelect(index)
                 } label: {
-                    HStack(spacing: AppSpacing.xxs) {
+                    HStack(spacing: AppSpacing.sm) {
                         if isCompleted {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(AppColor.Primitive.Primary.shade500)
+//                            Image(systemName: "checkmark.circle.fill")
+//                                .foregroundStyle(AppColor.Primitive.Primary.shade500)
                         }
                         Text(step.label)
+                            .font(AppFont.mediumSubheadline)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
-                    .font(AppFont.caption)
-                    .foregroundStyle(isActive ? AppColor.Primitive.Neutral.shade900 : AppColor.Primitive.Neutral.shade50)
+//                    .font(AppFont.caption)
+                    .foregroundStyle(isActive ? AppColor.Primitive.Neutral.shade50 : AppColor.Primitive.Primary.shade400)
                     .padding(.horizontal, AppSpacing.xs)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(isActive ? AppColor.Primitive.Primary.shade200 : .clear, in: Capsule())
+                    .frame(width: 133.5, height: 44)
+                    .background(isActive ? AppColor.Primitive.Primary.shade400 : AppColor.Primitive.Primary.shade50, in: Capsule())
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(step.label)
@@ -45,7 +46,7 @@ struct PointStepProgress: View {
             }
         }
         .padding(AppSpacing.xxs)
-        .background(.ultraThinMaterial, in: Capsule())
+//        .background(.ultraThinMaterial, in: Capsule())
     }
 }
 

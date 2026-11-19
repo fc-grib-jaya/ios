@@ -27,7 +27,14 @@ struct ScanInstructionCard<Content: View>: View {
             }
         }
     }
-    .frame(width: 340)
+    .frame(width: 370)
     .padding(AppSpacing.lg)
     .background(AppColor.Surface.canvas)
+}
+
+#Preview("Camera instructions2", traits: .fixedLayout(width: 402, height: 402)) {
+    ScanInstructionCarousel(onContinue: {})
+        .frame(width: 370, height: 370)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(.black)
 }

@@ -15,6 +15,7 @@ import SwiftUI
 @Observable
 @MainActor
 final class ScanSessionViewModel {
+    @ObservationIgnored private var hasFinished = false
     let camera: CameraViewModel
     private(set) var measurement: MeasurementViewModel?
 
@@ -42,27 +43,24 @@ final class ScanSessionViewModel {
 
     /// Cancels the session and reports `nil` to the caller.
     func close() {
+        guard !hasFinished else { return }
+        hasFinished = true
         camera.stop()
         onFinish(nil)
     }
 
     /// Finishes the measurement stage and reports the result to the caller.
-    func finishMeasurement() {
-        guard let result = measurement?.result else {
-            onFinish(nil)
-            return
-        }
-        
-        guard let profile = measurement?.result?.profile else {
-            onFinish(nil)
-            return
-        }
+    func finishMeasurement() async {
+        guard !hasFinished, let measurement,
+              let result = await measurement.finish(),
+              !hasFinished, self.measurement === measurement,
+              let length = result.profile?.lengthCM else { return }
+        hasFinished = true
         onFinish(
             ScanResult(
                 lengthCM: result.lengthCM,
-//                girth: result.girth,
-                girth: profile.lengthCM.map { $0 * 2 },
-                cattleImage: UIImage(cgImage: measurement!.capture.image)
+                girth: length * 2,
+                cattleImage: UIImage(cgImage: measurement.capture.image)
             )
         )
     }

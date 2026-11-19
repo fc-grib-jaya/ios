@@ -54,7 +54,6 @@ struct MainTabView: View {
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
                     onAddCattleTap: {
-                       print("on add cattle tap")
                         coordinator.showAddCattle() }
                 )
                 .navigationDestination(for: AppRoute.self) { route in

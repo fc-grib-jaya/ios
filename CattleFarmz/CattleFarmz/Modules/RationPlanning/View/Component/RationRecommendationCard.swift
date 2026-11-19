@@ -78,14 +78,14 @@ struct RationRecommendationCard: View {
                 .foregroundStyle(AppColor.Button.Primary.foreground)
                 .padding(AppSpacing.sm)
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .background(AppColor.Primitive.Secondary.shade400,
+                .background(AppColor.Primitive.Primary.shade400,
                             in: RoundedRectangle(cornerRadius: AppRadius.medium))
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
         .padding(AppSpacing.Card.compact)
-        .background(AppColor.Primitive.Secondary.shade50,
+        .background(AppColor.Primitive.Primary.shade50,
                     in: RoundedRectangle(cornerRadius: AppRadius.large))
         .shadow(color: AppColor.Primitive.Neutral.shade950.opacity(0.08), radius: 5, y: 2)
     }

@@ -33,15 +33,15 @@ struct FeedPlanCard: View {
                     Text(entry.name).font(AppFont.title)
                     HStack(spacing: 0){
                         Text(entry.breed)
-                            .font(AppFont.body)
+                            .font(AppFont.subheadlineBase)
                         Text(" • ")
                             .font(.subheadline).bold()
                         Text(entry.gender)
-                            .font(AppFont.body)
+                            .font(AppFont.subheadlineBase)
                         Text(" • ")
                             .font(.subheadline).bold()
-                        Text("\(entry.ageInMonths)")
-                            .font(AppFont.body)
+                        Text("\(entry.ageInMonths) bulan")
+                            .font(AppFont.subheadlineBase)
                     }
                 }
                 Spacer()

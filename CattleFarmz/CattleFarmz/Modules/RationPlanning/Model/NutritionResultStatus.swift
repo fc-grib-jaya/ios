@@ -14,7 +14,7 @@ struct NutritionResultStatus {
     }
 
     private var targets: [(name: String, coverage: Double?)] {
-        [("**Protein**", proteinCoverage), ("**TDN**", tdnCoverage)]
+        [("**Protein**", proteinCoverage), ("**Energi (TDN)**", tdnCoverage)]
     }
 
     var complete: Bool {
@@ -24,12 +24,12 @@ struct NutritionResultStatus {
     var belowMessage: String? {
         let names = targets.filter { ($0.coverage ?? 1) < 1 }.map(\.name)
         guard !names.isEmpty else { return nil }
-        return names.joined(separator: " **dan** ") + " berada di bawah nilai minimum referensi."
+        return names.joined(separator: " **dan** ") + " berada di bawah referensi minimum"
     }
 
     var unavailableMessage: String? {
         let names = targets.filter { $0.coverage == nil }.map(\.name)
         guard !names.isEmpty else { return nil }
-        return names.joined(separator: " **dan** ") + " belum dapat dibandingkan karena data belum lengkap."
+        return names.joined(separator: " **dan** ") + " belum dapat dibandingkan karena data belum lengkap"
     }
 }

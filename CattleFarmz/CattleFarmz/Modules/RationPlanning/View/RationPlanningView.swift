@@ -22,9 +22,9 @@ struct RationPlanningView: View {
             stage: rationVM.profile.stage
         )
     }
-
+    
     private let onShowAnalysis: (RationCalculationResult) -> Void
-
+    
     init(
         rationVM: RationPlanningViewModel,
         cattleName: String = "Profil sapi",
@@ -54,7 +54,7 @@ struct RationPlanningView: View {
                     targetStep: 0.1,
                     referenceADG: adgReference?.kilogramsPerDay
                 )
-
+                
                 FeedAmountsCard(
                     rationVM: rationVM,
                     onTap: {
@@ -63,74 +63,11 @@ struct RationPlanningView: View {
                     focusedFeedID: $focusedFeedID
                 )
                 
-//                HStack {
-//                    Text("Total pemberian")
-//
-//                    Spacer()
-//
-//                    if let total = rationVM.totalFeedKilogramsPerAnimalPerDay {
-//                        Text(
-//                            total.formatted(
-//                                .number.precision(.fractionLength(0...2))
-//                            )
-//                        )
-//                        .font(AppFont.largeTitle)
-//                        Text("kg / hari")
-//                    } else {
-//                        Text("Periksa jumlah pakan")
-//                    }
-//                }
-//                .padding(AppSpacing.md)
-//                .background{
-//                    // MARK: belum make AppRadius
-//                    RoundedRectangle(cornerRadius: 16)
-//                        .fill(AppColor.Card.background)
-//                        .shadow(
-//                            color: .black.opacity(0.1),
-//                            radius: 5,
-//                            x: 0,
-//                            y: 2
-//                        )
-//                }
-//                
-//                Button {
-//                    focusedFeedID = nil
-//                    rationVM.calculate()
-//                    if let result = rationVM.result {
-//                        onShowAnalysis(result)
-//                    }
-//                } label: {
-//                    Text("Evaluasi pakan")
-//                }
-//                .appButtonStyle(.primary)
-//                .disabled(rationVM.selectedFeeds.isEmpty)
-//                
-                if let error = rationVM.errorMessage {
-                    Text(error)
-                        .font(AppFont.caption)
-                        .foregroundStyle(AppColor.Text.secondary)
-                }
-            }
-            .padding(.horizontal, AppSpacing.md)
-        }
-        .navigationTitle("Pakan Sapi")
-        .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showsFeedCatalog, content: {
-            NavigationStack {
-                FeedCatalogView(rationVM: rationVM)
-                    .presentationDragIndicator(.visible)
-            }
-        })
-        .task {
-            rationVM.load()
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: AppSpacing.md) {
                 HStack {
                     Text("Total pemberian")
-
+                    
                     Spacer()
-
+                    
                     if let total = rationVM.totalFeedKilogramsPerAnimalPerDay {
                         Text(
                             total.formatted(
@@ -155,21 +92,52 @@ struct RationPlanningView: View {
                             y: 2
                         )
                 }
-                
-                Button {
-                    focusedFeedID = nil
-                    rationVM.calculate()
-                    if let result = rationVM.result {
-                        onShowAnalysis(result)
-                    }
-                } label: {
-                    Text("Evaluasi pakan")
+                //
+                //                Button {
+                //                    focusedFeedID = nil
+                //                    rationVM.calculate()
+                //                    if let result = rationVM.result {
+                //                        onShowAnalysis(result)
+                //                    }
+                //                } label: {
+                //                    Text("Evaluasi pakan")
+                //                }
+                //                .appButtonStyle(.primary)
+                //                .disabled(rationVM.selectedFeeds.isEmpty)
+                //
+                if let error = rationVM.errorMessage {
+                    Text(error)
+                        .font(AppFont.caption)
+                        .foregroundStyle(AppColor.Text.secondary)
                 }
-                .appButtonStyle(.primary)
-                .disabled(rationVM.selectedFeeds.isEmpty)
-                
             }
             .padding(.horizontal, AppSpacing.md)
+        }
+        .navigationTitle("Pakan Sapi")
+        .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showsFeedCatalog, content: {
+            NavigationStack {
+                FeedCatalogView(rationVM: rationVM)
+                    .presentationDragIndicator(.visible)
+            }
+        })
+        .task {
+            rationVM.load()
+        }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button {
+                focusedFeedID = nil
+                rationVM.calculate()
+                if let result = rationVM.result {
+                    onShowAnalysis(result)
+                }
+            } label: {
+                Text("Evaluasi pakan")
+            }
+            .appButtonStyle(.primary)
+            .disabled(rationVM.selectedFeeds.isEmpty)
+            .padding(AppSpacing.md)
+            
         }
     }
 }
@@ -182,7 +150,7 @@ private struct RationPlanningPreview: View {
     @State private var coordinator = AppCoordinator()
     @State private var analysisResult: RationCalculationResult?
     @State private var rationVM = DIContainer.preview.makeRationPlanningViewModel()
-
+    
     var body: some View {
         NavigationStack(path: $coordinator.rationPath) {
             RationPlanningView(

@@ -359,14 +359,7 @@ struct MainTabView: View {
                                 return
                             }
 
-                            let previousRoute = path.wrappedValue.dropLast().last
-
-                            if previousRoute == .rationForm {
-                                path.wrappedValue.removeLast()
-                            } else {
-                                path.wrappedValue.removeLast()
-                                path.wrappedValue.append(.rationForm)
-                            }
+                            path.wrappedValue.append(.rationForm)
                         },
                         rationVM: current.viewModel,
                         onReviewRecommendation: { option in
@@ -381,7 +374,7 @@ struct MainTabView: View {
                         current.viewModel.restore(updated)
                         plan.wrappedValue?.result = updated
                         
-                        container.toastManager.show("susunan pakan diperbarui")
+                        container.toastManager.show("Susunan pakan diperbarui")
                     }
                 }
             case .rationAnalysisDetail:

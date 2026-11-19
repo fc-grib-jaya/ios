@@ -7,7 +7,7 @@ import Foundation
 enum MeasurementPreviewStage {
     case inspection
     case point(Int)
-    case results
+    case readyToFinish
 }
 
 enum PreviewCattle {
@@ -23,7 +23,7 @@ enum PreviewCattle {
 
     static var landmarks: [String: Point2] {
         [
-            "shoulder": shoulder,
+            "Chest": shoulder,
             "pin": pin,
             "chestTop": chestTop,
             "chestBottom": chestBottom,

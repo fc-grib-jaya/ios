@@ -84,34 +84,104 @@ struct ProfileView: View {
     }
 }
 
-/// Static about sheet with placeholder copy, shown at medium detent.
+/// Static about sheet with the app credits, shown at medium detent.
 private struct AboutSheetView: View {
+    /// Everyone who built the app, in credit order.
+    private static let developers = [
+        "DF Bomanarakasura",
+        "Ahmad Yasri Zaenuri",
+        "Yuan Dimianta",
+        "Salman Alfarizi Ramadhan",
+        "Fajari Bagas",
+        "Dylan Amadeus"
+    ]
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                Text(
-                    """
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. \
-                    Sed do eiusmod tempor incididunt ut labore et dolore magna \
-                    aliqua. Ut enim ad minim veniam, quis nostrud exercitation \
-                    ullamco laboris nisi ut aliquip ex ea commodo consequat. \
-                    Duis aute irure dolor in reprehenderit in voluptate velit \
-                    esse cillum dolore eu fugiat nulla pariatur. Excepteur sint \
-                    occaecat cupidatat non proident, sunt in culpa qui officia \
-                    deserunt mollit anim id est laborum.
-                    """
-                )
-                .font(AppFont.body)
-                .foregroundStyle(AppColor.Text.secondary)
+                VStack(alignment: .leading, spacing: AppSpacing.xl) {
+                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        Text("CattleFarmz")
+                            .font(AppFont.title)
+                            .foregroundStyle(AppColor.Text.primary)
+                        Text(
+                            "Aplikasi pemantauan pertumbuhan dan perencanaan "
+                                + "ransum sapi berbasis pengukuran morfometri."
+                        )
+                        .font(AppFont.mediumSubheadline)
+                        .foregroundStyle(AppColor.Text.secondary)
+                    }
+
+                    Divider()
+
+                    creditSection(
+                        title: "Tim Pengembang",
+                        entries: Self.developers.map { CreditEntry(name: $0) }
+                    )
+
+                    Divider()
+
+                    creditSection(
+                        title: "Narasumber",
+                        entries: [
+                            CreditEntry(
+                                name: "Ir. Galuh Adi Insani, S.Pt., M.Sc., IPM.",
+                                details: [
+                                    """
+                                    Agricultural and Veterinary Sciences / \
+                                    Genetic and Animal Breeding / \
+                                    Animal Genetics and Production
+                                    """,
+                                    "Fakultas Peternakan UGM"
+                                ]
+                            )
+                        ]
+                    )
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, AppSpacing.xl)
-                .padding(.vertical, AppSpacing.md)
+                .padding(.vertical, AppSpacing.lg)
             }
             .navigationTitle("Tentang")
             .navigationBarTitleDisplayMode(.inline)
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
         .presentationDragIndicator(.visible)
     }
+
+    private func creditSection(
+        title: String,
+        entries: [CreditEntry]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            Text(title)
+                .font(AppFont.headline)
+                .foregroundStyle(AppColor.Text.primary)
+
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                ForEach(entries) { entry in
+                    VStack(alignment: .leading, spacing: AppSpacing.xxxs) {
+                        Text(entry.name)
+                            .font(AppFont.body)
+                            .foregroundStyle(AppColor.Text.primary)
+                        ForEach(entry.details, id: \.self) { detail in
+                            Text(detail)
+                                .font(AppFont.caption)
+                                .foregroundStyle(AppColor.Text.secondary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// One credited person: a name and optional supporting lines.
+private struct CreditEntry: Identifiable {
+    let name: String
+    var details: [String] = []
+
+    var id: String { name }
 }
 
 #Preview {

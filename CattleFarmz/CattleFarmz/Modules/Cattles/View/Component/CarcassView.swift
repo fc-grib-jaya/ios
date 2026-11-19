@@ -135,7 +135,7 @@ struct CarcassView: View {
                     id: "meat",
                     title: "Daging",
                     value: meatPercent,
-                    color: AppColor.Primitive.Secondary.shade300,
+                    color: AppColor.Carcass.meat,
                     order: 0 // layer 3: 0.0
                 )
             )
@@ -148,7 +148,7 @@ struct CarcassView: View {
                         id: "bone",
                         title: "Tulang",
                         value: bonePercent,
-                        color: AppColor.Primitive.Secondary.shade300,
+                        color: AppColor.Carcass.meat,
                         order: 1 // layer 3: 0.1
                     )
                 )
@@ -167,7 +167,7 @@ struct CarcassView: View {
                     id: "non-\(part.rawValue)",
                     title: part.displayName,
                     value: displayValue(weight),
-                    color: AppColor.Primitive.Primary.shade100,
+                    color: AppColor.Primitive.Secondary.shade100,
                     order: 2 + index
                 )
             }
@@ -180,7 +180,7 @@ struct CarcassView: View {
                         id: "carcass",
                         title: "Karkas",
                         value: displayValue(carcass),
-                        color: AppColor.Primitive.Secondary.shade500,
+                        color: AppColor.Carcass.karkas,
                         order: 0
                     )
                 )
@@ -189,7 +189,7 @@ struct CarcassView: View {
                     SankeyItem(
                         id: "carcass",
                         title: "Karkas",
-                        color: AppColor.Primitive.Secondary.shade500,
+                        color: AppColor.Carcass.karkas,
                         order: 0,
                         children: carcassChildren
                     )
@@ -203,7 +203,7 @@ struct CarcassView: View {
                         id: "nonCarcass",
                         title: "Non Karkas",
                         value: displayValue(nonCarcass),
-                        color: AppColor.Primitive.Primary.shade200,
+                        color: AppColor.Primitive.Secondary.shade200,
                         order: 1
                     )
                 )
@@ -212,7 +212,7 @@ struct CarcassView: View {
                     SankeyItem(
                         id: "nonCarcass",
                         title: "Non Karkas",
-                        color: AppColor.Primitive.Primary.shade200,
+                        color: AppColor.Primitive.Secondary.shade200,
                         order: 1,
                         children: nonCarcassChildren
                     )
@@ -226,7 +226,7 @@ struct CarcassView: View {
             SankeyItem(
                 id: "body",
                 title: "Bobot",
-                color: AppColor.Primitive.Secondary.shade100,
+                color: AppColor.Primitive.Secondary.shade300,
                 order: 0,
                 children: children
             )

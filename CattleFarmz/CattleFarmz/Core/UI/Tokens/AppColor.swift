@@ -120,4 +120,9 @@ public enum AppColor {
         public static let background = Color("Component/Card/Background")
         public static let subtitle = Color("Component/Card/Subtitle")
     }
+    
+    public enum Carcass {
+        public static let karkas = Color("Component/Karkas")
+        public static let meat = Color("Component/Meat")
+    }
 }

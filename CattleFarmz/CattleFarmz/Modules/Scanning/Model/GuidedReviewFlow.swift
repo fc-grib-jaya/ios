@@ -8,11 +8,10 @@ import Foundation
 enum GuidedReviewStage: Equatable, Sendable {
     case inspection
     case point(Int)
-    case results
 }
 
-/// UI-independent manual flow. A point counts only after the user presses
-/// Continue for its first confirmation. Valid edits preserve that confirmation.
+/// Point selection and confirmation are separate. Releasing a valid placement
+/// confirms it; completing all points keeps the photo open for final review.
 struct GuidedReviewFlow: Sendable {
     let pointIDs: [String]
     private(set) var stage: GuidedReviewStage = .inspection
@@ -30,6 +29,7 @@ struct GuidedReviewFlow: Sendable {
     }
     var currentID: String? { currentIndex.map { pointIDs[$0] } }
     var allReviewed: Bool { pointIDs.allSatisfy { reviewedIDs.contains($0) } }
+    var isCurrentConfirmed: Bool { currentID.map { confirmedIDs.contains($0) } ?? false }
 
     mutating func begin() {
         reviewedIDs.removeAll()
@@ -68,17 +68,14 @@ struct GuidedReviewFlow: Sendable {
     }
 
     @discardableResult
-    mutating func advance(hasUsablePoint: Bool) -> Bool {
+    mutating func confirmPlacement(hasUsablePoint: Bool, advanceToNext: Bool) -> Bool {
         guard let index = currentIndex, hasUsablePoint else { return false }
         confirmedIDs.insert(pointIDs[index])
         reviewedIDs.insert(pointIDs[index])
-        if allReviewed {
-            stage = .results
-        } else {
-            // Continue to the next unconfirmed point, wrapping after the last one.
-            let next = (1...pointIDs.count)
-                .map { (index + $0) % pointIDs.count }
-                .first { !reviewedIDs.contains(pointIDs[$0]) }!
+        if advanceToNext && !allReviewed,
+           let next = (1...pointIDs.count)
+            .map({ (index + $0) % pointIDs.count })
+            .first(where: { !reviewedIDs.contains(pointIDs[$0]) }) {
             stage = .point(next)
         }
         return true
@@ -94,8 +91,6 @@ struct GuidedReviewFlow: Sendable {
             } else {
                 stage = .point(index - 1)
             }
-        case .results:
-            stage = .point(pointIDs.count - 1)
         }
     }
 

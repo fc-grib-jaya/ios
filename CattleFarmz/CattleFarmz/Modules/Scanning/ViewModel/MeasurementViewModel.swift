@@ -13,10 +13,15 @@ final class MeasurementViewModel {
     private(set) var depthLoading = false
     private(set) var depthError: String?
     private(set) var result: MeasurementResult?
+    private(set) var finishError: String?
     private(set) var message: String?
     private(set) var analysisText = ""
     @ObservationIgnored private var analysisTask: Task<Void, Never>?
     @ObservationIgnored private var landmarkVersion = LandmarkRevision()
+
+    private(set) var isPlacing = false
+    private(set) var isComputing = false
+    @ObservationIgnored private var advancesAfterPlacement = false
 
     var display: CaptureDisplay = .overlay
 
@@ -65,6 +70,35 @@ final class MeasurementViewModel {
         return (try? capture.metadata.depth.point(at: activePoint.point)) != nil
     }
 
+    var canFinish: Bool {
+        flow.allReviewed && !isPlacing && !isComputing && steps.allSatisfy { step in
+            guard let point = landmarks.first(where: { $0.id == step.id })?.point else { return false }
+            return (try? capture.metadata.depth.point(at: point)) != nil
+        }
+    }
+
+    func beginPlacement(on id: String) {
+        guard !isComputing, !isPlacing, flow.currentIndex != nil,
+              let index = steps.firstIndex(where: { $0.id == id }) else { return }
+        selectPoint(at: index)
+        advancesAfterPlacement = !flow.isCurrentConfirmed
+        isPlacing = true
+    }
+
+    func endPlacement(didMove: Bool) {
+        guard isPlacing else { return }
+        isPlacing = false
+        guard didMove else { return }
+        guard flow.confirmPlacement(hasUsablePoint: canAdvance, advanceToNext: advancesAfterPlacement) else {
+            message = "Depth titik tidak valid. Geser titik ke area tubuh yang terbaca."
+            return
+        }
+        message = nil
+        analyzePlacement()
+    }
+
+    func dismissMessage() { message = nil; finishError = nil }
+
     func prepare() {
         guard !prepared else { return }
         prepared = true
@@ -100,7 +134,7 @@ final class MeasurementViewModel {
 
     /// Points stay normalized against the full upright image, even when cropped on screen.
     func moveActivePoint(to point: Point2) {
-        guard point.isValid, let step = currentStep else { return }
+        guard !isComputing, point.isValid, let step = currentStep else { return }
         guard activePoint?.point != point else { return }
         landmarkVersion.advance()
         analysisTask?.cancel()
@@ -141,7 +175,7 @@ final class MeasurementViewModel {
     }
 
     func clearCurrentPoint() {
-        guard let id = flow.currentID else { return }
+        guard !isComputing, !isPlacing, let id = flow.currentID else { return }
         landmarkVersion.advance()
         analysisTask?.cancel()
         analysisText = ""
@@ -151,13 +185,8 @@ final class MeasurementViewModel {
         message = nil
     }
 
-    func advance() {
-        guard flow.advance(hasUsablePoint: canAdvance) else { return }
-        message = nil
-        if flow.stage == .results { compute() }
-    }
-
     func previous() {
+        guard !isComputing, !isPlacing else { return }
         flow.previous()
         result = nil
         message = nil
@@ -168,32 +197,51 @@ final class MeasurementViewModel {
     }
 
     func selectPoint(at index: Int) {
-        guard flow.currentIndex != index, flow.selectPoint(at: index) else { return }
+        guard !isComputing, !isPlacing,
+              flow.currentIndex != index, flow.selectPoint(at: index) else { return }
         message = nil
     }
 
-    private func compute() {
-        guard flow.allReviewed else { return }
-        let points = Dictionary(
-            uniqueKeysWithValues: landmarks.map { ($0.id, $0.point) }
-        )
-        guard let shoulder = points["shoulder"], let pin = points["pin"],
-            let top = points["chestTop"], let bottom = points["chestBottom"]
-        else { return }
+    /// Called only by the final checkmark. Failure leaves the editable photo open.
+    func finish() async -> MeasurementResult? {
+        guard canFinish else { return nil }
+        isComputing = true
+        finishError = nil
+        message = nil
+        defer { isComputing = false }
+
+        let points = Dictionary(uniqueKeysWithValues: landmarks.map { ($0.id, $0.point) })
+        guard let chest = points["Chest"], let pin = points["pin"],
+              let top = points["chestTop"], let bottom = points["chestBottom"] else {
+            result = nil
+            message = "Data titik pengukuran belum lengkap. Periksa kembali keempat titik."
+            finishError = message
+            return nil
+        }
         let depth = capture.metadata.depth
         let version = landmarkVersion.value
-        Task { [weak self] in
-            let outcome = await Task.detached {
-                Result { try MeasurementEngine.cattle(shoulder: shoulder, pin: pin, top: top, bottom: bottom, depth: depth) }
-            }.value
-            guard let self, self.landmarkVersion.accepts(version), self.flow.stage == .results else { return }
-            switch outcome {
-            case .success(let measurement): self.result = measurement; self.message = measurement.warning
-            case .failure(let error): self.result = nil; self.message = error.localizedDescription
+        let outcome = await Task.detached {
+            Result { try MeasurementEngine.cattle(shoulder: chest, pin: pin, top: top, bottom: bottom, depth: depth) }
+        }.value
+        guard !Task.isCancelled, landmarkVersion.accepts(version), flow.allReviewed else { return nil }
+        switch outcome {
+        case .success(let measurement):
+            guard let length = measurement.profile?.lengthCM, length.isFinite, length > 0 else {
+                result = nil
+                message = "Profil dada belum terbaca lengkap. Perbaiki titik dada, lalu coba lagi."
+                finishError = message
+                return nil
             }
+            result = measurement
+            return measurement
+        case .failure(let error):
+            result = nil
+            message = error.localizedDescription
+            finishError = message
+            return nil
         }
-
     }
+
 }
 
 //#if DEBUG
@@ -212,14 +260,16 @@ extension MeasurementViewModel {
         case .point(let index):
             model.beginGuide()
             for step in model.steps.prefix(index) {
+                model.beginPlacement(on: step.id)
                 model.moveActivePoint(to: PreviewCattle.landmarks[step.id]!)
-                model.advance()
+                model.endPlacement(didMove: true)
             }
-        case .results:
+        case .readyToFinish:
             model.beginGuide()
             for step in model.steps {
+                model.beginPlacement(on: step.id)
                 model.moveActivePoint(to: PreviewCattle.landmarks[step.id]!)
-                model.advance()
+                model.endPlacement(didMove: true)
             }
 
         }

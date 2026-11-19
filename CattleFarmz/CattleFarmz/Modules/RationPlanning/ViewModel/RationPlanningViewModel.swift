@@ -128,7 +128,7 @@ final class RationPlanningViewModel {
     }
 
     var filteredFeeds: [FeedIngredient] {
-        feeds.filter { feed in
+        let filtered = feeds.filter { feed in
             let matchesCategory =
                 selectedCategory == nil
                 || feed.category == selectedCategory
@@ -143,6 +143,9 @@ final class RationPlanningViewModel {
 
             return matchesCategory && matchesSearch
         }
+
+        return filtered.filter { $0.category == .forage }
+            + filtered.filter { $0.category == .concentrate }
     }
 
     var selectedFeeds: [FeedIngredient] {

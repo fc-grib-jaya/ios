@@ -4,7 +4,7 @@ import Foundation
 struct RationRecommendationEngine {
     let calculator: any RationCalculating
     private let tolerance = 1e-9
-
+    
     /// Legacy flat selection; grouped UI uses recommendGroups instead.
     func recommend(
         for snapshot: RationCalculationResult,
@@ -14,7 +14,7 @@ struct RationRecommendationEngine {
         let proposals = try candidateProposals(for: snapshot, catalog: catalog)
         return bestAlternatives(proposals, season: season)
     }
-
+    
     /// Search every eligible pair before selecting up to three alternatives per deficient target.
     func recommendGroups(
         for snapshot: RationCalculationResult,
@@ -40,7 +40,7 @@ struct RationRecommendationEngine {
             return RationRecommendationGroup(target: target, alternatives: alternatives)
         }
     }
-
+    
     private func bestAlternatives(
         _ proposals: [RationRecommendation], season: RationSeason?
     ) -> [RationRecommendation] {
@@ -49,7 +49,7 @@ struct RationRecommendationEngine {
             .filter { seenPairs.insert($0.id).inserted }
             .prefix(3))
     }
-
+    
     private func candidateProposals(
         for snapshot: RationCalculationResult, catalog: [FeedIngredient]
     ) throws -> [RationRecommendation] {
@@ -65,20 +65,20 @@ struct RationRecommendationEngine {
             guard let value else { return true }
             return value < 1 - tolerance
         }) else { return [] }
-
+        
         var proposals: [RationRecommendation] = []
         var seenIDs = Set<String>()
         let candidates = (before.items.map(\.ingredient) + catalog).filter { seenIDs.insert($0.id).inserted }
         for source in before.items {
             for candidate in candidates where candidate.category == source.ingredient.category
-                && candidate.id != source.id
-                && candidate.name.lowercased() != source.ingredient.name.lowercased() {
+            && candidate.id != source.id
+            && candidate.name.lowercased() != source.ingredient.name.lowercased() {
                 guard before.profile.sex != .male || !candidate.triggersGossypolWarning else { continue }
                 guard let full = try? calculator.calculate(
                     profile: before.profile,
                     items: replacing(source: source, with: candidate, amount: source.kilogramsPerAnimalPerDay, in: before.items)
                 ) else { continue }
-
+                
                 let endpoint = targets(full)
                 var fractions = [1.0]
                 for (start, end) in zip(baseline, endpoint) {
@@ -86,109 +86,137 @@ struct RationRecommendationEngine {
                     let crossing = (1 - start) / (end - start)
                     if crossing > 0 && crossing < 1 { fractions.append(crossing) }
                 }
-
+                
                 for fraction in fractions {
-                    let amount = source.kilogramsPerAnimalPerDay * fraction
-                    guard amount > 0 else { continue }
+                    let calculatedAmount =
+                        source.kilogramsPerAnimalPerDay * fraction
+
+                    guard calculatedAmount > 0 else { continue }
+
+                    let roundedAmount =
+                        (calculatedAmount * 100).rounded(.up) / 100
+
+                    let amount = max(1.0, roundedAmount)
+
+                    guard amount <= source.kilogramsPerAnimalPerDay else {
+                        continue
+                    }
+
+                    // Hitung ulang menggunakan porsi minimal 1 kg.
                     guard let after = try? calculator.calculate(
                         profile: before.profile,
-                        items: replacing(source: source, with: candidate, amount: amount, in: before.items)
+                        items: replacing(
+                            source: source,
+                            with: candidate,
+                            amount: amount,
+                            in: before.items
+                        )
                     ) else { continue }
+
                     let outcome = targets(after)
+
                     guard preservesKnownTargets(baseline, outcome),
-                          improves(baseline, outcome) else { continue }
+                          improves(baseline, outcome) else {
+                        continue
+                    }
+
                     let proposal = RationRecommendation(
-                        removedIngredient: source.ingredient, addedIngredient: candidate,
-                        replacedKilograms: amount, before: before, after: after
+                        removedIngredient: source.ingredient,
+                        addedIngredient: candidate,
+                        replacedKilograms: amount,
+                        before: before,
+                        after: after
                     )
+
                     proposals.append(proposal)
                 }
             }
         }
+
         return proposals
-    }
-
-    enum SimulationError: Error {
-        case invalidPortion
-    }
-
-    /// Uses the same calculation as recommendations; the original snapshot stays unchanged.
-    func simulate(_ recommendation: RationRecommendation, amount: Double) throws -> RationCalculationResult {
-        guard let source = recommendation.before.items.first(where: { $0.id == recommendation.removedIngredient.id }),
-              amount.isFinite, amount >= 0, amount <= source.kilogramsPerAnimalPerDay,
-              recommendation.addedIngredient.id != source.id else {
-            throw SimulationError.invalidPortion
         }
-        return try calculator.calculate(
-            profile: recommendation.before.profile,
-            items: replacing(source: source, with: recommendation.addedIngredient,
-                             amount: amount, in: recommendation.before.items)
-        )
-    }
-
-    private func targets(_ result: RationCalculationResult) -> [Double?] {
-        let requirements = result.requirements
-        let protein = requirements.crudeProteinPercent > 0
+        
+        enum SimulationError: Error {
+            case invalidPortion
+        }
+        
+        /// Uses the same calculation as recommendations; the original snapshot stays unchanged.
+        func simulate(_ recommendation: RationRecommendation, amount: Double) throws -> RationCalculationResult {
+            guard let source = recommendation.before.items.first(where: { $0.id == recommendation.removedIngredient.id }),
+                  amount.isFinite, amount >= 0, amount <= source.kilogramsPerAnimalPerDay,
+                  recommendation.addedIngredient.id != source.id else {
+                throw SimulationError.invalidPortion
+            }
+            return try calculator.calculate(
+                profile: recommendation.before.profile,
+                items: replacing(source: source, with: recommendation.addedIngredient,
+                                 amount: amount, in: recommendation.before.items)
+            )
+        }
+        
+        private func targets(_ result: RationCalculationResult) -> [Double?] {
+            let requirements = result.requirements
+            let protein = requirements.crudeProteinPercent > 0
             ? result.nutrients.crudeProteinPercent / requirements.crudeProteinPercent : nil
-        let tdn: Double?
-        if let actual = result.nutrients.totalDigestibleNutrientsPercent,
-           let minimum = requirements.totalDigestibleNutrientsPercent, minimum > 0 {
-            tdn = actual / minimum
-        } else {
-            tdn = nil
+            let tdn: Double?
+            if let actual = result.nutrients.totalDigestibleNutrientsPercent,
+               let minimum = requirements.totalDigestibleNutrientsPercent, minimum > 0 {
+                tdn = actual / minimum
+            } else {
+                tdn = nil
+            }
+            return [protein, tdn]
         }
-        return [protein, tdn]
-    }
-
-    private func preservesKnownTargets(_ before: [Double?], _ after: [Double?]) -> Bool {
-        zip(before, after).allSatisfy { start, end in
-            guard let start else { return true }
-            guard let end else { return false }
-            return end >= min(start, 1) - tolerance
+        
+        private func preservesKnownTargets(_ before: [Double?], _ after: [Double?]) -> Bool {
+            zip(before, after).allSatisfy { start, end in
+                guard let start else { return true }
+                guard let end else { return false }
+                return end >= min(start, 1) - tolerance
+            }
+        }
+        
+        private func improves(_ before: [Double?], _ after: [Double?]) -> Bool {
+            zip(before, after).contains { start, end in
+                guard let end else { return false }
+                guard let start else { return true }
+                return min(end, 1) > min(start, 1) + tolerance
+            }
+        }
+        
+        private func deficit(_ result: RationCalculationResult) -> Double {
+            targets(result).compactMap { $0 }.reduce(0) { $0 + max(0, 1 - $1) }
+        }
+        
+        private func isBetter(_ lhs: RationRecommendation, than rhs: RationRecommendation, season: RationSeason?) -> Bool {
+            if lhs.meetsTargets != rhs.meetsTargets { return lhs.meetsTargets }
+            let leftUnknown = targets(lhs.after).filter { $0 == nil }.count
+            let rightUnknown = targets(rhs.after).filter { $0 == nil }.count
+            if leftUnknown != rightUnknown { return leftUnknown < rightUnknown }
+            // Successful proposals are ranked by the smallest change even at a floating-point boundary.
+            if !lhs.meetsTargets, deficit(lhs.after) != deficit(rhs.after) {
+                return deficit(lhs.after) < deficit(rhs.after)
+            }
+            let leftPriority = season?.priority(for: lhs.addedIngredient) ?? 0
+            let rightPriority = season?.priority(for: rhs.addedIngredient) ?? 0
+            if leftPriority != rightPriority { return leftPriority > rightPriority }
+            if lhs.replacedKilograms != rhs.replacedKilograms {
+                return lhs.replacedKilograms < rhs.replacedKilograms
+            }
+            return lhs.id < rhs.id
+        }
+        
+        private func replacing(
+            source: RationItem, with candidate: FeedIngredient, amount: Double, in items: [RationItem]
+        ) -> [RationItem] {
+            var updated = items
+            let index = updated.firstIndex { $0.id == source.id }!
+            updated[index].kilogramsPerAnimalPerDay = max(0, source.kilogramsPerAnimalPerDay - amount)
+            if let destination = updated.firstIndex(where: { $0.id == candidate.id }) {
+                updated[destination].kilogramsPerAnimalPerDay += amount
+            } else {
+                updated.append(RationItem(ingredient: candidate, kilogramsPerAnimalPerDay: amount))
+            }
+            return updated.filter { $0.kilogramsPerAnimalPerDay > 0 }
         }
     }
-
-    private func improves(_ before: [Double?], _ after: [Double?]) -> Bool {
-        zip(before, after).contains { start, end in
-            guard let end else { return false }
-            guard let start else { return true }
-            return min(end, 1) > min(start, 1) + tolerance
-        }
-    }
-
-    private func deficit(_ result: RationCalculationResult) -> Double {
-        targets(result).compactMap { $0 }.reduce(0) { $0 + max(0, 1 - $1) }
-    }
-
-    private func isBetter(_ lhs: RationRecommendation, than rhs: RationRecommendation, season: RationSeason?) -> Bool {
-        if lhs.meetsTargets != rhs.meetsTargets { return lhs.meetsTargets }
-        let leftUnknown = targets(lhs.after).filter { $0 == nil }.count
-        let rightUnknown = targets(rhs.after).filter { $0 == nil }.count
-        if leftUnknown != rightUnknown { return leftUnknown < rightUnknown }
-        // Successful proposals are ranked by the smallest change even at a floating-point boundary.
-        if !lhs.meetsTargets, deficit(lhs.after) != deficit(rhs.after) {
-            return deficit(lhs.after) < deficit(rhs.after)
-        }
-        let leftPriority = season?.priority(for: lhs.addedIngredient) ?? 0
-        let rightPriority = season?.priority(for: rhs.addedIngredient) ?? 0
-        if leftPriority != rightPriority { return leftPriority > rightPriority }
-        if lhs.replacedKilograms != rhs.replacedKilograms {
-            return lhs.replacedKilograms < rhs.replacedKilograms
-        }
-        return lhs.id < rhs.id
-    }
-
-    private func replacing(
-        source: RationItem, with candidate: FeedIngredient, amount: Double, in items: [RationItem]
-    ) -> [RationItem] {
-        var updated = items
-        let index = updated.firstIndex { $0.id == source.id }!
-        updated[index].kilogramsPerAnimalPerDay = max(0, source.kilogramsPerAnimalPerDay - amount)
-        if let destination = updated.firstIndex(where: { $0.id == candidate.id }) {
-            updated[destination].kilogramsPerAnimalPerDay += amount
-        } else {
-            updated.append(RationItem(ingredient: candidate, kilogramsPerAnimalPerDay: amount))
-        }
-        return updated.filter { $0.kilogramsPerAnimalPerDay > 0 }
-    }
-}

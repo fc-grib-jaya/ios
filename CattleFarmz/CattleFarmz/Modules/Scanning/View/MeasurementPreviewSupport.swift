@@ -7,7 +7,7 @@ import Foundation
 enum MeasurementPreviewStage {
     case inspection
     case point(Int)
-    case results
+    case readyToFinish
 }
 
 enum PreviewCattle {

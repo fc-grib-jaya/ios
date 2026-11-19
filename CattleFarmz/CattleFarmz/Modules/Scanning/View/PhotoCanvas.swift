@@ -12,8 +12,10 @@ import SwiftUI
     let onMove: (Point2) -> Void
     var profile: ChestDepthProfile? = nil
     var depthFrame: DepthFrame? = nil
-    var onPlacementEnded: () -> Void = {}
-    @State private var dragOffset: Point2?
+    var onPlacementBegan: (String) -> Void = { _ in }
+    var onPlacementEnded: (Bool) -> Void = { _ in }
+    @State private var placement: PointPlacementGesture?
+    @GestureState private var isTouching = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -133,65 +135,66 @@ import SwiftUI
             }
             .contentShape(Rectangle())
             .gesture(
-                DragGesture(minimumDistance: 0).onChanged { value in
-                    guard enabled, activeID != nil,
-                        CGRect(origin: origin, size: size).contains(
-                            value.startLocation
-                        )
-                    else { return }
-                    let start = normalized(
-                        value.startLocation,
-                        origin: origin,
-                        size: size
-                    )
-                    let end = normalized(
-                        value.location,
-                        origin: origin,
-                        size: size
-                    )
-                    if dragOffset == nil {
-                        if let current = landmarks.first(where: {
-                            $0.id == activeID
-                        }),
-                            hypot(
-                                (current.point.x - start.x) * size.width
-                                    / crop.width,
-                                (current.point.y - start.y) * size.height
-                                    / crop.height
-                            ) < 30
-                        {
-                            dragOffset = Point2(
-                                current.point.x - start.x,
-                                current.point.y - start.y
-                            )
-                        } else {
-                            dragOffset = Point2(0, 0)
+                DragGesture(minimumDistance: 0)
+                    .updating($isTouching) { _, touching, _ in touching = true }
+                    .onChanged { value in
+                        guard enabled,
+                              CGRect(origin: origin, size: size).contains(value.startLocation) else { return }
+                        if placement == nil {
+                            let markers = landmarks.map {
+                                (id: $0.id, position: screenPoint($0.point, origin: origin, size: size))
+                            }
+                            guard let gesture = PointPlacementGesture(
+                                start: value.startLocation,
+                                activeID: activeID,
+                                markers: markers
+                            ) else { return }
+                            placement = gesture
+                            onPlacementBegan(gesture.targetID)
                         }
+                        movePlacement(to: value.location, origin: origin, size: size)
                     }
-                    let offset = dragOffset ?? Point2(0, 0)
-                    onMove(
-                        Point2(
-                            min(
-                                crop.x + crop.width,
-                                max(crop.x, end.x + offset.x)
-                            ),
-                            min(
-                                crop.y + crop.height,
-                                max(crop.y, end.y + offset.y)
-                            )
-                        )
-                    )
-                }.onEnded { _ in dragOffset = nil; onPlacementEnded() }
+                    .onEnded { value in
+                        guard placement != nil else { return }
+                        movePlacement(to: value.location, origin: origin, size: size)
+                        let didMove = placement?.didMove ?? false
+                        placement = nil
+                        onPlacementEnded(didMove)
+                    }
             )
-            .onChange(of: activeID) { _, _ in dragOffset = nil }
+            .onChange(of: isTouching) { _, touching in
+                // Cancellation (for example a system gesture) may skip onEnded.
+                if !touching, placement != nil {
+                    placement = nil
+                    onPlacementEnded(false)
+                }
+            }
+            .onDisappear {
+                if placement != nil {
+                    placement = nil
+                    onPlacementEnded(false)
+                }
+            }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(
                 enabled
-                    ? "Foto pengukuran. Ketuk atau geser untuk menempatkan titik aktif."
+                    ? "Foto pengukuran. Sentuh titik untuk memilihnya, atau geser untuk mengubah posisinya."
                     : "Tampilan \(display.rawValue) dari capture."
             )
         }
 //        .clipShape(RoundedRectangle(cornerRadius: 18))
+    }
+
+    private func movePlacement(to location: CGPoint, origin: CGPoint, size: CGSize) {
+        guard var gesture = placement else { return }
+        let target = gesture.movedLocation(to: location)
+        placement = gesture
+        guard let target else { return }
+        let point = normalized(target, origin: origin, size: size)
+        onMove(Point2(
+            min(crop.x + crop.width, max(crop.x, point.x)),
+            min(crop.y + crop.height, max(crop.y, point.y))
+        ))
     }
 
     private func screenPoint(_ point: Point2, origin: CGPoint, size: CGSize)

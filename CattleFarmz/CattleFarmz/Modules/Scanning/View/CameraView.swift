@@ -12,6 +12,7 @@ import SwiftUI
 /// reports a capture through the view model; it never presents measurement.
 struct CameraView: View {
     @State private var viewModel: CameraViewModel
+    @State private var isHelpVisible = true
     @Environment(\.scenePhase) private var scenePhase
     private let onClose: () -> Void
     
@@ -21,47 +22,69 @@ struct CameraView: View {
     }
     
     var body: some View {
-        ScanHelpOverlay(initiallyVisible: true) { isHelpVisible in
-            ScanViewport { previewSize in
-                CameraPreview(session: viewModel.previewSession)
-                    .overlay {
-                        Color.black
-                            .opacity(0.6)
-                            .overlay{
-                                RoundedRectangle(cornerRadius: 24)
-                                    .frame(maxWidth: 533, maxHeight: 348)
-                                    .foregroundStyle(.white)
-                                    .blendMode(.destinationOut)
-                            }
-                            .compositingGroup()
-                            .allowsHitTesting(false)
-                        
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(style: StrokeStyle(lineWidth: 2, dash: [32,16]))
-                            .frame(maxWidth: 533, maxHeight: 348)
-                            .foregroundStyle(.white)
-                            .allowsHitTesting(false)
-                    }
-                    .overlay(alignment: .trailing) {
-                        shutterButton(viewportSize: previewSize)
-                    }
-                    .overlay(alignment: .bottom) {
-                        if isHelpVisible {
-                            statusOverlay
-                                .frame(width: min(340, max(1, previewSize.width - 2 * AppSpacing.lg)))
-                                .padding(.leading, AppSpacing.lg)
-                                .padding(.bottom, AppSpacing.lg)
+        GeometryReader { geometry in
+            let spacing = AppSpacing.md
+//            let previewSize = ScanViewportLayout.previewSize(in: geometry.size)
+            let previewSize = CGSize(
+                width: geometry.size.width * 728 / 874,
+                height: geometry.size.height
+            )
+            let shutterAreaWidth = max(0, geometry.size.width - previewSize.width - spacing)
+
+            HStack(spacing: spacing) {
+                ScanViewport(previewSize: previewSize) { size in
+                    let guideWidth = size.width * 451 / 672
+                    let guideHeight = size.height * 295 / 402
+
+                    CameraPreview(session: viewModel.previewSession)
+                        .overlay {
+                            Color.black
+                                .opacity(0.6)
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: 24)
+                                        .frame(width: guideWidth, height: guideHeight)
+                                        .foregroundStyle(.white)
+                                        .blendMode(.destinationOut)
+                                }
+                                .compositingGroup()
+                                .allowsHitTesting(false)
+
+                            ScanGuideFrame()
+                                .frame(width: guideWidth, height: guideHeight)
                         }
+                        .overlay(alignment: .bottom) {
+                            ScanHelpOverlay(isVisible: isHelpVisible) {
+                                statusOverlay
+                                    .frame(width: min(340, max(1, size.width - 2 * AppSpacing.lg)))
+                                    .padding(.leading, AppSpacing.lg)
+                                    .padding(.bottom, AppSpacing.lg)
+                            }
+                        }
+                        .overlay(alignment: .bottomLeading) {
+                            ScanIconButton(systemImage: "xmark", accessibilityLabel: "Tutup kamera", action: onClose)
+                                .padding(.vertical, AppSpacing.md)
+                                .padding(.horizontal, AppSpacing.md)
+                        }
+                }
+                .overlay(alignment: .topLeading) {
+                    ScanIconButton(
+                        systemImage: "questionmark.circle",
+                        accessibilityLabel: "Petunjuk pemindaian",
+                        style: isHelpVisible ? .primary : .material
+                    ) {
+                        isHelpVisible.toggle()
                     }
-            }
-            .background { Color.white.ignoresSafeArea() }
-            .overlay(alignment: .topLeading) {
-                ScanIconButton(systemImage: "xmark", accessibilityLabel: "Tutup kamera", action: onClose)
+                    .accessibilityValue(isHelpVisible ? "Ditampilkan" : "Disembunyikan")
+                    .padding(.vertical, AppSpacing.md)
                     .padding(.horizontal, AppSpacing.md)
-                    .padding(.vertical, AppSpacing.xxl)
+                }
+
+                shutterButton(viewportSize: previewSize)
+                    .frame(width: shutterAreaWidth, height: previewSize.height)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background { Color.black }
         }
-        .ignoresSafeArea()
         .forceLandscape()
         .onAppear { viewModel.start() }
         .onDisappear { viewModel.stop() }
@@ -118,6 +141,6 @@ struct CameraView: View {
     
 }
 
-#Preview {
+#Preview("CameraView", traits: .fixedLayout(width: 874, height: 402)) {
     CameraView(viewModel: CameraViewModel(service: MockScanCapturing(), haptics: NoopHaptics()), onClose: {})
 }

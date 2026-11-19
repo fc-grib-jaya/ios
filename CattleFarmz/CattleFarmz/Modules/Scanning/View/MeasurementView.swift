@@ -3,11 +3,11 @@ import SwiftUI
 @MainActor
 /// Measurement screen for one captured frame.
 ///
-/// A three-part wizard: Cek capture → Titik ukur → Hasil. The leading back
-/// button retakes the photo on the first stage, then moves one stage back.
-/// The trailing button advances or finishes the measurement.
+/// Review the capture, place or edit any landmark, then finish directly.
+/// Valid placements advance on release; the final checkmark returns the scan.
 struct MeasurementView: View {
     @State private var model: MeasurementViewModel
+    @State private var isHelpVisible = false
     private let onExit: () -> Void
     private let onFinish: () -> Void
     private let onRetake: () -> Void
@@ -25,104 +25,132 @@ struct MeasurementView: View {
     }
     
     var body: some View {
-        ScanHelpOverlay(initiallyVisible: true) { isHelpVisible in
-            ScanViewport { _ in
-                PhotoCanvas(
-                    image: model.capture.image,
-                    depthImage: model.depthPreview?.image,
-                    crop: model.capture.metadata.previewCrop,
-                    display: model.display,
-                    landmarks: visibleLandmarks,
-                    activeID: model.flow.currentID,
-                    enabled: model.flow.currentID != nil,
-                    onMove: model.moveActivePoint,
-                    profile: model.result?.profile,
-                    depthFrame: model.capture.metadata.depth,
-                    onPlacementEnded: model.analyzePlacement
-                )
-                .overlay(alignment: .bottom) {
-                    if isHelpVisible {
-                        introduction
-                            .padding(.horizontal, AppSpacing.lg)
-                            .padding(.bottom, AppSpacing.lg)
-                    }
-                }
-                .overlay(alignment: .trailing) {
-                    CaptureDisplayWheel(selection: $model.display)
-                }
-            }
-            .overlay(alignment: .topTrailing) {
-                ScanIconButton(
-                    systemImage: "checkmark",
-                    accessibilityLabel: isResultStage ? "Selesai mengukur" : "Lanjut ke langkah berikutnya",
-                    style: isResultStage || canAdvanceStage ? .primary : .disabled
-                ) {
-                    if isResultStage {
-                        onFinish()
-                    } else {
-                        advanceStage()
-                    }
-                }
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, AppSpacing.xxl)
-            }
-            .overlay(alignment: .topLeading) {
-                ScanIconButton(
-                    systemImage: "chevron.left",
-                    accessibilityLabel: isInspectionStage ? "Ambil ulang foto sapi" : "Kembali ke langkah sebelumnya"
-                ) {
-                    if isInspectionStage {
-                        onRetake()
-                    } else {
-                        model.previous()
-                    }
-                }
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, AppSpacing.xxl)
-            }
-            .overlay(alignment: .top){
-                if !isInspectionStage {
-                    PointStepProgress(
-                        steps: model.steps,
+        GeometryReader { geometry in
+            let spacing = AppSpacing.md
+            let previewSize = CGSize(
+                width: geometry.size.width * 728 / 874,
+                height: geometry.size.height
+            )
+            let controlsWidth = max(0, geometry.size.width - previewSize.width - spacing)
+
+            HStack {
+                ScanViewport(previewSize: previewSize) { _ in
+                    PhotoCanvas(
+                        image: model.capture.image,
+                        depthImage: model.depthPreview?.image,
+                        crop: model.capture.metadata.previewCrop,
+                        display: model.display,
+                        landmarks: visibleLandmarks,
                         activeID: model.flow.currentID,
-                        completedIDs: model.flow.reviewedIDs,
-                        onSelect: model.selectPoint(at:)
+                        enabled: model.flow.currentID != nil && !model.isComputing,
+                        onMove: model.moveActivePoint,
+                        profile: model.result?.profile,
+                        depthFrame: model.capture.metadata.depth,
+                        onPlacementBegan: model.beginPlacement(on:),
+                        onPlacementEnded: model.endPlacement(didMove:)
                     )
-                    .frame(maxWidth: 600)
-                    .padding(.horizontal, AppSpacing.xxl + 44)
-                    .padding(.top, AppSpacing.xxl)
+                    .overlay {
+                        ScanHelpOverlay(isVisible: isHelpVisible) {
+                            introduction
+                                .padding(.horizontal, AppSpacing.lg)
+                                .padding(.bottom, AppSpacing.lg)
+                        }
+                    }
                 }
+                .overlay(alignment: .bottomLeading) {
+                    Button(action: onRetake) {
+                        Text("Retake")
+                            .font(AppFont.mediumBody)
+                            .padding(10)
+//                                .frame(minHeight: 44)
+                            .background(.ultraThinMaterial, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.primary)
+                    .accessibilityLabel("Ambil ulang foto sapi")
+                    .disabled(model.isPlacing || model.isComputing)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.vertical, AppSpacing.md)
+                }
+                .overlay(alignment: .topLeading) {
+                    HStack {
+                        ScanIconButton(
+                            systemImage: "questionmark.circle",
+                            accessibilityLabel: "Petunjuk pemindaian",
+                            style: isHelpVisible ? .primary : .material
+                        ) {
+                            isHelpVisible.toggle()
+                        }
+                        .accessibilityValue(isHelpVisible ? "Ditampilkan" : "Disembunyikan")
+                        .padding(.vertical, AppSpacing.md)
+                        .padding(.leading, AppSpacing.md)
+                        
+                        if !isInspectionStage {
+                            PointStepProgress(
+                                steps: model.steps,
+                                activeID: model.flow.currentID,
+                                completedIDs: model.flow.reviewedIDs,
+                                onSelect: model.selectPoint(at:)
+                            )
+                            .disabled(model.isPlacing || model.isComputing)
+                        }
+                    }
+                }
+
+                measurementControls
+                    .frame(width: controlsWidth, height: previewSize.height)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(.black)
+        }
+        .alert("Pengukuran belum selesai", isPresented: Binding(
+            get: { model.finishError != nil },
+            set: { if !$0 { model.dismissMessage() } }
+        )) {
+            Button("OK", role: .cancel) { model.dismissMessage() }
+        } message: {
+            Text(model.finishError ?? "Perbaiki titik pengukuran, lalu coba lagi.")
         }
         .task { model.prepare() }
         .forceLandscape()
     }
 
-    private var isInspectionStage: Bool { model.flow.stage == .inspection }
-    private var isResultStage: Bool { model.flow.stage == .results }
+    /// Controls occupy their own column and remain reachable on shorter screens.
+    private var measurementControls: some View {
+        ScrollView(.vertical) {
+            VStack(spacing: AppSpacing.md) {
+                if isInspectionStage {
+                    ScanIconButton(
+                        systemImage: "chevron.right",
+                        accessibilityLabel: "Mulai menandai titik",
+                        style: model.canBegin ? .primary : .disabled,
+                        action: model.beginGuide
+                    )
+                } else {
+                    ScanIconButton(
+                        systemImage: "checkmark",
+                        accessibilityLabel: model.isComputing ? "Menghitung pengukuran" : "Selesai mengukur",
+                        style: model.canFinish || model.isComputing ? .primary : .disabled,
+                        action: onFinish
+                    )
+                    .overlay {
+                        if model.isComputing {
+                            ProgressView().tint(.white).allowsHitTesting(false)
+                        }
+                    }
+                    .disabled(!model.canFinish)
+                }
 
-    private var canAdvanceStage: Bool {
-        switch model.flow.stage {
-        case .inspection:
-            model.canBegin
-        case .point:
-            model.canAdvance
-        case .results:
-            false
+                CaptureDisplayWheel(selection: $model.display)
+                    .disabled(model.isPlacing || model.isComputing)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, AppSpacing.md)
         }
+        .scrollIndicators(.hidden)
     }
-    
-    private func advanceStage() {
-        switch model.flow.stage {
-        case .inspection:
-            model.beginGuide()
-        case .point:
-            model.advance()
-        case .results:
-            break
-        }
-    }
-    
+
+    private var isInspectionStage: Bool { model.flow.stage == .inspection }
     @ViewBuilder private var introduction: some View {
         ScanInstructionCard {
             VStack(alignment: .leading, spacing: 8) {
@@ -147,21 +175,7 @@ struct MeasurementView: View {
                             .font(AppFont.caption)
                             .foregroundStyle(.orange)
                     }
-                case .results:
-                    Text("Hasil pengukuran").font(AppFont.mediumBody)
-                    Text(
-                        "Periksa titik dan kelayakan depth sebelum memakai estimasi ini."
-                    )
-                    .font(AppFont.caption).foregroundStyle(.secondary)
 
-                    if let result = model.result {
-//                        resultCard(result)
-                    }
-                    if model.activePoint != nil && !model.canAdvance {
-                        Text(model.currentDepthProblem ?? "Depth titik ini tidak valid. Geser ke area depth yang terbaca.")
-                            .font(AppFont.caption)
-                            .foregroundStyle(.orange)
-                    }
                 }
             }
         }
@@ -173,162 +187,13 @@ struct MeasurementView: View {
     private var visibleLandmarks: [Landmark] {
         switch model.flow.stage {
         case .inspection: return []
-        case .point, .results: return model.landmarks
+        case .point: return model.landmarks
         }
     }
-    
-//    @ViewBuilder private var content: some View {
-//        switch model.flow.stage {
-//        case .inspection:
-//            if let error = model.depthError {
-//                Label(error, systemImage: "exclamationmark.triangle")
-//                    .foregroundStyle(.orange)
-//            } else if !model.depthLoading && !model.canBegin {
-//                Text(
-//                    "Depth belum cukup terbaca. Ambil ulang dari posisi yang lebih jelas."
-//                )
-//                .foregroundStyle(.orange)
-//            } else {
-//                Text(
-//                    "Area abu-abu berarti depth visual kurang terbaca. Periksa area tubuh dan titik ukur."
-//                )
-//                .font(.footnote).foregroundStyle(.secondary)
-//            }
-//        case .point:
-//            if let step = model.currentStep, model.activePoint != nil {
-//                if let problem = model.currentDepthProblem {
-//                    Label(problem, systemImage: "exclamationmark.circle")
-//                        .foregroundStyle(.orange)
-//                } else {
-//                    Label(
-//                        step.id.hasPrefix("chest") ? "Depth tersedia · batas profil ditandai" : "Depth tersedia pada titik \(step.number)",
-//                        systemImage: "mappin.circle"
-//                    )
-//                    .foregroundStyle(.teal)
-//                }
-//                Text("Geser titik atau ketuk posisi baru jika belum tepat.")
-//                    .font(.footnote).foregroundStyle(.secondary)
-//                Button("Hapus titik ini") { model.clearCurrentPoint() }
-//            } else if let step = model.currentStep {
-//                Label(
-//                    "Ketuk foto untuk menaruh titik \(step.number).",
-//                    systemImage: "hand.tap"
-//                )
-//                .foregroundStyle(.teal)
-//            }
-//        case .results:
-//            if let result = model.result {
-//                resultCard(result)
-//                if let message = model.message {
-//                    Label(message, systemImage: "exclamationmark.circle")
-//                        .font(.callout).foregroundStyle(.orange)
-//                }
-//                if result.girth == nil {
-//                    Button("Perbaiki titik dada") { model.editPoints(from: 2) }
-//                        .buttonStyle(.bordered)
-//                }
-//            } else {
-//                Label(
-//                    model.message
-//                    ?? "Ukuran belum dapat dihitung. Periksa titik atau ambil ulang.",
-//                    systemImage: "exclamationmark.triangle"
-//                ).foregroundStyle(.orange)
-//            }
-//            Button("Koreksi titik dari awal") { model.editPoints() }
-//                .buttonStyle(.bordered)
-//        }
-//    }
-    
-    private var details: some View {
-        DisclosureGroup("Detail pengukuran") {
-            VStack(alignment: .leading, spacing: 8) {
-                if let preview = model.depthPreview {
-                    let rawFraction =
-                    Double(model.rawValidCount)
-                    / Double(
-                        max(1, model.capture.metadata.depth.meters.count)
-                    )
-                    Text(
-                        "Depth visual valid pada \(Int(preview.visualization.validFraction * 100))% frame. Depth mentah untuk hitungan valid pada \(Int(rawFraction * 100))% frame."
-                    )
-                    Text(
-                        "Depth warna dan profil memakai data mentah dari frame yang sama."
-                    )
-                }
-                if let point = model.activePoint,
-                   let xyz = try? model.capture.metadata.depth.point(
-                    at: point.point
-                   )
-                {
-                    Text(
-                        "Depth titik aktif: \(xyz.z.formatted(.number.precision(.fractionLength(2)))) m"
-                    )
-                }
-                Text(
-                    "Profil dada membaca piksel raw depth sepanjang garis. Celah dan lonjakan depth memutus segmen."
-                )
-            }.font(.caption).padding(.top, 8)
-        }
-    }
-    
-    private func resultCard(_ result: MeasurementResult) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            LabeledContent(
-                "Panjang badan",
-                value:
-                    "\(result.lengthCM.formatted(.number.precision(.fractionLength(1)))) cm"
-            )
-            if let profile = result.profile {
-//                LabeledContent("Lingkar bagian terbaca", value: profile.lengthCM.map {
-//                    $0.formatted(.number.precision(.fractionLength(1))) + " cm"
-//                } ?? "Belum tersedia")
-                LabeledContent("Lingkar Dada", value: profile.lengthCM.map {
-                    ($0*2).formatted(.number.precision(.fractionLength(1))) + " cm"
-                } ?? "Belum tersedia")
-                //                Text("\(profile.samples.filter { $0.point != nil }.count)/\(profile.samples.count) piksel terbaca · \(profile.segmentLengthsCM.count) segmen")
-                //                Text("Hijau: tersambung · merah: piksel ditolak · jingga: awal segmen/putus. Garis kuning hanya panduan penandaan.")
-                //                    .font(.caption)
-                //                Text("Raw depth · confidence ≥1 · 0,25–5 m · putus jika lonjakan ≥8 cm. Panjang ini belum merupakan lingkar dada.")
-                //                    .font(.caption)
-                //                ForEach(Array(profile.segmentLengthsCM.enumerated()), id: \.offset) { index, length in
-                //                    Text("Segmen \(index + 1): \(length.formatted(.number.precision(.fractionLength(1)))) cm")
-                //                }
-                //                DisclosureGroup("Piksel dan celah profil") {
-                //                    ForEach(Array(profile.samples.enumerated()), id: \.offset) { _, sample in
-                //                        VStack(alignment: .leading) {
-                //                            Text("(\(sample.x), \(sample.y)) · z \(sample.depth) m · confidence \(sample.confidence)")
-                //                            Text("\(sample.connectedToPrevious ? "Terhubung" : "Awal/putus") · \(sample.status)")
-                //                            if let p = sample.point {
-                //                                Text("XYZ: \(p.x), \(p.y), \(p.z) m")
-                //                            }
-                //                        }.font(.caption).frame(maxWidth: .infinity, alignment: .leading)
-                //                    }
-                //                }
-            }
-//            if let girth = result.girth {
-//                LabeledContent(
-//                    "Lingkar dada",
-//                    value:
-//                        "\(girth.centimeters.formatted(.number.precision(.fractionLength(1)))) cm"
-//                )
-//                Text(
-//                    "\(girth.validSamples) sampel · residu \(girth.residualMeters.formatted(.number.precision(.fractionLength(3)))) m"
-//                )
-//                .font(.caption).foregroundStyle(.secondary)
-//            }
-//            if let weight = result.weightKG {
-//                LabeledContent(
-//                    "Bobot Winter",
-//                    value:
-//                        "≈ \(weight.formatted(.number.precision(.fractionLength(0)))) kg"
-//                )
-//            }
-        }.padding().frame(maxWidth: .infinity, alignment: .leading)
-            .background(.quaternary, in: RoundedRectangle(cornerRadius: 16))
-    }
+
 }
 
-#Preview("Cek capture") {
+#Preview("Cek capture", traits: .fixedLayout(width: 872, height: 402)) {
     MeasurementView(
         viewModel: .preview(.inspection),
         onExit: {},
@@ -338,7 +203,7 @@ struct MeasurementView: View {
     
 }
 
-#Preview("Titik ukur") {
+#Preview("Titik ukur — checkmark disabled", traits: .fixedLayout(width: 872, height: 402)) {
     
     MeasurementView(
         viewModel: .preview(.point(1)),
@@ -349,10 +214,10 @@ struct MeasurementView: View {
     
 }
 
-#Preview("Hasil") {
+#Preview("Siap selesai — checkmark enabled", traits: .fixedLayout(width: 872, height: 402)) {
     
     MeasurementView(
-        viewModel: .preview(.results),
+        viewModel: .preview(.readyToFinish),
         onExit: {},
         onFinish: {},
         onRetake: {}

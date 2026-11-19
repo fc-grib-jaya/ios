@@ -1,18 +1,32 @@
 import SwiftUI
 
-/// Keeps the live camera and captured photo at the same landscape dimensions.
+enum ScanViewportLayout {
+    static func previewSize(in availableSize: CGSize) -> CGSize {
+        CGSize(width: availableSize.width * 672 / 874, height: availableSize.height)
+    }
+}
+
+/// Applies the shared landscape viewport proportions to camera and photo content.
 struct ScanViewport<Content: View>: View {
+    var previewSize: CGSize? = nil
     @ViewBuilder var content: (CGSize) -> Content
 
+    @ViewBuilder
     var body: some View {
-        GeometryReader { geometry in
-            let size = CGSize(width: geometry.size.width, height: geometry.size.height)
-
-            content(size)
-                .frame(width: size.width, height: size.height)
-//                .clipShape(RoundedRectangle(cornerRadius: 40))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        if let previewSize {
+            viewport(size: previewSize)
+        } else {
+            GeometryReader { geometry in
+                viewport(size: ScanViewportLayout.previewSize(in: geometry.size))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
+    }
+
+    private func viewport(size: CGSize) -> some View {
+        content(size)
+            .frame(width: size.width, height: size.height)
+            .clipShape(RoundedRectangle(cornerRadius: 40))
     }
 }
 

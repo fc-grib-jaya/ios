@@ -8,25 +8,25 @@ struct MeasurementGuideStep: Identifiable {
     let number: Int
 
     static let steps: [MeasurementGuideStep] = [
-                .init(id: "shoulder",
-                      label: "Ujung bahu",
-                      title: "Tandai ujung bahu",
-                      instruction: "Ketuk ujung bahu di dekat pangkal kaki depan, pada sisi yang menghadap kamera. Cocokkan dengan contoh titik 1.",
+                .init(id: "Chest",
+                      label: "Dada",
+                      title: "Tandai Bagian Dada",
+                      instruction: "Ketuk Dada di dekat pangkal kaki depan, sisi menghadap kamera",
                       number: 1),
                 .init(id: "pin",
-                      label: "Tulang duduk",
-                      title: "Tandai ujung belakang badan",
-                      instruction: "Ketuk tonjolan tulang duduk di bagian belakang panggul, pada sisi yang sama dengan titik 1. Dua titik ini membentuk panjang badan.",
+                      label: "Pangkal Ekor",
+                      title: "Tandai Bagian Pangkal Ekor",
+                      instruction: "Ketuk tonjolan tulang duduk di bagian belakang panggul. Dua titik ini membentuk panjang badan.",
                       number: 2),
                 .init(id: "chestTop",
-                      label: "Atas dada",
-                      title: "Tandai bagian atas dada",
-                      instruction: "Cari garis tepat di belakang kaki depan. Pada garis itu, ketuk tepi atas tubuh di punggung.",
+                      label: "Punuk",
+                      title: "Tandai Bagian Punuk",
+                      instruction: "Cari garis tepat di belakang kaki ketuk tepi atas punuk",
                       number: 3),
                 .init(id: "chestBottom",
-                      label: "Bawah dada",
-                      title: "Tandai bagian bawah dada",
-                      instruction: "Pada penampang yang sama dengan titik 3, ketuk tepi bawah dada. Garis menghubungkan dua batas dada.",
+                      label: "Ketiak",
+                      title: "Tandai Bagian Ketiak",
+                      instruction: "Ketuk tepi ketiak. Garis menghubungkan Lingkar dada",
                       number: 4)
             ]
 }

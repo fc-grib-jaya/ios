@@ -5,119 +5,43 @@
 
 import SwiftUI
 
-/// Native scrolling and snapping with a circular camera-control appearance.
+/// Vertical display selector with labels read from bottom to top.
 struct CaptureDisplayWheel: View {
     @Binding var selection: CaptureDisplay
-    @State private var centeredOption: CaptureDisplay?
-    @State private var isUserScrolling = false
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private let itemHeight: CGFloat = 80
-    private let viewportHeight: CGFloat = 240
-    private let initialAnchor: UnitPoint
-
-    init(selection: Binding<CaptureDisplay>) {
-        self._selection = selection
-        self._centeredOption = State(initialValue: selection.wrappedValue)
-        let options = CaptureDisplay.allCases
-        let index = options.firstIndex(of: selection.wrappedValue) ?? 0
-        initialAnchor = UnitPoint(x: 0.5, y: CGFloat(index) / CGFloat(max(1, options.count - 1)))
-    }
 
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 0) {
-                ForEach(CaptureDisplay.allCases) { option in
-                    Button {
-                        select(option)
-                    } label: {
-                        Image(systemName: option.icon)
-                            .font(.system(size: 28, weight: .medium))
-                            .foregroundStyle(.white)
-                            .frame(width: 64, height: 64)
-                            .background(.ultraThinMaterial, in: Circle())
-                            .environment(\.colorScheme, .dark)
-                            // Keep the active circle at 64 pt and the others at 48 pt.
-                            // Selection is independent of scroll-content coordinate offsets.
-                            .scaleEffect(option == (centeredOption ?? selection) ? 1 : 0.75)
-                            .opacity(option == (centeredOption ?? selection) ? 1 : 0.65)
-                            .animation(
-                                reduceMotion ? nil : .smooth(duration: 0.2),
-                                value: centeredOption
-                            )
-                            .frame(width: 88, height: itemHeight)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .id(option)
+        VStack(spacing: 8) {
+            ForEach([CaptureDisplay.depth, .overlay, .photo]) { option in
+                Button {
+                    selection = option
+                } label: {
+                    Text(title(for: option))
+                        .font(AppFont.mediumBody)
+                        .foregroundStyle(selection == option ? AppColor.Primitive.Primary.shade400 : AppColor.Primitive.Neutral.shade300)
+                        .fixedSize()
+                        .rotationEffect(.degrees(-90))
+                        .frame(width: 18, height: 75)
+                        .contentShape(Rectangle())
                 }
-            }
-            .scrollTargetLayout()
-        }
-        .contentMargins(.vertical, (viewportHeight - itemHeight) / 2, for: .scrollContent)
-        .scrollIndicators(.hidden)
-        .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-        // Match the first layout to the model, including the last (Gabungan) option.
-        .defaultScrollAnchor(initialAnchor, for: .initialOffset)
-        .scrollPosition(id: $centeredOption, anchor: .center)
-        .onAppear {
-            // Align the ring to the current selection (last option by default)
-            // once the lazy stack has materialized its items.
-            centeredOption = selection
-        }
-        .frame(width: 88, height: viewportHeight)
-        .overlay {
-            Circle()
-                .strokeBorder(.white, lineWidth: 2.5)
-                .frame(width: 76, height: 76)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-        }
-        // Change the photo/depth layer once scrolling settles, avoiding work
-        // on the measurement canvas for every intermediate scroll position.
-        .onScrollPhaseChange { _, phase in
-            if phase == .tracking || phase == .interacting {
-                isUserScrolling = true
-            }
-            if phase == .idle, isUserScrolling {
-                isUserScrolling = false
-                if let centeredOption {
-                    selection = centeredOption
-                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(title(for: option))
+                .accessibilityAddTraits(selection == option ? .isSelected : [])
             }
         }
-        .onChange(of: selection) { _, option in
-            withAnimation(reduceMotion ? nil : .smooth(duration: 0.3)) {
-                centeredOption = option
-            }
-        }
-        .accessibilityElement(children: .ignore)
+        .accessibilityElement(children: .contain)
         .accessibilityLabel("Tampilan capture")
-        .accessibilityValue(selection.rawValue)
-        .accessibilityAdjustableAction { direction in
-            let options = CaptureDisplay.allCases
-            guard let index = options.firstIndex(of: selection) else { return }
-            switch direction {
-            case .increment:
-                select(options[min(index + 1, options.count - 1)])
-            case .decrement:
-                select(options[max(index - 1, 0)])
-            @unknown default:
-                break
-            }
-        }
     }
 
-    private func select(_ option: CaptureDisplay) {
-        selection = option
-        // Also handles tapping the selected option during an unfinished drag.
-        withAnimation(reduceMotion ? nil : .smooth(duration: 0.3)) {
-            centeredOption = option
+    private func title(for option: CaptureDisplay) -> String {
+        switch option {
+        case .photo: "Normal"
+        case .overlay: "Combine"
+        case .depth: "Depth"
         }
     }
 }
 
-#Preview("Initial selection: Gabungan") {
+#Preview("Depth selected") {
     @Previewable @State var selection: CaptureDisplay = .overlay
     ZStack {
         Color.black.ignoresSafeArea()

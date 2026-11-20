@@ -36,9 +36,13 @@ struct CattleCard: View {
                     Text(name)
                         .font(AppFont.title)
                         .lineLimit(2)
+                    
+                    let breedText = Text(breed.rawValue).font(AppFont.body)
+                    let genderText = Text(gender.rawValue).font(AppFont.body)
+                    let ageText = Text("\(age) bulan").font(AppFont.body)
+                    let separator = Text(" • ").font(.body)
 
-                    Text("\(breed.rawValue) • \(gender.rawValue) • \(age) bulan")
-                        .font(AppFont.body)
+                    Text("\(breedText)\(separator)\(genderText)\(separator)\(ageText)")
                         .lineLimit(2)
                 }
             }

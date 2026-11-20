@@ -95,9 +95,8 @@ struct CarcassView: View {
             .padding(.bottom, AppSpacing.md)
             
             VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                Text("Lebar aliran menunjukkan proporsi bobot pada sapi \(cattleBreed).")
-
-                Text("Sumber · \(carcassReference)")
+                Text("Lebar aliran menunjukkan proporsi bobot pada sapi \(cattleBreed)")
+                Text("Sumber: \(carcassReference)")
             }
                 .font(AppFont.caption)
                 .foregroundStyle(AppColor.Primitive.Neutral.shade400)

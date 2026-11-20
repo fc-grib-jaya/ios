@@ -10,7 +10,7 @@ import Observation
 @Observable
 @MainActor
 final class GuestLoginSheetViewModel {
-    let title = "Masuk sebagai tamu"
+    let title = "Masuk"
     var name = ""
     private(set) var errorMessage: String?
     /// True while the profile is being persisted; the submit button shows a

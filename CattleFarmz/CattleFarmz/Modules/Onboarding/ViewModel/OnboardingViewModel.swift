@@ -24,7 +24,7 @@ final class OnboardingViewModel {
     }
 
     var isLastPage: Bool { index >= pages.count - 1 }
-    var buttonTitle: String { isLastPage ? "Masuk sebagai tamu" : "Lanjut" }
+    var buttonTitle: String { isLastPage ? "Masuk" : "Lanjut" }
 
     /// Advances one page, or opens the guest login sheet on the last page.
     func primaryTapped() {

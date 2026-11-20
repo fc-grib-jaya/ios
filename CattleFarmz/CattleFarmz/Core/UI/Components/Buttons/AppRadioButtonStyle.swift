@@ -27,5 +27,6 @@ struct AppRadioButtonStyle: ButtonStyle {
             }
             .contentShape(shape)
             .opacity(isEnabled ? 1 : 0.45)
+            .glassEffect()
     }
 }

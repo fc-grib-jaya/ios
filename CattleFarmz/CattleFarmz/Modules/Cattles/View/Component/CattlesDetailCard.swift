@@ -25,8 +25,13 @@ struct CattlesDetailCard: View {
                     .font(AppFont.title)
                     .foregroundStyle(AppColor.Text.primary)
 
-                Text("\(breed.rawValue) • \(gender.rawValue) • \(age) bulan")
-                    .font(AppFont.body)
+                let breedText = Text(breed.rawValue).font(AppFont.body)
+                let genderText = Text(gender.rawValue).font(AppFont.body)
+                let ageText = Text("\(age) bulan").font(AppFont.body)
+                let separator = Text(" • ").font(.body)
+
+                Text("\(breedText)\(separator)\(genderText)\(separator)\(ageText)")
+                    .lineLimit(2)
             }
             .padding(.bottom, AppSpacing.xs)
 

@@ -17,7 +17,7 @@ nonisolated struct OnboardingPage: Identifiable, Hashable {
         OnboardingPage(
             id: 0,
             title: "Estimasi Bobot Sapi",
-            subtitle: "Mudah, Cepat, dan Akurat."
+            subtitle: "Ukur bobot sapi langsung di kandang. Cukup pakai kamera, tidak perlu timbangan."
         ),
         OnboardingPage(
             id: 1,

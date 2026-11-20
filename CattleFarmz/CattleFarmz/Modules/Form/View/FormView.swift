@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct FormView: View {
     @Environment(\.dismiss) private var dismiss
@@ -23,7 +24,9 @@ struct FormView: View {
     let onSave: (CattleFormValues) async throws -> Void
 
     init(
-        onScanSession: @escaping (@escaping (ScanResult?) -> Void) -> Void = { _ in },
+        onScanSession: @escaping (@escaping (ScanResult?) -> Void) -> Void = {
+            _ in
+        },
         viewModel: FormViewModel,
         onSave: @escaping (CattleFormValues) async throws -> Void = { _ in }
     ) {
@@ -39,7 +42,8 @@ struct FormView: View {
     private func isPageValid(_ pageIndex: Int) -> Bool {
         switch pageIndex {
         case 0:
-            return !namaCattle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && usiaSapi != nil
+            return !namaCattle.trimmingCharacters(in: .whitespacesAndNewlines)
+                .isEmpty && usiaSapi != nil
         case 1:
             return jenisSapi != nil && genderSapi != nil
         case 2:
@@ -67,41 +71,26 @@ struct FormView: View {
             .background(AppColor.Surface.canvas)
             .ignoresSafeArea()
 
-            VStack(spacing: AppSpacing.xl) {
-                TabView(selection: $viewModel.index) {
-                    ForEach(viewModel.pages) { page in
-                        FormPageContent(
-                            page: page,
-                            isActive: viewModel.index == page.id,
-                            namaCattle: $namaCattle,
-                            jenisSapi: $jenisSapi,
-                            genderSapi: $genderSapi,
-                            bobotCattle: $bobotCattle,
-                            cattlePhoto: $cattlePhoto,
-                            scanResult: $scanResult,
-                            usiaSapi: $usiaSapi,
-                            onScanSession: { completion in
-                                onScanSession { result in
-                                    viewModel.index = 2
-                                    completion(result)
-                                }
-                            },
-                            notes: $notes
-                        )
-                        .tag(page.id)
-                    }
-                }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .onChange(of: viewModel.index) { oldIndex, newIndex in
-                    guard newIndex > oldIndex,
-                          !isPageValid(oldIndex)
-                    else {
-                        return
-                    }
-
-                    viewModel.index = oldIndex
-                }
-
+            VStack {
+                FormPageContent(
+                    page: viewModel.pages[viewModel.index],
+                    isActive: true,
+                    namaCattle: $namaCattle,
+                    jenisSapi: $jenisSapi,
+                    genderSapi: $genderSapi,
+                    bobotCattle: $bobotCattle,
+                    cattlePhoto: $cattlePhoto,
+                    scanResult: $scanResult,
+                    usiaSapi: $usiaSapi,
+                    onScanSession: { completion in
+                        onScanSession { result in
+                            viewModel.index = 2
+                            completion(result)
+                        }
+                    },
+                    notes: $notes
+                )
+                
                 Button(viewModel.buttonTitle) {
                     primaryButtonTapped()
                 }
@@ -109,24 +98,40 @@ struct FormView: View {
                 .disabled(!isCurrentPageValid)
                 .opacity(isCurrentPageValid ? 1 : 0.5)
                 .padding(.horizontal, AppSpacing.md)
-
-                HStack(spacing: AppSpacing.sm) {
-                    ForEach(viewModel.pages.indices, id: \.self) { pageIndex in
-                        Capsule()
-                            .fill(
-                                pageIndex == viewModel.index
-                                    ? AppColor.Primitive.Primary.shade500
-                                    : AppColor.Text.muted
-                            )
-                            .frame(
-                                width: pageIndex == viewModel.index ? 24 : 8,
-                                height: 8
-                            )
-                    }
-                }
-                .animation(.easeInOut(duration: 0.2), value: viewModel.index)
             }
             .padding(.bottom, AppSpacing.xl)
+        }
+        .background(KeyboardDismissOverlay())
+        .contentShape(Rectangle())
+        .onTapGesture {
+            dismissKeyboard()
+        }
+        .onChange(of: viewModel.index) { _, _ in
+            dismissKeyboard()
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    if viewModel.index > 0 {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            viewModel.index -= 1
+                        }
+                    } else {
+                        dismiss()
+                    }
+                } label: {
+                    Image(systemName: viewModel.index > 0 ? "chevron.left" : "xmark")
+                }
+                .accessibilityLabel(viewModel.index > 0 ? "Kembali" : "Tutup")
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                PageCount(pageNum: viewModel.index + 1, totalPage: viewModel.pages.count)
+                    .accessibilityLabel(
+                        "Form \(viewModel.index + 1) dari \(viewModel.pages.count)"
+                    )
+            }
+            .sharedBackgroundVisibility(.hidden)
         }
         .alert(
             "Gagal menyimpan sapi",
@@ -143,20 +148,31 @@ struct FormView: View {
         }
     }
 
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
+    }
+
     private func primaryButtonTapped() {
         guard isCurrentPageValid else { return }
 
         if viewModel.isLastPage {
             guard let jenisSapi,
-                  let genderSapi,
-                  let bobotCattle,
-                  let usiaSapi
+                let genderSapi,
+                let bobotCattle,
+                let usiaSapi
             else {
                 return
             }
 
             let values = CattleFormValues(
-                name: namaCattle.trimmingCharacters(in: .whitespacesAndNewlines),
+                name: namaCattle.trimmingCharacters(
+                    in: .whitespacesAndNewlines
+                ),
                 dateAcquired: Date(),
                 breed: jenisSapi,
                 gender: genderSapi,
@@ -165,7 +181,8 @@ struct FormView: View {
                 chestGirth: scanResult?.girth,
                 bodyLength: scanResult?.lengthCM,
                 cattleImage: cattlePhoto,
-                notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true
+                notes: notes?.trimmingCharacters(in: .whitespacesAndNewlines)
+                    .isEmpty == true
                     ? nil
                     : notes
             )
@@ -180,6 +197,90 @@ struct FormView: View {
             }
         } else {
             viewModel.primaryTapped()
+        }
+    }
+}
+
+private struct KeyboardDismissOverlay: UIViewRepresentable {
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView(frame: .zero)
+
+        DispatchQueue.main.async {
+            context.coordinator.install(in: view.window)
+        }
+
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        context.coordinator.install(in: uiView.window)
+    }
+
+    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
+        coordinator.remove()
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        private weak var window: UIWindow?
+        private weak var gestureRecognizer: UITapGestureRecognizer?
+
+        func install(in window: UIWindow?) {
+            guard let window, self.window !== window else {
+                return
+            }
+
+            remove()
+
+            let gestureRecognizer = UITapGestureRecognizer(
+                target: self,
+                action: #selector(dismissKeyboard)
+            )
+            gestureRecognizer.cancelsTouchesInView = false
+            gestureRecognizer.delegate = self
+
+            window.addGestureRecognizer(gestureRecognizer)
+            self.window = window
+            self.gestureRecognizer = gestureRecognizer
+        }
+
+        func remove() {
+            if let gestureRecognizer {
+                window?.removeGestureRecognizer(gestureRecognizer)
+            }
+
+            gestureRecognizer = nil
+            window = nil
+        }
+
+        @objc
+        private func dismissKeyboard() {
+            UIApplication.shared.sendAction(
+                #selector(UIResponder.resignFirstResponder),
+                to: nil,
+                from: nil,
+                for: nil
+            )
+        }
+
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldReceive touch: UITouch
+        ) -> Bool {
+            var view = touch.view
+
+            while let currentView = view {
+                if currentView is UITextField || currentView is UITextView {
+                    return false
+                }
+
+                view = currentView.superview
+            }
+
+            return true
         }
     }
 }
@@ -201,8 +302,6 @@ private struct FormPageContent: View {
         VStack(spacing: AppSpacing.lg) {
             pageVisual
                 .frame(maxWidth: .infinity, alignment: .center)
-
-            Spacer()
         }
         .frame(maxWidth: .infinity)
     }
@@ -211,18 +310,19 @@ private struct FormPageContent: View {
     private var pageVisual: some View {
         switch page.id {
         case 0:
-            CattlesNameAgeForm(
-                namaCattle: $namaCattle,
-                usiaSapi: $usiaSapi,
-                isActive: isActive
+            FirstPageForm(
+                cattlePhoto: $cattlePhoto,
+                cattleName: $namaCattle,
+                cattleAge: $usiaSapi,
+                notes: $notes
             )
         case 1:
-            CattlesBreedGenderForm(
-                jenisSapi: $jenisSapi,
-                genderSapi: $genderSapi
+            SecondPageForm(
+                cattleBreed: $jenisSapi,
+                cattleGender: $genderSapi
             )
-        case 2:
-            CattlesWeightForm(
+        default:
+            ThirdPageForm(
                 bobotCattle: $bobotCattle,
                 cattlePhoto: $cattlePhoto,
                 scanResult: $scanResult,
@@ -231,12 +331,12 @@ private struct FormPageContent: View {
                 isActive: isActive,
                 onScanSession: onScanSession
             )
-        default:
-            CattlesNotesForm(notes: $notes, isActive: isActive)
         }
     }
 }
 
 #Preview {
-    FormView(viewModel: FormViewModel())
+    NavigationStack {
+        FormView(viewModel: FormViewModel())
+    }
 }

@@ -8,54 +8,79 @@
 import SwiftUI
 
 struct CattlesPictureCard: View {
-    let cattleImage: Image
+    let cattleImage: Image?
     let action: () -> Void
     let onRemove: () -> Void
     
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 22)
-
-        VStack(spacing: 0) {
-            cattleImage
-                .resizable()
-                .scaledToFill()
-                .frame(height: 198)
-                .frame(maxWidth: .infinity)
-                .clipped()
-                .overlay(alignment: .topLeading) {
-                    Button(action: onRemove) {
-                        Text("\(Image(systemName: "xmark"))")
-                            .font(AppFont.caption)
+        VStack {
+            Button(action: action) {
+                if let cattleProfile = cattleImage {
+                    cattleProfile
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 85, height: 85)
+                        .clipped()
+                        .cornerRadius(AppSpacing.lg)
+                } else {
+                    Image(.cattleShape)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 50)
+                        .frame(width: 85, height: 85)
+                        .background(AppColor.Surface.canvas)
+                        .cornerRadius(AppSpacing.lg)
+                }
+            }
+            .overlay {
+                if cattleImage != nil {
+                    RoundedRectangle(cornerRadius: AppSpacing.lg)
+                        .strokeBorder(
+                            AppColor.Primitive.Neutral.shade600,
+                        )
+                        .allowsHitTesting(false)
+                } else {
+                    RoundedRectangle(cornerRadius: AppSpacing.lg)
+                        .strokeBorder(
+                            AppColor.Primitive.Neutral.shade400,
+                            style: StrokeStyle(
+                                lineWidth: 1,
+                                dash: [5, 3]
+                            )
+                        )
+                        .allowsHitTesting(false)
+                }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if(cattleImage == nil) {
+                    Button(action: action) {
+                        Text("\(Image(systemName: "plus"))")
+                            .font(AppFont.body).bold()
+                            .foregroundStyle(AppColor.Primitive.Base.white)
                             .padding(AppSpacing.xxs)
-                            .background(.regularMaterial, in: Circle())
+                            .background(AppColor.Primitive.Neutral.shade600, in: Circle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Hapus foto profil sapi")
-                    .padding(AppSpacing.sm)
+                    .offset(x: 5, y: 5)
+                } else {
+                    Button(action: onRemove) {
+                        Text("\(Image(systemName: "xmark"))")
+                            .font(AppFont.caption).bold()
+                            .foregroundStyle(AppColor.Primitive.Base.white)
+                            .padding(AppSpacing.xs)
+                            .background(AppColor.Primitive.Neutral.shade600, in: Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Hapus foto profil sapi")
+                    .offset(x: 5, y: 5)
                 }
-
-            Button(action: action) {
-                Text("Ambil ulang")
-                    .font(AppFont.body)
-                    .foregroundStyle(AppColor.Primitive.Secondary.shade600)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.md)
-                    .contentShape(Rectangle())
+                
             }
-            .buttonStyle(.plain)
-        }
-        .background(AppColor.Primitive.Base.white, in: shape)
-        .clipShape(shape)
-        .overlay {
-            shape.strokeBorder(
-                AppColor.Primitive.Secondary.shade100,
-                lineWidth: 1
-            )
-            .allowsHitTesting(false)
         }
     }
 }
 
 #Preview {
-    CattlesPictureCard(cattleImage: Image("tesimage"), action: {}, onRemove: {})
+    CattlesPictureCard(cattleImage: Image(.tesimage), action: {}, onRemove: {})
 }

@@ -73,6 +73,7 @@ public enum AppColor {
         public static let subtle = Color("Semantic/Border/Subtle")
         public static let `default` = Color("Semantic/Border/Default")
         public static let focus = Color("Semantic/Border/Focus")
+        public static let divider = Color("Semantic/Border/Divider")
     }
 
     public enum Button {
@@ -117,6 +118,7 @@ public enum AppColor {
 
     public enum Card {
         public static let background = Color("Component/Card/Background")
+        public static let subtitle = Color("Component/Card/Subtitle")
     }
     
     public enum Carcass {

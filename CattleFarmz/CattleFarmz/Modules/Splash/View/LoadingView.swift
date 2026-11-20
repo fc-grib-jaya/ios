@@ -25,34 +25,44 @@ struct LoadingView: View {
         ZStack {
             AppColor.Primitive.Secondary.shade100
                 .ignoresSafeArea()
-
-            ZStack {
-                if stage >= 1 {
-                    ZStack {
-                        circleDot()
-                            .offset(
-                                x: isConverged
+            
+            VStack {
+                ZStack {
+                    if stage >= 1 {
+                        ZStack {
+                            circleDot()
+                                .offset(
+                                    x: isConverged
                                     ? 0
                                     : (showTwoDots ? -AppSpacing.lg : 0)
-                            )
-
-                        circleDot()
-                            .scaleEffect(showTwoDots ? 1 : 0)
-                            .offset(x: isConverged ? 0 : AppSpacing.lg)
-                        
-                        circleDot()
-                            .scaleEffect(showTwoDots ? 1 : 0)
-                            .offset(x:0,y: isConverged ? 0 : -AppSpacing.lg)
-
-                        circleDot()
-                            .scaleEffect(showTwoDots ? 1 : 0)
-                            .offset(x:0,y: isConverged ? 0 : AppSpacing.lg)
+                                )
+                            
+                            circleDot()
+                                .scaleEffect(showTwoDots ? 1 : 0)
+                                .offset(x: isConverged ? 0 : AppSpacing.lg)
+                            
+                            circleDot()
+                                .scaleEffect(showTwoDots ? 1 : 0)
+                                .offset(x:0,y: isConverged ? 0 : -AppSpacing.lg)
+                            
+                            circleDot()
+                                .scaleEffect(showTwoDots ? 1 : 0)
+                                .offset(x:0,y: isConverged ? 0 : AppSpacing.lg)
+                        }
+                        .rotationEffect(.degrees(formationRotation))
                     }
-                    .rotationEffect(.degrees(formationRotation))
+                }
+                .rotationEffect(.degrees(loadingRotation))
+                .opacity(isHidden ? 0 : 1)
+                
+                if stage >= 2 {
+                    Text("sedang mengaktifkan LiDAR")
+                        .font(AppFont.caption)
+                        .padding(.vertical, AppSpacing.xxl)
+                        .opacity(isHidden ? 0 : 1)
                 }
             }
-            .rotationEffect(.degrees(loadingRotation))
-            .opacity(isHidden ? 0 : 1)
+            
         }
         .task {
             while !Task.isCancelled {
@@ -71,9 +81,6 @@ struct LoadingView: View {
 
         try? await Task.sleep(for: .milliseconds(300))
         guard !Task.isCancelled else { return }
-//        withAnimation(.easeIn(duration: 0.35)) {
-//            isHidden = false
-//        }
         
         withAnimation(.easeIn(duration: 1.2)) {
             stage = 1

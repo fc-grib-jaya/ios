@@ -23,9 +23,6 @@ nonisolated struct FormPage: Identifiable, Hashable {
         ),
         FormPage(
             id: 2
-        ),
-        FormPage(
-            id: 3
-        ),
+        )
     ]
 }

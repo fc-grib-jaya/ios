@@ -58,6 +58,19 @@ struct AppButtonStyle: ButtonStyle {
                         if variant == .primary {
                             shape.strokeBorder(AppColor.Primitive.Primary.shade400, lineWidth: 0.5)
                                 .allowsHitTesting(false)
+                        } else if variant == .goldPrimary && !isPressed {
+                            shape.strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        AppColor.Primitive.Secondary.shade100,
+                                        AppColor.Primitive.Secondary.shade500
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                ),
+                                lineWidth: 2
+                            )
+                            .allowsHitTesting(false)
                         } else if variant == .goldSecondary && !isPressed {
                             shape.strokeBorder(
                                 AppColor.Primitive.Secondary.shade100,
@@ -70,6 +83,7 @@ struct AppButtonStyle: ButtonStyle {
             }
         }
         .opacity(isEnabled ? 1 : 0.45)
+        .glassEffect()
     }
 
     private func foregroundColor(isPressed: Bool) -> Color {

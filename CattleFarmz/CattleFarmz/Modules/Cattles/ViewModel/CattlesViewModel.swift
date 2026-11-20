@@ -94,8 +94,8 @@ final class CattlesViewModel {
     /// Subtitle describing the current list state.
     var listSubtitle: Text {
         hasNoVisibleCattle
-            ? Text("Kamu belum\n") + Text("menambahkan sapi.").bold()
-            : Text("Kamu memiliki\n") + Text("\(items.count) sapi terdaftar").bold()
+            ? Text("Kamu belum ").foregroundStyle(AppColor.Card.subtitle) + Text("menambahkan sapi").bold().foregroundStyle(AppColor.Primitive.Primary.shade600)
+            : Text("Kamu memiliki ").foregroundStyle(AppColor.Card.subtitle) + Text("\(items.count) sapi terdaftar").bold().foregroundStyle(AppColor.Primitive.Primary.shade600)
     }
 
     private let repository: any CattleRepository

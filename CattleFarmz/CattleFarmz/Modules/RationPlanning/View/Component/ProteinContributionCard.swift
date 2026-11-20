@@ -75,7 +75,7 @@ struct ProteinContributionCard: View {
     }
 
     private func mass(_ value: Double) -> String {
-        value.formatted(.number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(3)))
+        value.formatted(.number.locale(Locale(identifier: "id_ID")).precision(.fractionLength(2)))
     }
 
     private func detail(_ item: RationItem) -> String {

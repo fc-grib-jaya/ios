@@ -21,7 +21,7 @@ struct NutritionInfoView: View {
                         Text(feed.name)
                         // MARK: belum make AppFont
                             .font(.title.bold())
-                        Text(feed.category.rawValue)
+                        Text(feed.category.displayName)
                         // MARK: belum make AppFont
                             .font(.subheadline)
                     }
@@ -74,7 +74,7 @@ struct NutritionInfoView: View {
             Divider()
             
             nutrientRow(
-                nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "TDN",
+                nutrients.totalDigestibleNutrientsIsMinimum == true ? "TDN minimum" : "Energi (TDN)",
                 value: nutrients.totalDigestibleNutrientsPercent,
                 unit: "%"
             )

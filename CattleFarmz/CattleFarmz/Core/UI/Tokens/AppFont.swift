@@ -23,6 +23,7 @@ enum AppFont {
 
     /// Section or page title.
     static let title = Font.custom(Face.semibold, size: 22, relativeTo: .title2)
+    static let titleBase = Font.custom(Face.regular, size: 22, relativeTo: .title2)
 
     /// Emphasised labels and buttons.
     static let headline = Font.custom(Face.semibold, size: 17, relativeTo: .headline)
@@ -30,9 +31,12 @@ enum AppFont {
     /// Default body copy.
     static let body = Font.custom(Face.regular, size: 17, relativeTo: .body)
     static let mediumBody = Font.custom(Face.medium, size: 17, relativeTo: .body)
+    static let callout = Font.custom(Face.bold, size: 16, relativeTo: .callout)
 
     /// Supporting labels, for example a toast message.
     static let mediumSubheadline = Font.custom(Face.medium, size: 15, relativeTo: .subheadline)
+    static let subheadline = Font.custom(Face.bold, size: 15, relativeTo: .subheadline)
+    static let subheadlineBase = Font.custom(Face.regular, size: 15, relativeTo: .subheadline)
 
     /// Supporting and secondary copy.
     static let caption = Font.custom(Face.regular, size: 12, relativeTo: .caption)

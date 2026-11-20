@@ -217,9 +217,6 @@ struct FeedCatalogView: View {
             } label: {
                 VStack {
                     Image(systemName: "info.circle")
-            
-                    Text("Nutrisi")
-                        .font(AppFont.caption)
                 }
                 .foregroundStyle(AppColor.Primitive.Neutral.shade400)
             }
@@ -257,13 +254,13 @@ struct FeedCatalogView: View {
         return [
             feed.name,
             "Protein kasar: \(formatted(nutrients.crudeProteinPercent, unit: "%"))",
-            "TDN: \(nutrients.totalDigestibleNutrientsIsMinimum == true ? "Minimum " : "")\(formatted(nutrients.totalDigestibleNutrientsPercent, unit: "%"))",
+            "Eenergi (TDN): \(nutrients.totalDigestibleNutrientsIsMinimum == true ? "Minimum " : "")\(formatted(nutrients.totalDigestibleNutrientsPercent, unit: "%"))",
             "Kalsium: \(formatted(nutrients.calciumPercent, unit: "%"))",
             "Fosfor: \(formatted(nutrients.phosphorusPercent, unit: "%"))",
             "Magnesium: \(formatted(nutrients.magnesiumPercent, unit: "%"))",
-            "Besi: \(formatted(nutrients.ironPPM, unit: "ppm"))",
+            "Zat besi: \(formatted(nutrients.ironPPM, unit: "ppm"))",
             "Tembaga: \(formatted(nutrients.copperPPM, unit: "ppm"))",
-            "Seng: \(formatted(nutrients.zincPPM, unit: "ppm"))"
+            "Zinc: \(formatted(nutrients.zincPPM, unit: "ppm"))"
         ]
             .joined(separator: "\n")
     }

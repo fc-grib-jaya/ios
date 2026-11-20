@@ -12,20 +12,7 @@ struct RationReplacementCard: View {
             DisclosureGroup("Opsi pilihan perbaikan", isExpanded: $isExpanded) {
                 VStack(spacing: AppSpacing.sm) {
                     ForEach(viewModel.alternatives) { option in
-                        Button { viewModel.select(option) } label: {
-                            HStack(spacing: AppSpacing.sm) {
-                                Image(systemName: option.id == viewModel.selected.id ? "smallcircle.filled.circle.fill" : "circle.fill")
-                                    .foregroundStyle(option.id == viewModel.selected.id ? AppColor.Primitive.Primary.shade500 : AppColor.Primitive.Primary.shade200)
-                                Text(option.addedIngredient.name).font(AppFont.headline)
-                                Spacer(minLength: AppSpacing.xs)
-                                Text(option.addedIngredient.nutrients.totalDigestibleNutrientsPercent.map { "TDN " + evaluationNumber($0) + "%" } ?? "TDN —")
-                                    .foregroundStyle(AppColor.Text.secondary)
-                            }
-                            .frame(minHeight: 44)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityAddTraits(option.id == viewModel.selected.id ? .isSelected : [])
+                        optionRow(option, target: viewModel.focusTarget)
                     }
                 }
                 .padding(.top, AppSpacing.sm)
@@ -70,6 +57,30 @@ struct RationReplacementCard: View {
         }
         .evaluationCard()
     }
+    private func optionRow(_ option: RationRecommendation, target: RationRecommendationTarget) -> some View {
+        let isSelected = viewModel.selected.id == option.id
+        return Button { viewModel.select(option) } label: {
+            HStack(spacing: AppSpacing.sm) {
+                Image(systemName: isSelected ? "smallcircle.filled.circle.fill" : "circle.fill")
+                    .foregroundStyle(isSelected ? AppColor.Primitive.Primary.shade500 : AppColor.Primitive.Primary.shade200)
+                Text(viewModel.hasDifferentSources
+                     ? option.removedIngredient.name + " → " + option.addedIngredient.name
+                     : option.addedIngredient.name)
+                    .font(AppFont.headline)
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: AppSpacing.xs)
+                Text(target.value(in: option.addedIngredient.nutrients)
+                    .map { target.displayName + " " + evaluationNumber($0) + "%" }
+                    ?? (target.displayName + " —"))
+                    .foregroundStyle(AppColor.Text.secondary)
+            }
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+
 }
 
 #if DEBUG

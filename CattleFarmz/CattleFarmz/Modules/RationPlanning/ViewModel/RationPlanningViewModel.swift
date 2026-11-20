@@ -60,25 +60,35 @@ final class RationPlanningViewModel {
 
     private(set) var result: RationCalculationResult?
     var errorMessage: String?
-    private(set) var repairOptions: [RationRecommendation] = []
+    private(set) var repairGroups: [RationRecommendationGroup] = []
     private(set) var repairMessage: String?
+    
+    private(set) var missingAmountFeedIDs: Set<FeedIngredient.ID> = []
+
+    func hasMissingAmount(for feed: FeedIngredient) -> Bool {
+        missingAmountFeedIDs.contains(feed.id)
+    }
+
+    func clearAmountWarning(for id: FeedIngredient.ID) {
+        missingAmountFeedIDs.remove(id)
+    }
 
     func findRepairs(for snapshot: RationCalculationResult) {
         load()
-        repairOptions = []
+        repairGroups = []
         repairMessage = nil
         guard hasLoaded else {
             repairMessage = errorMessage
             return
         }
         do {
-            repairOptions = try RationRecommendationEngine(calculator: calculator)
-                .recommend(for: snapshot, catalog: feeds, season: RationSeason(date: .now))
-            if repairOptions.isEmpty {
+            repairGroups = try RationRecommendationEngine(calculator: calculator)
+                .recommendGroups(for: snapshot, catalog: feeds, season: RationSeason(date: .now))
+            if repairGroups.isEmpty {
                 let rows = NutrientComparison.rows(for: snapshot).prefix(2)
                 let complete = rows.allSatisfy { ($0.coverage ?? 0) >= 1 }
                 repairMessage = complete
-                    ? "Protein dan TDN sudah mencapai acuan."
+                    ? "Protein dan Energi (TDN) sudah mencapai acuan."
                     : "Belum ditemukan perbaikan dengan penggantian satu bahan dari katalog yang tersedia."
             }
         } catch {
@@ -89,13 +99,13 @@ final class RationPlanningViewModel {
     func makeRecommendationReview(for option: RationRecommendation) -> RationRecommendationViewModel {
         RationRecommendationViewModel(
             recommendation: option,
-            alternatives: repairOptions.filter { $0.removedIngredient.id == option.removedIngredient.id },
+            alternatives: repairGroups.first { $0.target == option.target }?.alternatives ?? [option],
             engine: RationRecommendationEngine(calculator: calculator)
         )
     }
 
     func clearRepairs() {
-        repairOptions = []
+        repairGroups = []
         repairMessage = nil
     }
 
@@ -118,7 +128,7 @@ final class RationPlanningViewModel {
     }
 
     var filteredFeeds: [FeedIngredient] {
-        feeds.filter { feed in
+        let filtered = feeds.filter { feed in
             let matchesCategory =
                 selectedCategory == nil
                 || feed.category == selectedCategory
@@ -133,6 +143,9 @@ final class RationPlanningViewModel {
 
             return matchesCategory && matchesSearch
         }
+
+        return filtered.filter { $0.category == .forage }
+            + filtered.filter { $0.category == .concentrate }
     }
 
     var selectedFeeds: [FeedIngredient] {
@@ -177,6 +190,7 @@ final class RationPlanningViewModel {
 
         if selectedFeedIDs.contains(feed.id) {
             selectedFeedIDs.remove(feed.id)
+            missingAmountFeedIDs.remove(feed.id)
         } else {
             selectedFeedIDs.insert(feed.id)
         }
@@ -186,22 +200,52 @@ final class RationPlanningViewModel {
 
     func removeFeed(_ feed: FeedIngredient) {
         selectedFeedIDs.remove(feed.id)
+        missingAmountFeedIDs.remove(feed.id)
         clearResult()
     }
 
     func amountText(for feed: FeedIngredient) -> String {
         amountTexts[feed.id] ?? ""
     }
+    
+    func limitedAmountText(_ text: String) -> String {
+        let normalized = text
+            .replacingOccurrences(of: ".", with: ",")
+            .filter { ("0"..."9").contains($0) || $0 == "," }
+
+        let parts = normalized.split(
+            separator: ",",
+            maxSplits: 1,
+            omittingEmptySubsequences: false
+        )
+
+        let integerPart = String((parts.first ?? "").prefix(3))
+
+        guard parts.count == 2 else {
+            return integerPart
+        }
+
+        let decimalPart = parts[1]
+            .filter { ("0"..."9").contains($0) }
+            .prefix(2)
+
+        return integerPart + "," + decimalPart
+    }
 
     func updateAmount(
         _ text: String,
         for feed: FeedIngredient
     ) {
-        amountTexts[feed.id] = text
+        let limited = limitedAmountText(text)
+        amountTexts[feed.id] = limited
+        if !limited.isEmpty {
+            missingAmountFeedIDs.remove(feed.id)
+        }
         clearResult()
     }
 
     func restore(_ saved: RationCalculationResult) {
+        missingAmountFeedIDs = []
         load()
         for item in saved.items where !feeds.contains(where: { $0.id == item.id }) {
             feeds.append(item.ingredient)
@@ -212,13 +256,37 @@ final class RationPlanningViewModel {
         animalCountText = String(saved.profile.animalCount)
         milkProductionText = String(saved.profile.dailyMilkProductionLiters)
         selectedFeedIDs = Set(saved.items.map { $0.id })
-        amountTexts = Dictionary(uniqueKeysWithValues: saved.items.map {
-            ($0.id, String($0.kilogramsPerAnimalPerDay))
-        })
+        amountTexts = Dictionary(
+            uniqueKeysWithValues: saved.items.map { item in
+                let text = item.kilogramsPerAnimalPerDay.formatted(
+                    .number
+                        .locale(Locale(identifier: "id_ID"))
+                        .grouping(.never)
+                        .precision(.fractionLength(0...2))
+                )
+
+                return (item.id, text)
+            }
+        )
     }
 
     func calculate() {
         clearResult()
+
+        missingAmountFeedIDs = Set(
+            selectedFeeds
+                .filter {
+                    amountText(for: $0)
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                        .isEmpty
+                }
+                .map(\.id)
+        )
+
+        guard missingAmountFeedIDs.isEmpty else {
+            errorMessage = "Isi jumlah setiap bahan pakan terlebih dahulu."
+            return
+        }
 
         do {
             var inputProfile = profile

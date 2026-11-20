@@ -54,6 +54,10 @@ public enum AppColor {
         public enum Base {
             public static let white = Color("Primitive/Base/White")
         }
+        
+        public enum Warning {
+            public static let warning = Color("Primitive/Warning/warning")
+        }
     }
 
     public enum Surface {

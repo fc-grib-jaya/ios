@@ -3,7 +3,9 @@ import SwiftUI
 struct FeedHomeEntry: Identifiable {
     let id: UUID
     let name: String
-    let details: String
+    let breed: String
+    let gender: String
+    let ageInMonths: Int
     let photo: Data?
     let updated: Date?
     let adg: Double?

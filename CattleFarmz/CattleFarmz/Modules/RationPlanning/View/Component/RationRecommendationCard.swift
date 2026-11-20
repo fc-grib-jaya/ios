@@ -4,10 +4,7 @@ struct RationRecommendationCard: View {
     let recommendation: RationRecommendation
     let onCompare: () -> Void
 
-    private var focusIndex: Int {
-        let tdn = NutrientComparison.rows(for: recommendation.before)[1]
-        return (tdn.coverage ?? 0) < 1 ? 1 : 0
-    }
+    private var focusIndex: Int { recommendation.focusTarget.comparisonIndex }
 
     private var before: NutrientComparison {
         NutrientComparison.rows(for: recommendation.before)[focusIndex]
@@ -38,7 +35,6 @@ struct RationRecommendationCard: View {
                 Spacer()
                 Text(percent(before.actual)).font(AppFont.headline)
                 Image(systemName: "arrow.right").foregroundStyle(AppColor.Text.secondary)
-                    .accessibilityLabel("Panah Kanan")
                 Text((after.actualIsMinimum ? "≥ " : "") + percent(after.actual)).font(AppFont.headline)
             }
             Divider()
@@ -46,7 +42,6 @@ struct RationRecommendationCard: View {
                 Text(recommendation.removedIngredient.name)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Image(systemName: "arrow.right").foregroundStyle(AppColor.Text.secondary)
-                    .accessibilityLabel("Panah Kanan")
                 Text(recommendation.addedIngredient.name)
                     .frame(maxWidth: .infinity, alignment: .trailing)
             }
@@ -54,8 +49,8 @@ struct RationRecommendationCard: View {
             HStack(alignment: .top) {
                 Text("Jumlah yang diganti")
                 Spacer()
-                Text(evaluationNumber(recommendation.replacedKilograms, digits: 6)
-                     + " kg dari " + evaluationNumber(sourceAmount, digits: 6) + " kg")
+                Text(evaluationNumber(recommendation.replacedKilograms, digits: 2)
+                     + " kg dari " + evaluationNumber(sourceAmount, digits: 2) + " kg")
                     .multilineTextAlignment(.trailing)
             }
             .font(AppFont.caption)
@@ -70,7 +65,7 @@ struct RationRecommendationCard: View {
                         in: RoundedRectangle(cornerRadius: AppRadius.small))
 
             if !recommendation.meetsTargets {
-                Text("Perbaikan sebagian · protein dan TDN belum keduanya mencapai acuan.")
+                Text("Perbaikan sebagian · Protein dan Energi (TDN) belum keduanya mencapai acuan.")
                     .font(AppFont.caption).foregroundStyle(AppColor.Text.secondary)
             }
             Button(action: onCompare) {
@@ -83,14 +78,14 @@ struct RationRecommendationCard: View {
                 .foregroundStyle(AppColor.Button.Primary.foreground)
                 .padding(AppSpacing.sm)
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .background(AppColor.Primitive.Secondary.shade400,
+                .background(AppColor.Primitive.Primary.shade400,
                             in: RoundedRectangle(cornerRadius: AppRadius.medium))
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
         }
         .padding(AppSpacing.Card.compact)
-        .background(AppColor.Primitive.Secondary.shade50,
+        .background(AppColor.Primitive.Primary.shade50,
                     in: RoundedRectangle(cornerRadius: AppRadius.large))
         .shadow(color: AppColor.Primitive.Neutral.shade950.opacity(0.08), radius: 5, y: 2)
     }

@@ -86,4 +86,33 @@ struct RationRecommendationViewModelTests {
         #expect(second.nutrients.totalDigestibleNutrientsPercent != first.nutrients.totalDigestibleNutrientsPercent)
         #expect(second.kilogramsPerAnimalPerDay == first.kilogramsPerAnimalPerDay)
     }
+    @Test func switchingSourceResetsPortionAndUsesItsOwnAvailableAmount() throws {
+        let originalVM = try makeViewModel()
+        let original = originalVM.selected
+        let otherSource = try #require(original.before.items.first { $0.id != original.removedIngredient.id })
+        let other = RationRecommendation(
+            removedIngredient: otherSource.ingredient,
+            addedIngredient: feed("another", protein: 20, tdn: 80),
+            replacedKilograms: 1.5, before: original.before, after: original.before, target: .protein
+        )
+        let engine = RationRecommendationEngine(calculator: ManualRationCalculator { _ in original.before.requirements })
+        let vm = RationRecommendationViewModel(recommendation: original, alternatives: [other], engine: engine)
+        vm.updatePortion("9")
+        vm.select(other)
+        #expect(vm.alternatives.count == 2)
+        #expect(vm.hasDifferentSources)
+        #expect(vm.focusTarget == .protein)
+        #expect(vm.sourceAmount == 2)
+        #expect(vm.portionText == "1,50")
+        let scenario = try #require(vm.scenario)
+        #expect(scenario.items.first { $0.id == "another" }?.kilogramsPerAnimalPerDay == 1.5)
+        #expect(scenario.items.first { $0.id == "odot" }?.kilogramsPerAnimalPerDay == 0.5)
+        #expect(scenario.kilogramsPerAnimalPerDay == original.before.kilogramsPerAnimalPerDay)
+        vm.updatePortion("2,01")
+        #expect(vm.scenario == nil)
+        vm.select(original)
+        #expect(vm.portionText == "4,00")
+        #expect(vm.sourceAmount == 10)
+    }
+
 }

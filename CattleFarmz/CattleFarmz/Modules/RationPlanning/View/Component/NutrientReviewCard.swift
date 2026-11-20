@@ -9,7 +9,7 @@ struct NutrientReviewCard: View {
     }
     
     private var hasDeficiency: Bool {
-        rows.contains { nutrient in
+        rows.prefix(2).contains { nutrient in
             guard let coverage = nutrient.coverage else {
                 return false
             }
@@ -53,10 +53,20 @@ struct NutrientReviewCard: View {
                 }
                 .foregroundStyle(AppColor.Button.Primary.foreground)
                 .padding(AppSpacing.Card.compact)
-                .padding(.bottom, AppSpacing.md)
+                .padding(.bottom, AppSpacing.xxl)
                 .frame(maxWidth: .infinity, minHeight: 64)
                 .contentShape(Rectangle())
             }
+            .background {
+                LinearGradient(
+                    colors: headerColors,
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
+            .clipShape(
+                RoundedRectangle(cornerRadius: AppRadius.large)
+            )
             .buttonStyle(.plain)
 
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
@@ -75,22 +85,13 @@ struct NutrientReviewCard: View {
             }
             .padding(AppSpacing.Card.compact)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                AppColor.Card.background,
-                in: RoundedRectangle(cornerRadius: AppRadius.large)
-            )
-            .padding(.top, -AppSpacing.md)
+            .background{
+                RoundedRectangle(cornerRadius: 16).fill(
+                    AppColor.Primitive.Base.white
+                ).shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+            }
+            .padding(.top, -AppSpacing.xxl)
         }
-        .background {
-            LinearGradient(
-                colors: headerColors,
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        }
-        .clipShape(
-            RoundedRectangle(cornerRadius: AppRadius.large)
-        )
     }
 }
 

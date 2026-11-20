@@ -5,58 +5,103 @@ struct FeedPlanCard: View {
     let onOpen: () -> Void
 
     var body: some View {
-        Button(action: onOpen) {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack(spacing: AppSpacing.md) {
-                    Group {
-                        if let data = entry.photo, let image = UIImage(data: data) {
-                            Image(uiImage: image).resizable().scaledToFill()
-                        } else {
-                            Image(systemName: "photo").foregroundStyle(AppColor.Text.secondary)
-                        }
-                    }
-                    .frame(width: AppSpacing.massive, height: AppSpacing.massive)
-                    .background(AppColor.Surface.inset)
-                    .clipShape(RoundedRectangle(cornerRadius: AppRadius.medium))
-                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                        Text(entry.name).font(AppFont.title)
-                        Text(entry.details).font(AppFont.body)
-                    }
-                    Spacer()
-                    if entry.updated != nil {
-                        Image(systemName: "chevron.right").foregroundStyle(AppColor.Text.secondary)
+        if entry.adg != nil {
+            Button(action: onOpen) {
+                cardContent
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+        } else {
+            cardContent
+        }
+    }
+
+    private var cardContent: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            HStack(spacing: AppSpacing.md) {
+                Group {
+                    if let data = entry.photo, let image = UIImage(data: data) {
+                        Image(uiImage: image).resizable().scaledToFill()
+                    } else {
+                        Image(systemName: "photo").foregroundStyle(AppColor.Text.secondary)
                     }
                 }
-                Divider()
-                HStack {
-                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                        Text("Target ADG").font(AppFont.mediumBody)
-                        Text(entry.updated.map { "Update: " + $0.formatted(.dateTime.locale(Locale(identifier: "id_ID")).day().month(.wide).year().hour().minute()) } ?? "Update: Belum ada update")
-                            .font(AppFont.caption).foregroundStyle(AppColor.Text.secondary)
+                .frame(width: AppSpacing.massive, height: AppSpacing.massive)
+                .background(AppColor.Surface.inset)
+                .clipShape(RoundedRectangle(cornerRadius: AppRadius.medium))
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text(entry.name).font(AppFont.title)
+                    HStack(spacing: 0){
+                        Text(entry.breed)
+                            .font(AppFont.subheadlineBase)
+                        Text(" • ")
+                            .font(.subheadline).bold()
+                        Text(entry.gender)
+                            .font(AppFont.subheadlineBase)
+                        Text(" • ")
+                            .font(.subheadline).bold()
+                        Text("\(entry.ageInMonths) bulan")
+                            .font(AppFont.subheadlineBase)
                     }
-                    Spacer()
-                    if let adg = entry.adg {
-                        HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
-                            Text(evaluationNumber(adg)).font(AppFont.largeTitle)
-                            Text("kg / hari").font(AppFont.body)
-                        }
-                    } else {
-                        Text("Atur Pakan").font(AppFont.headline)
-                            .padding(.horizontal, AppSpacing.lg).padding(.vertical, AppSpacing.sm)
-                            .foregroundStyle(AppColor.Button.Primary.foreground)
-                            .background(AppColor.Button.Primary.background, in: Capsule())
-                    }
+                }
+                Spacer()
+                if entry.updated != nil {
+                    Image(systemName: "chevron.right").foregroundStyle(AppColor.Text.secondary)
                 }
             }
-            .evaluationCard()
+            Divider()
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                    if entry.adg != nil {
+                        Text("Target kenaikan bobot").font(AppFont.mediumBody)
+                    }
+                    Text(entry.updated.map { date in
+                        let locale = Locale(identifier: "id_ID")
+                        let tanggal = date.formatted(.dateTime.locale(locale).day().month(.wide).year())
+                        let jam = date.formatted(.dateTime.locale(locale).hour().minute())
+                        return "Diperbarui: \(tanggal), \(jam)"
+                    } ?? "")
+                        .font(AppFont.caption).foregroundStyle(AppColor.Text.secondary)
+                }
+                Spacer()
+                if let adg = entry.adg {
+                    HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
+                        Text(evaluationNumber(adg)).font(AppFont.largeTitle)
+                        Text("kg / hari").font(AppFont.body)
+                    }
+                } else {
+                    Button(action: onOpen) {
+                        Text("Atur Pakan").font(AppFont.headline)
+                    }
+                    .appButtonStyle(.primary)
+                }
+            }
         }
-        .buttonStyle(.plain)
+        .evaluationCard()
     }
 
     #if DEBUG
     static let previewEntries = [
-        FeedHomeEntry(id: UUID(), name: "Sapi #00001", details: "Simmental · Jantan · 12 bulan", photo: nil, updated: .now, adg: 1.2),
-        FeedHomeEntry(id: UUID(), name: "Sapi #00002", details: "Bali · Betina · 10 bulan", photo: nil, updated: nil, adg: nil)
+        FeedHomeEntry(
+            id: UUID(),
+            name: "Sapi #00001",
+            breed: "Limousin",
+            gender: "jantan",
+            ageInMonths: 12,
+            photo: nil,
+            updated: .now,
+            adg: 1.2
+        ),
+        FeedHomeEntry(
+            id: UUID(),
+            name: "Sapi #00002",
+            breed: "Bali",
+            gender: "jantan",
+            ageInMonths: 12,
+            photo: nil,
+            updated: nil,
+            adg: nil
+        )
     ]
     #endif
 }

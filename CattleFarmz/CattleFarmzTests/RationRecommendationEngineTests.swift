@@ -160,4 +160,61 @@ struct RationRecommendationEngineTests {
             feed("warning-feed", protein: 18, tdn: 75, warning: true)
         ]).isEmpty)
     }
+    @Test func groupsEachDeficientNutrientBeforeLimitingAlternatives() throws {
+        let original = feed("grass", protein: 8, tdn: 50)
+        let before = try result([RationItem(ingredient: original, kilogramsPerAnimalPerDay: 10)])
+        let proteins = (1...4).map { feed("protein-\($0)", protein: Double(8 + $0), tdn: 50) }
+        let energies = (1...4).map { feed("energy-\($0)", protein: 8, tdn: Double(50 + $0)) }
+        let groups = try RationRecommendationEngine(calculator: calculator)
+            .recommendGroups(for: before, catalog: proteins + energies)
+        #expect(groups.map(\.target) == [.protein, .tdn])
+        for group in groups {
+            #expect(group.alternatives.count == 3)
+            #expect(Set(group.alternatives.map(\.id)).count == 3)
+            for option in group.alternatives {
+                #expect(option.target == group.target)
+                let start = try #require(group.target.value(in: option.before.nutrients))
+                let end = try #require(group.target.value(in: option.after.nutrients))
+                #expect(end > start)
+            }
+        }
+        let protein = try #require(groups.first { $0.target == .protein })
+        let tdn = try #require(groups.first { $0.target == .tdn })
+        #expect(protein.alternatives.allSatisfy { $0.addedIngredient.id.hasPrefix("protein-") })
+        #expect(tdn.alternatives.allSatisfy { $0.addedIngredient.id.hasPrefix("energy-") })
+    }
+
+    @Test func groupsKeepBothFeedCategoriesAndCanShareOneCompleteSolution() throws {
+        let grass = feed("grass", protein: 8, tdn: 50)
+        let concentrate = feed("concentrate", protein: 8, tdn: 50, category: .concentrate)
+        let before = try result([
+            RationItem(ingredient: grass, kilogramsPerAnimalPerDay: 20),
+            RationItem(ingredient: concentrate, kilogramsPerAnimalPerDay: 5)
+        ])
+        let groups = try RationRecommendationEngine(calculator: calculator).recommendGroups(
+            for: before,
+            catalog: [feed("better-grass", protein: 18, tdn: 75),
+                      feed("better-concentrate", protein: 18, tdn: 75, category: .concentrate)]
+        )
+        #expect(groups.count == 2)
+        for group in groups {
+            #expect(Set(group.alternatives.map { $0.removedIngredient.category }) == [.forage, .concentrate])
+            #expect(group.alternatives.allSatisfy { $0.removedIngredient.category == $0.addedIngredient.category })
+        }
+        #expect(groups[0].best?.id == groups[1].best?.id)
+        #expect(groups[0].best?.meetsTargets == true)
+    }
+
+    @Test func groupingSkipsSatisfiedTargetsAndDoesNotManufactureOptions() throws {
+        let grass = feed("grass", protein: 8, tdn: 65)
+        let before = try result([RationItem(ingredient: grass, kilogramsPerAnimalPerDay: 10)])
+        let engine = RationRecommendationEngine(calculator: calculator)
+        let groups = try engine.recommendGroups(for: before, catalog: [feed("better", protein: 18, tdn: 75)])
+        #expect(groups.map(\.target) == [.protein])
+        #expect(groups.first?.alternatives.count == 1)
+        let after = try #require(groups.first?.best?.after)
+        #expect(try engine.recommendGroups(for: after, catalog: [grass]).isEmpty)
+        #expect(try engine.recommendGroups(for: before, catalog: []).isEmpty)
+    }
+
 }

@@ -122,7 +122,7 @@ struct FeedCSVParser {
                   value("Kategori").lowercased() == "konsentrat" else {
                 throw ParseError.invalidRecord(offset + 2, "Invalid concentrate brand, variant or category.")
             }
-            let name = value("Merek") + " " + value("Varian") + " - PK " + value("PK (%)") + "%"
+            let name = "PK " + value("PK (%)") + "% - " + value("Merek") + " " + value("Varian")
             normalized.append([
                 name, value("Jenis Hewan"), value("Kategori"), value("PK (%)"),
                 value("TDN (%)"), "", "", "", "", "", "",

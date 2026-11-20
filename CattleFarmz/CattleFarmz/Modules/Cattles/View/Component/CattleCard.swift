@@ -54,7 +54,7 @@ struct CattleCard: View {
                 VStack(alignment: .leading) {
                     Text("Bobot")
                         .font(AppFont.body)
-                    Text("Diperbaharui: \(formatDate(updated))")
+                    Text("Diperbarui: \(formatDate(updated))")
                         .font(AppFont.caption)
                         .fontWeight(.thin)
                         .foregroundStyle(AppColor.Text.secondary)

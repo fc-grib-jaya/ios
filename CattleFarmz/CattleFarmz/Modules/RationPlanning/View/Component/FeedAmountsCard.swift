@@ -7,12 +7,12 @@
 
 import SwiftUI
 struct FeedAmountsCard: View {
-//    @FocusState private var focusedFeedID: String?
     
     var rationVM: RationPlanningViewModel
     var onTap: () -> Void
     
-    @FocusState private var focusedFeedID: FeedIngredient.ID?
+    @FocusState.Binding var focusedFeedID: FeedIngredient.ID?
+    @State private var amountDrafts: [FeedIngredient.ID: String] = [:]
     
     var body: some View {
         
@@ -35,15 +35,30 @@ struct FeedAmountsCard: View {
                             TextField(
                                 "0",
                                 text: Binding(
-                                    get: {rationVM.amountText(for: feed)},
-                                    set: {newValue in rationVM.updateAmount(newValue, for: feed)}
+                                    get: {
+                                        amountDrafts[feed.id]
+                                            ?? rationVM.amountText(for: feed)
+                                    },
+                                    set: {
+                                        amountDrafts[feed.id] = $0
+                                    }
                                 )
                             )
                             .font(AppFont.body)
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .focused($focusedFeedID, equals: feed.id)
-                            
+                            .onChange(of: amountDrafts[feed.id]) { _, newValue in
+                                guard let newValue else { return }
+
+                                let limited = rationVM.limitedAmountText(newValue)
+
+                                if newValue != limited {
+                                    amountDrafts[feed.id] = limited
+                                }
+
+                                rationVM.updateAmount(limited, for: feed)
+                            }
                             
                             Text("kg")
                             // MARK: belum pake AppFont
@@ -53,7 +68,10 @@ struct FeedAmountsCard: View {
                         .padding(AppSpacing.xs)
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(.systemGray4), lineWidth: 1)
+                                .stroke(
+                                    borderColor(for: feed),
+                                    lineWidth: 1
+                                )
                         )
                         .fixedSize(horizontal: true, vertical: false)
                         .contentShape(Rectangle())
@@ -62,6 +80,9 @@ struct FeedAmountsCard: View {
                         }
                         
                         Button {
+                            if focusedFeedID == feed.id {
+                                focusedFeedID = nil
+                            }
                             rationVM.removeFeed(feed)
                         } label: {
                             Image(systemName: "trash.fill")
@@ -97,6 +118,10 @@ struct FeedAmountsCard: View {
                 AppColor.Card.background)
                 .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
         )
+        .onChange(of: focusedFeedID) { _, newID in
+            guard let newID else { return }
+            rationVM.clearAmountWarning(for: newID)
+        }
         .gesture(
             TapGesture()
                 .onEnded {
@@ -105,28 +130,41 @@ struct FeedAmountsCard: View {
             including: .gesture
         )
     }
+    
+    private func borderColor(for feed: FeedIngredient) -> Color {
+        if focusedFeedID == feed.id {
+            return AppColor.Primitive.Primary.shade400
+        }
+
+        if rationVM.hasMissingAmount(for: feed) {
+            return AppColor.Primitive.Warning.warning
+        }
+
+        return Color(.systemGray4)
+    }
 }
 
+#if DEBUG
+private struct FeedAmountsCardPreview: View {
+    let viewModel: RationPlanningViewModel
+    @FocusState private var focusedFeedID: FeedIngredient.ID?
 
-//#Preview {
-//    FeedAmountsCard(
-//        rationVM: RationPlanningViewModel(
-//            feedProvider: {
-//                let text = try BundledFeedCSVReader().read()
-//                let ingredients = try FeedCSVParser().parse(text)
-//
-//                return Array(ingredients.prefix(3))
-//            },
-//            calculator: ManualRationCalculator { profile in
-//                CattleNutritionDefaults.requirements(
-//                    for: profile.productionType,
-//                    stage: profile.stage
-//                )
-//            }
-//        ),
-//        onTap: {}
-//    )
-//}
+    var body: some View {
+        VStack(spacing: AppSpacing.md) {
+            FeedAmountsCard(
+                rationVM: viewModel,
+                onTap: {},
+                focusedFeedID: $focusedFeedID
+            )
+            Button("Evaluasi pakan") {
+                focusedFeedID = nil
+                viewModel.calculate()
+            }
+            .appButtonStyle(.primary)
+        }
+        .padding(AppSpacing.md)
+    }
+}
 
 #Preview {
     let viewModel = RationPlanningViewModel(
@@ -142,10 +180,7 @@ struct FeedAmountsCard: View {
         }
     )
     
-    FeedAmountsCard(
-        rationVM: viewModel,
-        onTap: {}
-    )
+    FeedAmountsCardPreview(viewModel: viewModel)
     .task {
         viewModel.load()
         
@@ -154,7 +189,8 @@ struct FeedAmountsCard: View {
                 viewModel.toggleFeed(feed)
             }
             
-            viewModel.updateAmount("10", for: feed)
         }
     }
 }
+
+#endif

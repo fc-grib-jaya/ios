@@ -22,7 +22,11 @@ struct OnboardingFeedPlanView: View {
     private let cardWidth: CGFloat = 300
 
     /// Card names, frontmost first. A discarded card is moved to the back.
-    @State private var deck = ["3-1", "3-2", "3-3"]
+    @State private var deck = [
+        "Image/Onboarding/3-1",
+        "Image/Onboarding/3-2",
+        "Image/Onboarding/3-3",
+    ]
     /// The card currently animating out through the bottom.
     @State private var discarding: String?
     /// The card winding up (lifted slightly) right before its discard.

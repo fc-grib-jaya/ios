@@ -78,7 +78,7 @@ struct OnboardingNutritionPlanningView: View {
     /// and `extraOffsetX` adds a horizontal shift as a fraction of its size.
     private let imageConfigs: [CornerImageConfig] = [
         CornerImageConfig(
-            name: "2-1",
+            name: "Image/Onboarding/2-1",
             x: 1,
             y: 1,
             rotation: .degrees(-30),
@@ -86,15 +86,20 @@ struct OnboardingNutritionPlanningView: View {
             extraOffsetX: 0.12
         ),
         CornerImageConfig(
-            name: "2-2",
+            name: "Image/Onboarding/2-2",
             x: 1,
             y: -1,
             scale: 1.6,
             extraOffsetX: -0.08
         ),
-        CornerImageConfig(name: "2-3", x: -1, y: 1, scale: 2.5),
         CornerImageConfig(
-            name: "2-4",
+            name: "Image/Onboarding/2-3",
+            x: -1,
+            y: 1,
+            scale: 2.5
+        ),
+        CornerImageConfig(
+            name: "Image/Onboarding/2-4",
             x: -1,
             y: -1,
             rotation: .degrees(90),

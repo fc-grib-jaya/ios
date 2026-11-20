@@ -3,8 +3,8 @@
 //  CattleFarmz
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 import UIKit
 
 /// Main tab interface: Home, Scan, and History.
@@ -30,7 +30,9 @@ struct MainTabView: View {
         self.container = container
         _coordinator = Bindable(wrappedValue: coordinator)
         // One shared instance so the home list and the add-cattle form stay in sync.
-        _cattlesViewModel = State(initialValue: container.makeCattlesViewModel())
+        _cattlesViewModel = State(
+            initialValue: container.makeCattlesViewModel()
+        )
     }
 
     var body: some View {
@@ -54,7 +56,8 @@ struct MainTabView: View {
                         coordinator.goToCattleDetail(cattleID: cattleID)
                     },
                     onAddCattleTap: {
-                        coordinator.showAddCattle() }
+                        coordinator.showAddCattle()
+                    }
                 )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
@@ -71,16 +74,29 @@ struct MainTabView: View {
                         CattlesDetailView(
                             cattleID: id,
                             viewModel: cattlesViewModel,
-                            onOpenRation: { openPlan($0, plan: $homePlan, path: $coordinator.path) },
+                            onOpenRation: {
+                                openPlan(
+                                    $0,
+                                    plan: $homePlan,
+                                    path: $coordinator.path
+                                )
+                            },
                             onEditTap: { cattle in
-                                coordinator.showEditCattle(cattleID: cattle.id.uuidString)
+                                coordinator.showEditCattle(
+                                    cattleID: cattle.id.uuidString
+                                )
                             },
                             onDeleteTap: { _ in
                                 coordinator.path.removeAll()
                             }
                         )
-                    case .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
-                        planDestination(route, plan: $homePlan, path: $coordinator.path)
+                    case .rationForm, .rationAnalysis, .rationAnalysisDetail,
+                        .rationRecommendation:
+                        planDestination(
+                            route,
+                            plan: $homePlan,
+                            path: $coordinator.path
+                        )
                     case .addCattle:
                         FormView(
                             onScanSession: { onFinish in
@@ -109,7 +125,9 @@ struct MainTabView: View {
                             CattleFormView(
                                 cattle: cattle,
                                 onScanSession: { onFinish in
-                                    coordinator.showScanSession(onFinish: onFinish)
+                                    coordinator.showScanSession(
+                                        onFinish: onFinish
+                                    )
                                 },
                                 viewModel: container.makeCattleFormViewModel(),
                                 onSave: { values in
@@ -120,12 +138,17 @@ struct MainTabView: View {
                                         throw NSError(
                                             domain: "CattleForm",
                                             code: 1,
-                                            userInfo: [NSLocalizedDescriptionKey: error]
+                                            userInfo: [
+                                                NSLocalizedDescriptionKey: error
+                                            ]
                                         )
                                     }
                                 },
                                 isNameTaken: {
-                                    cattlesViewModel.isNameTaken($0, excluding: cattle.id)
+                                    cattlesViewModel.isNameTaken(
+                                        $0,
+                                        excluding: cattle.id
+                                    )
                                 }
                             )
                         } else {
@@ -144,30 +167,45 @@ struct MainTabView: View {
             .tabItem {
                 Label("Beranda", systemImage: "house")
             }
-            
+
             NavigationStack(path: $coordinator.rationPath) {
-                FeedHomeView(entries: cattle.map { cow in
-                    FeedHomeEntry(
-                        id: cow.id,
-                        name: cow.name,
-                        breed: cow.breed.rawValue,
-                        gender: cow.gender.rawValue,
-                        ageInMonths: cow.currentAge,
-                        photo: cow.cattleImage,
-                        updated: cow.rationUpdatedAt,
-                        adg: cow.rationTargetADG
-                    )
-                }, onOpen: { openPlan($0, plan: $feedPlan, path: $coordinator.rationPath) })
+                FeedHomeView(
+                    entries: cattle.map { cow in
+                        FeedHomeEntry(
+                            id: cow.id,
+                            name: cow.name,
+                            breed: cow.breed.rawValue,
+                            gender: cow.gender.rawValue,
+                            ageInMonths: cow.currentAge,
+                            photo: cow.cattleImage,
+                            updated: cow.rationUpdatedAt,
+                            adg: cow.rationTargetADG
+                        )
+                    },
+                    onOpen: {
+                        openPlan(
+                            $0,
+                            plan: $feedPlan,
+                            path: $coordinator.rationPath
+                        )
+                    }
+                )
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
-                    case .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
-                        planDestination(route, plan: $feedPlan, path: $coordinator.rationPath)
+                    case .rationForm, .rationAnalysis, .rationAnalysisDetail,
+                        .rationRecommendation:
+                        planDestination(
+                            route,
+                            plan: $feedPlan,
+                            path: $coordinator.rationPath
+                        )
                     default: EmptyView()
                     }
                 }
             }
             .toolbarVisibility(
-                shouldHideTabBar(for: coordinator.rationPath) ? .hidden : .automatic,
+                shouldHideTabBar(for: coordinator.rationPath)
+                    ? .hidden : .automatic,
                 for: .tabBar
             )
             .tabItem {
@@ -193,9 +231,17 @@ struct MainTabView: View {
             }
         }
         .toast(manager: container.toastManager)
-        .alert("Pakan", isPresented: Binding(get: { saveError != nil }, set: { if !$0 { saveError = nil } })) {
+        .alert(
+            "Pakan",
+            isPresented: Binding(
+                get: { saveError != nil },
+                set: { if !$0 { saveError = nil } }
+            )
+        ) {
             Button("Tutup") { saveError = nil }
-        } message: { Text(saveError ?? "") }
+        } message: {
+            Text(saveError ?? "")
+        }
         .sheet(item: $coordinator.sheet) { sheet in
             switch sheet {
             case .examplePickerSheet(let current, let onSelect):
@@ -207,7 +253,9 @@ struct MainTabView: View {
                 )
             case .guestLoginSheet(let onDone):
                 GuestLoginSheetView(
-                    viewModel: container.makeGuestLoginSheetViewModel(onDone: onDone)
+                    viewModel: container.makeGuestLoginSheetViewModel(
+                        onDone: onDone
+                    )
                 )
             }
         }
@@ -226,12 +274,16 @@ struct MainTabView: View {
             )
         ) {
             Button("Buka Pengaturan") {
-                guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
+                guard let url = URL(string: UIApplication.openSettingsURLString)
+                else { return }
                 UIApplication.shared.open(url)
             }
             Button("Kembali", role: .cancel) {}
         } message: {
-            Text(coordinator.scanErrorMessage ?? "Perangkat ini tidak mendukung pemindaian LiDAR.")
+            Text(
+                coordinator.scanErrorMessage
+                    ?? "Perangkat ini tidak mendukung pemindaian LiDAR."
+            )
         }
         .tint(AppColor.Primitive.Primary.shade400)
     }
@@ -240,7 +292,8 @@ struct MainTabView: View {
         guard let route = path.last else { return false }
 
         switch route {
-        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm, .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
+        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm,
+            .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
             return true
         default:
             return false
@@ -249,7 +302,9 @@ struct MainTabView: View {
 
     /// Builds the edit-profile destination; pops the given path after a
     /// successful save.
-    private func profileEditDestination(path: Binding<[AppRoute]>) -> ProfileEditView {
+    private func profileEditDestination(path: Binding<[AppRoute]>)
+        -> ProfileEditView
+    {
         ProfileEditView(
             viewModel: container.makeProfileEditViewModel(
                 onSaved: {
@@ -260,11 +315,16 @@ struct MainTabView: View {
     }
 
     private func cattleDetails(_ cow: Cattle) -> String {
-        let breedText = Text(cow.breed.rawValue).font(AppFont.body)
-        let genderText = Text(cow.gender.rawValue).font(AppFont.body)
-        let ageText = Text("\(cow.currentAge) bulan").font(AppFont.body)
-        let separator = Text(" • ").font(.caption)
-
+//        let breedText = Text().font(AppFont.body)
+//        let genderText = Text(cow.gender.rawValue).font(AppFont.body)
+//        let ageText = Text("\(cow.currentAge) bulan").font(AppFont.body)
+//        let separator = Text(" • ").font(.caption)
+        
+        let breedText = cow.breed.rawValue
+        let genderText = cow.gender.rawValue
+        let ageText = "\(cow.currentAge) bulan"
+        let separator = " • "
+        
         return "\(breedText)\(separator)\(genderText)\(separator)\(ageText)"
     }
 
@@ -290,7 +350,8 @@ struct MainTabView: View {
                 vm.restore(result)
                 savedResult = result
             } catch {
-                saveError = "Susunan tersimpan gagal dibaca. "
+                saveError =
+                    "Susunan tersimpan gagal dibaca. "
                     + error.localizedDescription
                 return
             }
@@ -303,9 +364,9 @@ struct MainTabView: View {
                     : cow.currentAge <= 12 ? .growing : .adult
             )
 
-            vm.bodyWeightText = (
-                cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)
-            ).map { String($0) } ?? ""
+            vm.bodyWeightText =
+                (cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)).map
+            { String($0) } ?? ""
 
             if let reference = ADGReferenceEngine.reference(
                 breedName: cow.breed.rawValue,
@@ -330,7 +391,11 @@ struct MainTabView: View {
     }
 
     @ViewBuilder
-    private func planDestination(_ route: AppRoute, plan: Binding<Plan?>, path: Binding<[AppRoute]>) -> some View {
+    private func planDestination(
+        _ route: AppRoute,
+        plan: Binding<Plan?>,
+        path: Binding<[AppRoute]>
+    ) -> some View {
         if let current = plan.wrappedValue {
             switch route {
             case .rationForm:
@@ -361,7 +426,8 @@ struct MainTabView: View {
                             }
                             : nil,
                         onEdit: {
-                            guard path.wrappedValue.last == .rationAnalysis else {
+                            guard path.wrappedValue.last == .rationAnalysis
+                            else {
                                 return
                             }
 
@@ -369,7 +435,8 @@ struct MainTabView: View {
                         },
                         rationVM: current.viewModel,
                         onReviewRecommendation: { option in
-                            plan.wrappedValue?.recommendationReview = current.viewModel.makeRecommendationReview(for: option)
+                            plan.wrappedValue?.recommendationReview = current
+                                .viewModel.makeRecommendationReview(for: option)
                             path.wrappedValue.append(.rationRecommendation)
                         }
                     )
@@ -379,13 +446,16 @@ struct MainTabView: View {
                     RationRecommendationView(viewModel: review) { updated in
                         current.viewModel.restore(updated)
                         plan.wrappedValue?.result = updated
-                        
+
                         container.toastManager.show("Susunan pakan diperbarui")
                     }
                 }
             case .rationAnalysisDetail:
                 if let result = current.result {
-                    DetailAnalysisView(result: result, cattleName: current.cattle.name)
+                    DetailAnalysisView(
+                        result: result,
+                        cattleName: current.cattle.name
+                    )
                 }
             default:
                 EmptyView()
@@ -398,10 +468,11 @@ struct MainTabView: View {
         for cow: Cattle
     ) -> Bool {
         guard let data = cow.savedRation,
-              let saved = try? JSONDecoder().decode(
-                  RationCalculationResult.self,
-                  from: data
-              ) else {
+            let saved = try? JSONDecoder().decode(
+                RationCalculationResult.self,
+                from: data
+            )
+        else {
             return true
         }
 
@@ -409,22 +480,29 @@ struct MainTabView: View {
             || result.items.sorted { $0.id < $1.id }
                 != saved.items.sorted { $0.id < $1.id }
     }
-    
-    private func savePlan(_ result: RationCalculationResult, for cow: Cattle, path: Binding<[AppRoute]>) {
-        let previous = (cow.savedRation, cow.rationUpdatedAt, cow.rationTargetADG)
+
+    private func savePlan(
+        _ result: RationCalculationResult,
+        for cow: Cattle,
+        path: Binding<[AppRoute]>
+    ) {
+        let previous = (
+            cow.savedRation, cow.rationUpdatedAt, cow.rationTargetADG
+        )
         do {
             cow.savedRation = try JSONEncoder().encode(result)
             cow.rationUpdatedAt = .now
             cow.rationTargetADG = result.profile.targetDailyWeightGainKilograms
             try context.save()
-            
+
             container.toastManager.show("Pakan berhasil disimpan")
-            
+
             if let index = path.wrappedValue.lastIndex(of: .rationForm) {
                 path.wrappedValue.removeSubrange(index...)
             }
         } catch {
-            (cow.savedRation, cow.rationUpdatedAt, cow.rationTargetADG) = previous
+            (cow.savedRation, cow.rationUpdatedAt, cow.rationTargetADG) =
+                previous
             saveError = "Pakan gagal disimpan. " + error.localizedDescription
         }
     }

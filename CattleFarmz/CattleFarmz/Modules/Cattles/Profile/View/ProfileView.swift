@@ -101,7 +101,7 @@ private struct AboutSheetView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.xl) {
                     VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                        Text("CattleFarmz")
+                        Text("Lemoo")
                             .font(AppFont.title)
                             .foregroundStyle(AppColor.Text.primary)
                         Text(

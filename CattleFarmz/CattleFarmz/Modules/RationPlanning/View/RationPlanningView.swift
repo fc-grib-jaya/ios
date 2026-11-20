@@ -92,19 +92,7 @@ struct RationPlanningView: View {
                             y: 2
                         )
                 }
-                //
-                //                Button {
-                //                    focusedFeedID = nil
-                //                    rationVM.calculate()
-                //                    if let result = rationVM.result {
-                //                        onShowAnalysis(result)
-                //                    }
-                //                } label: {
-                //                    Text("Evaluasi pakan")
-                //                }
-                //                .appButtonStyle(.primary)
-                //                .disabled(rationVM.selectedFeeds.isEmpty)
-                //
+                
                 if let error = rationVM.errorMessage {
                     Text(error)
                         .font(AppFont.caption)

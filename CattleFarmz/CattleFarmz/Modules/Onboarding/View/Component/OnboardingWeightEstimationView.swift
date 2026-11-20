@@ -50,7 +50,7 @@ struct OnboardingWeightEstimationView: View {
     /// The image card with the LiDAR label. Content, clip mask, and glass
     /// shape all share the same rotation so they stay aligned.
     private var frontCard: some View {
-        Image("1-1")
+        Image("Image/Onboarding/1-1")
             .resizable()
             .scaledToFill()
             .frame(width: cardSize, height: cardSize)

@@ -59,13 +59,11 @@ struct ADGCard: View {
                 .foregroundStyle(AppColor.Text.primary)
             
             Text(cattleDetails)
-//                .font(AppFont.body)
                 .font(.subheadline)
                 .foregroundStyle(AppColor.Text.primary)
             
             HStack(alignment: .firstTextBaseline) {
                 Text("Estimasi bobot")
-//                    .font(AppFont.body)
                     .font(.subheadline)
                     .italic()
                     .foregroundStyle(AppColor.Primitive.Neutral.shade400)

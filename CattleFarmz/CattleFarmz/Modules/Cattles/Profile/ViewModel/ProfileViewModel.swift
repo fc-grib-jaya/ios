@@ -5,6 +5,7 @@
 
 import Foundation
 import Observation
+import UIKit
 
 /// Backing model for the profile screen.
 @Observable
@@ -14,6 +15,7 @@ final class ProfileViewModel {
     private(set) var name: String = "Tamu"
     /// Farm name shown as the subtitle; empty when not set.
     private(set) var farmName: String = ""
+    private(set) var profileImage: UIImage?
 
     private let repository: any UserProfileRepository
 
@@ -28,5 +30,6 @@ final class ProfileViewModel {
         let profile = try? repository.profile()
         name = profile?.name ?? "Tamu"
         farmName = profile?.farmName ?? ""
+        profileImage = profile?.profileImage.flatMap(UIImage.init(data:))
     }
 }

@@ -21,7 +21,7 @@ struct CattlesCarcassView: View {
         ScrollView {
             if let cattle {
                 let bodyWeight =
-                    cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
+                    viewModel.cattleWeight(for: cattle)
 
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
                     

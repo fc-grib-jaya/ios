@@ -75,6 +75,12 @@ final class Cattle {
     var rationTargetADG: Double?
 
     var notes: String?
+    
+    @Relationship(
+        deleteRule: .cascade,
+        inverse: \CattleWeightProgress.cattle
+    )
+    var weightProgress: [CattleWeightProgress] = []
 
     init(
         id: UUID = UUID(),
@@ -102,3 +108,4 @@ final class Cattle {
         self.notes = notes
     }
 }
+

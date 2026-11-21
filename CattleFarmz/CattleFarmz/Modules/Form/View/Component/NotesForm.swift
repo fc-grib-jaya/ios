@@ -55,10 +55,6 @@ struct NotesForm: View {
                 .padding(.horizontal, AppSpacing.lg)
         }
         .padding(.horizontal, AppSpacing.md)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            focusedField = nil
-        }
     }
 }
 

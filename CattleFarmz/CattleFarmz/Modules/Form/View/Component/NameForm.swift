@@ -54,10 +54,6 @@ struct NameForm: View {
                 .padding(.horizontal, AppSpacing.huge)
         }
         .padding(.horizontal, AppSpacing.md)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            focusedField = nil
-        }
     }
 }
 

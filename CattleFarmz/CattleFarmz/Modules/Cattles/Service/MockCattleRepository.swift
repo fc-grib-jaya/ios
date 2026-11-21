@@ -30,20 +30,20 @@ final class MockCattleRepository: CattleRepository {
         cattleImage: Data?,
         notes: String?
     ) throws {
-        items.append(
-            Cattle(
-                name: name,
-                dateAcquired: dateAcquired,
-                breed: breed,
-                gender: gender,
-                recordedAge: recordedAge,
-                chestGirth: chestGirth,
-                bodyLength: bodyLength,
-                bodyWeight: bodyWeight,
-                cattleImage: cattleImage,
-                notes: notes
-            )
+        let cattle = Cattle(
+            name: name,
+            dateAcquired: dateAcquired,
+            breed: breed,
+            gender: gender,
+            recordedAge: recordedAge,
+            chestGirth: chestGirth,
+            bodyLength: bodyLength,
+            bodyWeight: bodyWeight,
+            cattleImage: cattleImage,
+            notes: notes
         )
+        CattleWeightProgressViewModel.createInitialProgress(for: cattle)
+        items.append(cattle)
     }
 
     func delete(_ cattle: Cattle) throws {
@@ -67,12 +67,16 @@ final class MockCattleRepository: CattleRepository {
               recordedAge >= 0,
               chestGirth == nil || (chestGirth?.isFinite == true && chestGirth! > 0),
               bodyLength == nil || (bodyLength?.isFinite == true && bodyLength! > 0),
-              bodyWeight == nil || (bodyWeight?.isFinite == true && bodyWeight! > 0),
+              bodyWeight == nil || (bodyWeight?.isFinite == true && bodyWeight! > 0 && bodyWeight! <= 9_999),
               let cattle = items.first(where: { $0.id == cattleID })
         else {
             throw CattleRepositoryError.invalidMeasurement
         }
 
+        try CattleWeightProgressViewModel.recordEditedProgress(
+            for: cattle, bodyWeight: bodyWeight, chestGirth: chestGirth,
+            bodyLength: bodyLength, breed: breed, gender: gender
+        )
         cattle.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         cattle.dateAcquired = dateAcquired
         cattle.breed = breed
@@ -80,7 +84,6 @@ final class MockCattleRepository: CattleRepository {
         cattle.recordedAge = recordedAge
         cattle.chestGirth = chestGirth
         cattle.bodyLength = bodyLength
-        cattle.bodyWeight = bodyWeight
         cattle.cattleImage = cattleImage
         cattle.notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -100,6 +103,9 @@ final class MockCattleRepository: CattleRepository {
             throw CattleRepositoryError.cattleNotFound
         }
 
+        try CattleWeightProgressViewModel.recordMeasurement(
+            for: cattle, chestGirth: chestGirth, bodyLength: bodyLength
+        )
         cattle.chestGirth = chestGirth
         cattle.bodyLength = bodyLength
     }
@@ -113,7 +119,7 @@ final class MockCattleRepository: CattleRepository {
             throw CattleRepositoryError.cattleNotFound
         }
 
-        cattle.bodyWeight = bodyWeight
+        try CattleWeightProgressViewModel.recordProgress(for: cattle, weight: bodyWeight)
     }
 
     func updateNotes(for cattleID: UUID, notes: String) throws {

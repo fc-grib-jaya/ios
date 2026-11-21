@@ -16,6 +16,7 @@ struct CattlesWeightForm: View {
     @Binding var jenisSapi: CattleBreed?
     @Binding var genderSapi: CattleGender?
     let isActive: Bool
+    var offersScanPhoto: Bool = true
 
     let onScanSession: (@escaping (ScanResult?) -> Void) -> Void
 
@@ -108,11 +109,6 @@ struct CattlesWeightForm: View {
                 )
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            focusedField = nil
-            dismissKeyboard()
-        }
         .onChange(of: isActive) { _, isActive in
             if !isActive {
                 focusedField = nil
@@ -173,15 +169,6 @@ struct CattlesWeightForm: View {
         }
     }
 
-    private func dismissKeyboard() {
-        UIApplication.shared.sendAction(
-            #selector(UIResponder.resignFirstResponder),
-            to: nil,
-            from: nil,
-            for: nil
-        )
-    }
-
     private func startScan() {
         focusedField = nil
 
@@ -206,7 +193,7 @@ struct CattlesWeightForm: View {
         chestGirth = normalizedResult.girth ?? 0
         bodyLength = normalizedResult.lengthCM
         recalculateWeight()
-        pendingScanPhoto = cattlePhoto == nil ? croppedImage : nil
+        pendingScanPhoto = offersScanPhoto && cattlePhoto == nil ? croppedImage : nil
         isAskingToUseScanPhoto = false
 
         // The LiDAR cover is dismissed after the scan callback. Delay the alert

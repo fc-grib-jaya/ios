@@ -14,6 +14,7 @@ struct ThirdPageForm: View {
     @Binding var jenisSapi: CattleBreed?
     @Binding var genderSapi: CattleGender?
     let isActive: Bool
+    var offersScanPhoto: Bool = true
     let onScanSession: (@escaping (ScanResult?) -> Void) -> Void
 
     var body: some View {
@@ -41,6 +42,7 @@ struct ThirdPageForm: View {
                     jenisSapi: $jenisSapi,
                     genderSapi: $genderSapi,
                     isActive: isActive,
+                    offersScanPhoto: offersScanPhoto,
                     onScanSession: onScanSession
                 )
             }

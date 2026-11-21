@@ -22,66 +22,82 @@ struct ProfileEditView: View {
         // Local bindable wrapper so form fields can bind with `$`.
         @Bindable var viewModel = viewModel
 
-        return ScrollView {
-            VStack(spacing: AppSpacing.lg) {
-                // Profile picture with a picker affordance.
-                Button {
-                    isPickerPresented = true
-                } label: {
-                    avatarImage
-                        .overlay(alignment: .bottomTrailing) {
-                            Image(systemName: "pencil.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 32, height: 32)
-                                .foregroundStyle(
-                                    AppColor.Button.Primary.background,
-                                    AppColor.Primitive.Base.white
-                                )
-                        }
-                }
-                .buttonStyle(.plain)
-
-                editField(
-                    title: "Nama",
-                    placeholder: "Tuliskan Nama",
-                    text: $viewModel.name
+        return ZStack {
+            GeometryReader { geometry in
+                LinearGradient(
+                    colors: [
+                        AppColor.Primitive.Secondary.shade100,
+                        AppColor.Surface.canvas,
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
                 )
-
-                editField(
-                    title: "Nama Peternakan",
-                    placeholder: "Tuliskan Nama Peternakan",
-                    text: $viewModel.farmName
-                )
-
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(AppFont.caption)
-                        .foregroundStyle(Color.red)
-                }
-
-                Button {
-                    viewModel.save()
-                } label: {
-                    if viewModel.isSaving {
-                        ProgressView()
-                            .tint(AppColor.Button.Primary.foreground)
-                    } else {
-                        Text("Simpan")
-                    }
-                }
-                .appButtonStyle(.primary)
-                .disabled(viewModel.isSaving)
+                .frame(height: geometry.size.height * 0.3)
+                .frame(maxHeight: .infinity, alignment: .top)
             }
-            .padding(AppSpacing.md)
+            .background(AppColor.Surface.canvas)
+            .ignoresSafeArea()
+            ScrollView {
+                VStack(spacing: AppSpacing.lg) {
+                    // Profile picture with a picker affordance.
+                    Button {
+                        isPickerPresented = true
+                    } label: {
+                        avatarImage
+                            .overlay(alignment: .bottomTrailing) {
+                                Image(systemName: "pencil.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 32, height: 32)
+                                    .foregroundStyle(
+                                        AppColor.Button.Primary.background,
+                                        AppColor.Primitive.Base.white
+                                    )
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    
+                    editField(
+                        title: "Nama",
+                        placeholder: "Tuliskan Nama",
+                        text: $viewModel.name
+                    )
+                    
+                    editField(
+                        title: "Nama Peternakan",
+                        placeholder: "Tuliskan Nama Peternakan",
+                        text: $viewModel.farmName
+                    )
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .font(AppFont.caption)
+                            .foregroundStyle(Color.red)
+                    }
+                    
+                    Button {
+                        viewModel.save()
+                    } label: {
+                        if viewModel.isSaving {
+                            ProgressView()
+                                .tint(AppColor.Button.Primary.foreground)
+                        } else {
+                            Text("Simpan")
+                        }
+                    }
+                    .appButtonStyle(.primary)
+                    .disabled(viewModel.isSaving)
+                }
+                .padding(AppSpacing.md)
+            }
+            .navigationTitle("Ubah Profil")
+            .navigationBarTitleDisplayMode(.inline)
+            .photosPicker(
+                isPresented: $isPickerPresented,
+                selection: $viewModel.pickerItem,
+                matching: .images
+            )
         }
-        .navigationTitle("Ubah Profil")
-        .navigationBarTitleDisplayMode(.inline)
-        .photosPicker(
-            isPresented: $isPickerPresented,
-            selection: $viewModel.pickerItem,
-            matching: .images
-        )
     }
 
     @ViewBuilder
@@ -118,7 +134,7 @@ struct ProfileEditView: View {
                 .padding(AppSpacing.md)
                 .background(
                     RoundedRectangle(cornerRadius: 23)
-                        .fill(AppColor.Input.background)
+                        .fill(AppColor.Primitive.Neutral.shade100)
                 )
         }
     }

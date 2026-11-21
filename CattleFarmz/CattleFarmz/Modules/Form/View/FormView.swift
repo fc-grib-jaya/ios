@@ -102,10 +102,6 @@ struct FormView: View {
             .padding(.bottom, AppSpacing.xl)
         }
         .background(KeyboardDismissOverlay())
-        .contentShape(Rectangle())
-        .onTapGesture {
-            dismissKeyboard()
-        }
         .onChange(of: viewModel.index) { _, _ in
             dismissKeyboard()
         }
@@ -206,40 +202,50 @@ private struct KeyboardDismissOverlay: UIViewRepresentable {
         Coordinator()
     }
 
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-
-        DispatchQueue.main.async {
-            context.coordinator.install(in: view.window)
-        }
-
+    func makeUIView(context: Context) -> WindowObserverView {
+        let view = WindowObserverView(frame: .zero)
+        view.isUserInteractionEnabled = false
+        view.coordinator = context.coordinator
+        context.coordinator.formView = view
         return view
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
+    func updateUIView(_ uiView: WindowObserverView, context: Context) {
         context.coordinator.install(in: uiView.window)
     }
 
-    static func dismantleUIView(_ uiView: UIView, coordinator: Coordinator) {
+    static func dismantleUIView(_ uiView: WindowObserverView, coordinator: Coordinator) {
+        uiView.coordinator = nil
         coordinator.remove()
     }
 
+    final class WindowObserverView: UIView {
+        weak var coordinator: Coordinator?
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            // Install only once the form actually belongs to a window.
+            coordinator?.install(in: window)
+        }
+    }
+
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        weak var formView: UIView?
         private weak var window: UIWindow?
         private weak var gestureRecognizer: UITapGestureRecognizer?
 
         func install(in window: UIWindow?) {
-            guard let window, self.window !== window else {
-                return
-            }
-
+            guard self.window !== window else { return }
             remove()
+            guard let window else { return }
 
             let gestureRecognizer = UITapGestureRecognizer(
                 target: self,
                 action: #selector(dismissKeyboard)
             )
             gestureRecognizer.cancelsTouchesInView = false
+            gestureRecognizer.delaysTouchesBegan = false
+            gestureRecognizer.delaysTouchesEnded = false
             gestureRecognizer.delegate = self
 
             window.addGestureRecognizer(gestureRecognizer)
@@ -270,6 +276,14 @@ private struct KeyboardDismissOverlay: UIViewRepresentable {
             _ gestureRecognizer: UIGestureRecognizer,
             shouldReceive touch: UITouch
         ) -> Bool {
+            // Observe only taps inside the form, not the keyboard or other screens.
+            guard let formView,
+                formView.window != nil,
+                formView.bounds.contains(touch.location(in: formView))
+            else {
+                return false
+            }
+
             var view = touch.view
 
             while let currentView = view {
@@ -281,6 +295,14 @@ private struct KeyboardDismissOverlay: UIViewRepresentable {
             }
 
             return true
+        }
+
+        func gestureRecognizer(
+            _ gestureRecognizer: UIGestureRecognizer,
+            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+        ) -> Bool {
+            // Dismissal must not prevent buttons, child tap gestures, or scrolling.
+            true
         }
     }
 }

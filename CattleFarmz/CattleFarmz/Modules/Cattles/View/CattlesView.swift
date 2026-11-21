@@ -22,7 +22,7 @@ struct CattlesView: View {
     var body: some View {
         LazyVStack(alignment: .leading, spacing: AppSpacing.md) {
             ForEach(viewModel.filteredItems) { cattle in
-                let bodyWeight = cattle.bodyWeight ?? viewModel.cattleWeight(for: cattle)
+                let bodyWeight = viewModel.cattleWeight(for: cattle)
                 let image = cattle.cattleImage.flatMap { UIImage(data: $0) }
                 Button {
                     onCardTap(cattle.id.uuidString)

@@ -89,7 +89,7 @@ struct CattleFormView: View {
         _jenisCattle = State(initialValue: cattle?.breed)
         _genderCattle = State(initialValue: cattle?.gender)
         _umurCattle = State(initialValue: cattle?.recordedAge)
-        _bobotCattle = State(initialValue: cattle?.bodyWeight)
+        _bobotCattle = State(initialValue: cattle.flatMap { CattleWeightProgressViewModel.currentWeight(for: $0) })
         let existingImageData = cattle?.cattleImage.flatMap(UIImage.init(data:))
         let existingImage = existingImageData.flatMap { image in
             image.cattleSquareCropped() ?? image

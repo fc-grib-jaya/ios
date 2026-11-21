@@ -34,26 +34,26 @@ final class SwiftDataCattleRepository: CattleRepository {
         cattleImage: Data?,
         notes: String?
     ) throws {
-        context.insert(
-            Cattle(
-                name: name,
-                dateAcquired: dateAcquired,
-                breed: breed,
-                gender: gender,
-                recordedAge: recordedAge,
-                chestGirth: chestGirth,
-                bodyLength: bodyLength,
-                bodyWeight: bodyWeight,
-                cattleImage: cattleImage,
-                notes: notes
-            )
+        let cattle = Cattle(
+            name: name,
+            dateAcquired: dateAcquired,
+            breed: breed,
+            gender: gender,
+            recordedAge: recordedAge,
+            chestGirth: chestGirth,
+            bodyLength: bodyLength,
+            bodyWeight: bodyWeight,
+            cattleImage: cattleImage,
+            notes: notes
         )
-        try context.save()
+        CattleWeightProgressViewModel.createInitialProgress(for: cattle)
+        context.insert(cattle)
+        try saveChanges()
     }
 
     func delete(_ cattle: Cattle) throws {
         context.delete(cattle)
-        try context.save()
+        try saveChanges()
     }
     
     func update(
@@ -73,12 +73,16 @@ final class SwiftDataCattleRepository: CattleRepository {
               recordedAge >= 0,
               chestGirth == nil || (chestGirth?.isFinite == true && chestGirth! > 0),
               bodyLength == nil || (bodyLength?.isFinite == true && bodyLength! > 0),
-              bodyWeight == nil || (bodyWeight?.isFinite == true && bodyWeight! > 0)
+              bodyWeight == nil || (bodyWeight?.isFinite == true && bodyWeight! > 0 && bodyWeight! <= 9_999)
         else {
             throw CattleRepositoryError.invalidMeasurement
         }
 
         let cattle = try findCattle(for: cattleID)
+        try CattleWeightProgressViewModel.recordEditedProgress(
+            for: cattle, bodyWeight: bodyWeight, chestGirth: chestGirth,
+            bodyLength: bodyLength, breed: breed, gender: gender
+        )
         cattle.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         cattle.dateAcquired = dateAcquired
         cattle.breed = breed
@@ -86,10 +90,18 @@ final class SwiftDataCattleRepository: CattleRepository {
         cattle.recordedAge = recordedAge
         cattle.chestGirth = chestGirth
         cattle.bodyLength = bodyLength
-        cattle.bodyWeight = bodyWeight
         cattle.cattleImage = cattleImage
         cattle.notes = notes?.trimmingCharacters(in: .whitespacesAndNewlines)
-        try context.save()
+        try saveChanges()
+    }
+
+    private func saveChanges() throws {
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 
     private func findCattle(for cattleID: UUID) throws -> Cattle {
@@ -115,10 +127,12 @@ final class SwiftDataCattleRepository: CattleRepository {
         
         let cattle = try findCattle(for: cattleID)
         
+        try CattleWeightProgressViewModel.recordMeasurement(
+            for: cattle, chestGirth: chestGirth, bodyLength: bodyLength
+        )
         cattle.chestGirth = chestGirth
         cattle.bodyLength = bodyLength
-        
-        try context.save()
+        try saveChanges()
     }
     
     func updateWeight(for cattleID: UUID, bodyWeight: Double) throws {
@@ -128,9 +142,8 @@ final class SwiftDataCattleRepository: CattleRepository {
 
         let cattle = try findCattle(for: cattleID)
 
-        cattle.bodyWeight = bodyWeight
-        
-        try context.save()
+        try CattleWeightProgressViewModel.recordProgress(for: cattle, weight: bodyWeight)
+        try saveChanges()
     }
     
     func updateNotes(for cattleID: UUID, notes: String) throws {
@@ -138,6 +151,6 @@ final class SwiftDataCattleRepository: CattleRepository {
 
         cattle.notes = notes
         
-        try context.save()
+        try saveChanges()
     }
 }

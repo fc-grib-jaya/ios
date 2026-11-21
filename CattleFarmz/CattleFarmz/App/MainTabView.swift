@@ -88,6 +88,9 @@ struct MainTabView: View {
                             },
                             onDeleteTap: { _ in
                                 coordinator.path.removeAll()
+                            },
+                            onMeasureTap: { cattle in
+                                coordinator.showWeightMeasurement(cattleID: cattle.id.uuidString)
                             }
                         )
                     case .rationForm, .rationAnalysis, .rationAnalysisDetail,
@@ -118,6 +121,23 @@ struct MainTabView: View {
                             )
                         }
                         .navigationBarBackButtonHidden(true)
+                    case .measureCattleWeight(let id):
+                        if let cattle = cattlesViewModel.items.first(where: { $0.id.uuidString == id }) {
+                            WeightMeasurementView(
+                                viewModel: CattleWeightProgressViewModel(cattle: cattle, modelContext: context),
+                                onScanSession: { onFinish in
+                                    coordinator.showScanSession(onFinish: onFinish)
+                                },
+                                onSaved: {
+                                    container.toastManager.show("Pengukuran bobot berhasil disimpan")
+                                }
+                            )
+                        } else {
+                            ContentUnavailableView(
+                                "Sapi Tidak Ditemukan",
+                                systemImage: "exclamationmark.triangle"
+                            )
+                        }
                     case .editCattle(let id):
                         if let cattle = cattlesViewModel.items.first(
                             where: { $0.id.uuidString == id }
@@ -226,6 +246,11 @@ struct MainTabView: View {
                     }
                 }
             }
+            .toolbarVisibility(
+                shouldHideTabBar(for: coordinator.profilePath)
+                    ? .hidden : .automatic,
+                for: .tabBar
+            )
             .tabItem {
                 Label("Profil", systemImage: "person")
             }
@@ -292,7 +317,7 @@ struct MainTabView: View {
         guard let route = path.last else { return false }
 
         switch route {
-        case .addCattle, .editCattle, .editProfile, .cattleDetail, .rationForm,
+        case .addCattle, .editCattle, .measureCattleWeight, .editProfile, .cattleDetail, .rationForm,
             .rationAnalysis, .rationAnalysisDetail, .rationRecommendation:
             return true
         default:
@@ -365,7 +390,7 @@ struct MainTabView: View {
             )
 
             vm.bodyWeightText =
-                (cow.bodyWeight ?? cattlesViewModel.cattleWeight(for: cow)).map
+                (cattlesViewModel.cattleWeight(for: cow)).map
             { String($0) } ?? ""
 
             if let reference = ADGReferenceEngine.reference(

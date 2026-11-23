@@ -31,7 +31,7 @@ struct ProgressCard: View {
                 
                 if let secondLast {
                     Text(
-                        "\(sign)\(difference) kg dari pengukuran sebelumnya di \(formattedDate(kapan: secondLast))"
+                        "\(sign)\(difference) kg dari pengukuran sebelumnya"
                     )
                     .font(AppFont.caption).fontWeight(.semibold)
                 } else {
@@ -40,7 +40,7 @@ struct ProgressCard: View {
                 }
                 
                 Text("Estimasi bobot terakhir \(formattedDate(kapan: lastUpdate))")
-                    .font(AppFont.body)
+                    .font(AppFont.subheadline)
             }
             
             ProgressChart(records: records)

@@ -209,20 +209,7 @@ final class CattlesViewModel {
     }
 
     func cattleWeight(for cattle: Cattle) -> Double? {
-        if let bodyWeight = cattle.bodyWeight {
-            return bodyWeight
-        }
-
-        guard let chestGirth = cattle.chestGirth else {
-            return nil
-        }
-
-        return calculation.cattleWeight(
-            chestGirth: chestGirth,
-            bodyLength: cattle.bodyLength,
-            breed: cattle.breed,
-            gender: cattle.gender
-        )
+        CattleWeightProgressViewModel.currentWeight(for: cattle, calculation: calculation)
     }
 
     func carcassWeight(
@@ -262,7 +249,7 @@ final class CattlesViewModel {
     /// Computes the weight breakdown for a cattle on the fly.
     /// Non-carcass weight is the sum over all `NonCarcassPart` cases.
     func weightBreakdown(for cattle: Cattle) -> CattleWeightBreakdown {
-        guard let bodyWeight = cattle.bodyWeight ?? cattleWeight(for: cattle)
+        guard let bodyWeight = cattleWeight(for: cattle)
         else {
             return CattleWeightBreakdown(
                 bodyWeight: nil,

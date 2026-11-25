@@ -5,27 +5,32 @@
 
 import SwiftUI
 import UIKit
+import SwiftData
 
 struct CattlesDetailView: View {
     @State private var viewModel: CattlesViewModel
+    @Environment(\.modelContext) private var modelContext
     @State private var detailView = 0
     private let cattleID: UUID?
     private let onOpenRation: (UUID) -> Void
     private let onEditTap: (Cattle) -> Void
     private let onDeleteTap: (Cattle) -> Void
+    private let onMeasureTap: (Cattle) -> Void
 
     init(
         cattleID: String,
         viewModel: CattlesViewModel,
         onOpenRation: @escaping (UUID) -> Void,
         onEditTap: @escaping (Cattle) -> Void,
-        onDeleteTap: @escaping (Cattle) -> Void
+        onDeleteTap: @escaping (Cattle) -> Void,
+        onMeasureTap: @escaping (Cattle) -> Void = { _ in }
     ) {
         self.cattleID = UUID(uuidString: cattleID)
         _viewModel = State(initialValue: viewModel)
         self.onOpenRation = onOpenRation
         self.onEditTap = onEditTap
         self.onDeleteTap = onDeleteTap
+        self.onMeasureTap = onMeasureTap
 
     }
 
@@ -41,10 +46,12 @@ struct CattlesDetailView: View {
         ScrollView {
             if let cattle = currentCattle {
                 let breakdown = viewModel.weightBreakdown(for: cattle)
-                
+                let weightViewModel = CattleWeightProgressViewModel(cattle: cattle, modelContext: modelContext)
+
                 VStack(alignment: .leading, spacing: AppSpacing.md) {
                     if let imageData = cattle.cattleImage,
-                       let image = UIImage(data: imageData) {
+                        let image = UIImage(data: imageData)
+                    {
                         Image(uiImage: image)
                             .resizable()
                             .scaledToFill()
@@ -58,34 +65,39 @@ struct CattlesDetailView: View {
                                 .resizable()
                                 .frame(width: 60, height: 50)
                         }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 180)
-                            .background(AppColor.Surface.inset)
-                            .clipShape(RoundedRectangle(cornerRadius: AppRadius.medium))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 180)
+                        .background(AppColor.Surface.inset)
+                        .clipShape(
+                            RoundedRectangle(cornerRadius: AppRadius.medium)
+                        )
                     }
-                    
+
                     CattlesDetailCard(
                         name: cattle.name,
                         breed: cattle.breed,
                         gender: cattle.gender,
                         age: cattle.currentAge,
                         weight: breakdown.bodyWeight,
-                        updatedDate: cattle.dateAcquired,
+                        updatedDate: weightViewModel.lastMeasuredAt,
                         chestGirth: cattle.chestGirth,
                         bodyLength: cattle.bodyLength,
                         notes: cattle.notes
                     )
-                    
+
                     AppSegmentedControl(
                         "Bagian detail sapi",
-                        options: [0, 1],
+                        options: [0, 1, 2],
                         selection: $detailView
                     ) { option in
-                        Text(option == 0 ? "Karkas" : "Pakan")
+                        Text(
+                            option == 0
+                                ? "Karkas" : option == 1 ? "Progres" : "Pakan"
+                        )
                     }
                     .padding(.vertical, AppSpacing.xs)
-                    
-                    if detailView == 1 {
+
+                    if detailView == 2 {
                         if cattle.savedRation != nil {
                             FeedPlanCard(
                                 entry: FeedHomeEntry(
@@ -107,13 +119,28 @@ struct CattlesDetailView: View {
                                 onOpenRation(cattle.id)
                             }
                         }
+                    } else if detailView == 1 {
+                        WeightProgressView(
+                            progress: weightViewModel.progressComparison,
+                            weight: weightViewModel.currentWeight ?? 0,
+                            sign: weightViewModel.progressComparison == "turun"
+                                ? "-"
+                                : "+",
+                            difference: weightViewModel.progressDifference,
+                            secondLast: weightViewModel.secondLastMeasuredAt ?? nil,
+                            lastUpdate: weightViewModel.lastMeasuredAt,
+                            records: weightViewModel.progress,
+                            onMeasureTap: { onMeasureTap(cattle) }
+                        )
                     } else {
                         CarcassView(breakdown: breakdown, breed: cattle.breed)
                     }
 
-                    Text("Terakhir disimpan: \(formatDate(cattle.dateAcquired))")
-                        .font(AppFont.caption)
-                        .foregroundStyle(AppColor.Primitive.Neutral.shade500)
+                    Text(
+                        "Terakhir disimpan: \(formatDate(cattle.dateAcquired))"
+                    )
+                    .font(AppFont.caption)
+                    .foregroundStyle(AppColor.Primitive.Neutral.shade500)
                 }
                 .padding(AppSpacing.md)
             } else {

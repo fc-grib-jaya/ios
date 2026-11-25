@@ -89,6 +89,12 @@ final class AppCoordinator {
         path.append(.editCattle(id: cattleID))
     }
 
+    func showWeightMeasurement(cattleID: String) {
+        let route = AppRoute.measureCattleWeight(id: cattleID)
+        guard path.last != route else { return }
+        path.append(route)
+    }
+
     func dismissSheet() {
         sheet = nil
     }
